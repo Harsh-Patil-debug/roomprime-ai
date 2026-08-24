@@ -119,7 +119,7 @@ export function SupervisorView() {
                   </p>
                 </div>
                 <Select
-                  value={room.assignedStaff ?? undefined}
+                  value={room.assignedStaff ?? ""}
                   onValueChange={(v) => {
                     assignRoom(room.id, v);
                     toast.success(`Room ${room.number} assigned to ${v}`);
