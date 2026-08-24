@@ -62,8 +62,9 @@ export function CleanSyncProvider({ children }: { children: ReactNode }) {
       let i = 0;
       const assignments = new Map<string, string>();
       queue.forEach((room) => {
-        const person = [...active].sort((a, b) => a.workload - b.workload)[i % active.length];
-        assignments.set(room.id, person.name);
+        const sorted = [...active].sort((a, b) => a.workload - b.workload);
+        const person = sorted[i % sorted.length];
+        if (person) assignments.set(room.id, person.name);
         i += 1;
       });
       setRooms((prev) =>
