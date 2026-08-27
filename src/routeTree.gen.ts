@@ -10,53 +10,33 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ConciergeRouteImport } from './routes/concierge'
-import { Route as StaffCheckinRouteImport } from './routes/staff/checkin'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConciergeRoute = ConciergeRouteImport.update({
-  id: '/concierge',
-  path: '/concierge',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StaffCheckinRoute = StaffCheckinRouteImport.update({
-  id: '/staff/checkin',
-  path: '/staff/checkin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/concierge': typeof ConciergeRoute
-  '/staff/checkin': typeof StaffCheckinRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/concierge': typeof ConciergeRoute
-  '/staff/checkin': typeof StaffCheckinRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/concierge': typeof ConciergeRoute
-  '/staff/checkin': typeof StaffCheckinRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/concierge' | '/staff/checkin'
+  fullPaths: '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/concierge' | '/staff/checkin'
-  id: '__root__' | '/' | '/concierge' | '/staff/checkin'
+  to: '/'
+  id: '__root__' | '/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ConciergeRoute: typeof ConciergeRoute
-  StaffCheckinRoute: typeof StaffCheckinRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,27 +48,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/concierge': {
-      id: '/concierge'
-      path: '/concierge'
-      fullPath: '/concierge'
-      preLoaderRoute: typeof ConciergeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/staff/checkin': {
-      id: '/staff/checkin'
-      path: '/staff/checkin'
-      fullPath: '/staff/checkin'
-      preLoaderRoute: typeof StaffCheckinRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ConciergeRoute: ConciergeRoute,
-  StaffCheckinRoute: StaffCheckinRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
