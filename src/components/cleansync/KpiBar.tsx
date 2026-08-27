@@ -1,6 +1,6 @@
 import { Activity, Clock, Crown, Gauge } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useCleanSync } from "./store";
+import { useRoomFlow } from "./store";
 
 function Kpi({
   icon: Icon,
@@ -33,7 +33,7 @@ function Kpi({
 }
 
 export function KpiBar() {
-  const { kpis } = useCleanSync();
+  const { kpis } = useRoomFlow();
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Kpi
