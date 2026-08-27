@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Camera, CheckCircle2, Crown, Play, Timer, ClipboardCheck, Sparkles } from "lucide-react";
+import { Camera, CheckCircle2, Crown, Play, Timer, ClipboardCheck, Sparkles, AlertCircle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,21 +7,29 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { CHECKLIST_STEPS, statusStyles } from "@/lib/cleansync-data";
-import { useCleanSync } from "./store";
+import { useRoomFlow, STAFF_PHONES } from "./store";
 
 export function HousekeeperView() {
-  const { rooms, staff, setRoomStatus } = useCleanSync();
-  const me = staff[0]!;
+  const { rooms, staff, setRoomStatus, simulateIncomingWhatsApp } = useRoomFlow();
+  const me = staff[0]!; // Ana Duarte
+  const myPhone = STAFF_PHONES[me.name] || "+15551010001";
+  
   const myRoom =
     rooms.find((r) => r.assignedStaff === me.name && r.status === "Cleaning in Progress") ??
     rooms.find((r) => r.assignedStaff === me.name && r.status !== "Ready for Guest") ??
     rooms[0]!;
   const upNext = rooms.filter((r) => r.assignedStaff === me.name && r.id !== myRoom.id).slice(0, 3);
 
-  const [running, setRunning] = useState(false);
+  const [running, setRunning] = useState(myRoom.status === "Cleaning in Progress");
   const [seconds, setSeconds] = useState(0);
   const [done, setDone] = useState<string[]>([]);
   const [scanned, setScanned] = useState(false);
+  const [lastScanResult, setLastScanResult] = useState<string>("");
+
+  useEffect(() => {
+    // Keep running in sync with room status
+    setRunning(myRoom.status === "Cleaning in Progress");
+  }, [myRoom.status]);
 
   useEffect(() => {
     if (!running) return;
@@ -32,12 +40,31 @@ export function HousekeeperView() {
   const mmss = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const pct = Math.round((done.length / CHECKLIST_STEPS.length) * 100);
 
+  const handleSimulatePhoto = (type: "clean" | "dirty_bed" | "dirty_trash") => {
+    setScanned(true);
+    let label = "";
+    if (type === "clean") {
+      label = "PASS (Pristine Room)";
+      toast.success("Simulating WhatsApp Photo Upload: Clean Room");
+    } else if (type === "dirty_bed") {
+      label = "FLAGGED (Rumpled Bed)";
+      toast.warning("Simulating WhatsApp Photo Upload: Rumpled Bed");
+    } else {
+      label = "FLAGGED (Trash on Floor)";
+      toast.warning("Simulating WhatsApp Photo Upload: Trash Left");
+    }
+    setLastScanResult(label);
+    
+    // Simulate WhatsApp Message
+    simulateIncomingWhatsApp(myPhone, `Housekeeper uploaded ${type} photo`, true, type);
+  };
+
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-sm space-y-4 rounded-[2rem] border border-border bg-card p-4 exec-shadow">
         <div className="flex items-center justify-between px-1">
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Housekeeper</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Housekeeper Mobile</p>
             <p className="font-display text-lg font-semibold">{me.name}</p>
           </div>
           <Badge className="bg-ready/15 text-ready hover:bg-ready/15">
@@ -67,7 +94,14 @@ export function HousekeeperView() {
             </span>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg bg-card px-3 py-2">
+          {myRoom.priorityReason && (
+            <div className="mt-1 flex items-start gap-1.5 rounded-md bg-amber-500/10 p-2 text-xs text-amber-500 dark:bg-amber-500/5">
+              <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+              <span>{myRoom.priorityReason}</span>
+            </div>
+          )}
+
+          <div className="mt-2 flex items-center justify-between rounded-lg bg-card px-3 py-2">
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Timer className="size-4" /> Elapsed
             </span>
@@ -95,29 +129,40 @@ export function HousekeeperView() {
           </div>
         </Card>
 
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => {
-            setScanned(true);
-            toast.success("AI cleanliness scan complete", {
-              description: "Bed Made: PASS · Amenities: PASS · Trash Empty: PASS",
-            });
-          }}
-        >
-          <Camera /> Capture room photo for AI check
-        </Button>
+        {myRoom.status === "Cleaning in Progress" && (
+          <div className="space-y-2 rounded-xl border bg-surface/50 p-3">
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <Camera className="size-3.5" /> MOCK WHATSAPP TURN PHOTO
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <Button size="sm" variant="outline" className="h-16 flex-col text-[10px] p-1 text-center" onClick={() => handleSimulatePhoto("clean")}>
+                <span className="text-ready font-semibold">Pristine</span>
+                <span className="text-muted-foreground">Ready</span>
+              </Button>
+              <Button size="sm" variant="outline" className="h-16 flex-col text-[10px] p-1 text-center" onClick={() => handleSimulatePhoto("dirty_bed")}>
+                <span className="text-urgent font-semibold">Rumpled Bed</span>
+                <span className="text-muted-foreground">Flagged</span>
+              </Button>
+              <Button size="sm" variant="outline" className="h-16 flex-col text-[10px] p-1 text-center" onClick={() => handleSimulatePhoto("dirty_trash")}>
+                <span className="text-urgent font-semibold">Debris Left</span>
+                <span className="text-muted-foreground">Flagged</span>
+              </Button>
+            </div>
+          </div>
+        )}
 
         {scanned && (
           <div className="space-y-1.5 rounded-lg border border-ready/40 bg-ready/10 p-3 text-xs">
-            {["Bed Made", "Amenities", "Trash Empty"].map((c) => (
-              <div key={c} className="flex items-center justify-between">
-                <span>{c}</span>
-                <span className="flex items-center gap-1 font-medium text-ready">
-                  <CheckCircle2 className="size-3.5" /> PASS
-                </span>
-              </div>
-            ))}
+            <div className="flex justify-between font-semibold border-b pb-1 mb-1">
+              <span>Visual AI QA Result:</span>
+              <span className={lastScanResult.includes("PASS") ? "text-ready" : "text-urgent"}>
+                {lastScanResult}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-muted-foreground">
+              <span>Photo sent to webhook</span>
+              <Badge variant="outline" className="text-[10px] size-auto py-0">WhatsApp Simulator</Badge>
+            </div>
           </div>
         )}
 
@@ -127,6 +172,7 @@ export function HousekeeperView() {
             onClick={() => {
               setRunning(true);
               setRoomStatus(myRoom.id, "Cleaning in Progress");
+              simulateIncomingWhatsApp(myPhone, `START ${myRoom.number}`);
               toast.success(`Started cleaning room ${myRoom.number}`);
             }}
           >
