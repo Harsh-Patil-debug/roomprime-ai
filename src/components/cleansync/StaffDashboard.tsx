@@ -1,6 +1,3 @@
-// Refined UI Pass: Converted 190+ hardcoded color references to semantic design tokens.
-// Enhanced mobile tap targets, card surfaces, and dark mode contrast.
-
 import { useState, useEffect, useMemo } from "react";
 import { useRoomFlow, STAFF_PHONES } from "./store";
 import {
@@ -42,9 +39,9 @@ import {
 
 const requestStatusStyles: Record<RequestStatus, string> = {
   Open: "bg-dirty/10 text-dirty/80 border-dirty/20",
-  "In Progress": "bg-primary/10 text-primary border-primary/20",
-  Completed: "bg-ready/10 text-ready border-ready/20",
-  Escalated: "bg-destructive/10 text-destructive border-destructive/20 animate-pulse font-semibold",
+  "In Progress": "bg-[#B5652F]/10 text-[#B5652F] border-[#B5652F]/20",
+  Completed: "bg-[#8A9A6B]/10 text-[#8A9A6B] border-[#8A9A6B]/20",
+  Escalated: "bg-[#B14A3E]/10 text-[#B14A3E] border-[#B14A3E]/20 animate-pulse font-semibold",
 };
 
 export function StaffDashboard() {
@@ -269,18 +266,18 @@ export function StaffDashboard() {
     <div className="space-y-6">
       
       {/* 1. FLUID RESPONSIVE HEADER BAR */}
-      <Card className="p-4 bg-card border border-border shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+      <Card className="p-4 bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
         
         {/* Profile and Switcher Info */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <div className="flex items-center gap-2">
-            <span className="size-9 rounded-xl bg-primary/10 flex items-center justify-center font-bold text-sm text-primary uppercase">
+            <span className="size-9 rounded-xl bg-[#B5652F]/10 flex items-center justify-center font-bold text-sm text-[#B5652F] uppercase">
               {activeWorker.name.split(" ").map((n) => n[0]).join("")}
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-foreground">{activeWorker.name}</span>
-                <Badge className="bg-ready/15 text-ready border border-ready/20 text-[10px] py-0 px-2 font-sans font-medium hover:none">
+                <span className="font-display font-bold text-[#2A2620] dark:text-[#F5F1E8]">{activeWorker.name}</span>
+                <Badge className="bg-[#8A9A6B]/15 text-[#8A9A6B] border border-[#8A9A6B]/20 text-[10px] py-0 px-2 font-sans font-medium hover:none">
                   {selectedDept}
                 </Badge>
               </div>
@@ -288,9 +285,9 @@ export function StaffDashboard() {
             </div>
           </div>
 
-          <div className="flex gap-1.5 ml-2 border-l pl-4 border-border">
+          <div className="flex gap-1.5 ml-2 border-l pl-4 border-[#DDD3BE] dark:border-[#3D362C]">
             <Select value={selectedDept} onValueChange={(v) => setSelectedDept(v as Department)}>
-              <SelectTrigger className="w-[140px] h-8 text-xs bg-transparent border-border">
+              <SelectTrigger className="w-[140px] h-8 text-xs bg-transparent border-[#DDD3BE] dark:border-[#3D362C]">
                 <SelectValue placeholder="Department" />
               </SelectTrigger>
               <SelectContent>
@@ -302,7 +299,7 @@ export function StaffDashboard() {
             </Select>
 
             <Select value={selectedStaffName} onValueChange={setSelectedStaffName}>
-              <SelectTrigger className="w-[150px] h-8 text-xs bg-transparent border-border">
+              <SelectTrigger className="w-[150px] h-8 text-xs bg-transparent border-[#DDD3BE] dark:border-[#3D362C]">
                 <SelectValue placeholder="Select Staff" />
               </SelectTrigger>
               <SelectContent>
@@ -327,7 +324,7 @@ export function StaffDashboard() {
         </div>
 
         {/* Shift status switcher & clock */}
-        <div className="flex items-center gap-4 justify-between w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-border">
+        <div className="flex items-center gap-4 justify-between w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-[#DDD3BE] dark:border-[#3D362C]">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-sans">Shift Status:</span>
             <Button
@@ -339,8 +336,8 @@ export function StaffDashboard() {
               }}
               className={`h-8 px-3 text-xs gap-1.5 font-medium transition-all ${
                 onDuty
-                  ? "bg-ready/10 text-ready border-ready/30 hover:bg-ready/20"
-                  : "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/30 hover:bg-muted-foreground/20"
+                  ? "bg-[#8A9A6B]/10 text-[#8A9A6B] border-[#8A9A6B]/30 hover:bg-[#8A9A6B]/20"
+                  : "bg-[#736B5E]/10 text-[#736B5E] border-[#736B5E]/30 hover:bg-[#736B5E]/20"
               }`}
             >
               <Power className="size-3.5" />
@@ -348,8 +345,8 @@ export function StaffDashboard() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-1.5 font-mono text-xs text-foreground bg-muted/40 py-1.5 px-3 rounded-lg border">
-            <Clock className="size-3.5 text-primary" />
+          <div className="flex items-center gap-1.5 font-mono text-xs text-[#2A2620] dark:text-[#F5F1E8] bg-muted/40 py-1.5 px-3 rounded-lg border">
+            <Clock className="size-3.5 text-[#B5652F]" />
             <span>{timeStr || "00:00:00"}</span>
           </div>
         </div>
@@ -361,7 +358,7 @@ export function StaffDashboard() {
         {/* Left Column: Active Task Hero Card */}
         <div className="lg:col-span-2 space-y-6">
           <Tabs value={currentTaskType} onValueChange={(v: string) => setCurrentTaskType(v as any)} className="w-full">
-            <div className="flex justify-between items-center border-b pb-2 mb-4 border-border">
+            <div className="flex justify-between items-center border-b pb-2 mb-4 border-[#DDD3BE] dark:border-[#3D362C]">
               <TabsList className="h-9 bg-card">
                 <TabsTrigger value="room" className="text-xs px-4" disabled={!activeRoom && dispatchQueue.every(t => t.type !== "room")}>
                   Active Room turnaround
@@ -376,26 +373,26 @@ export function StaffDashboard() {
             {/* TAB CONTENT: ROOM TURNOVER CONSOLE */}
             <TabsContent value="room" className="space-y-4 outline-none">
               {activeRoom ? (
-                <Card className="bg-card border border-border shadow-sm p-6 space-y-6">
+                <Card className="bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] shadow-sm p-6 space-y-6">
                   
                   {/* Hero Header */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-border/60 /60">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-[#DDD3BE]/60 dark:border-[#3D362C]/60">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="font-display text-4xl font-bold tracking-tight text-foreground">Room {activeRoom.number}</h2>
+                        <h2 className="font-display text-4xl font-bold tracking-tight text-[#2A2620] dark:text-[#F5F1E8]">Room {activeRoom.number}</h2>
                         {activeRoom.priority === "VIP" && (
-                          <Badge className="bg-destructive/15 text-destructive border border-destructive/30 text-xs px-2.5 py-0.5 hover:none">
+                          <Badge className="bg-[#B14A3E]/15 text-[#B14A3E] border border-[#B14A3E]/30 text-xs px-2.5 py-0.5 hover:none">
                             <Crown className="size-3 mr-1" /> VIP ARRIVAL
                           </Badge>
                         )}
                         {activeRoom.priority === "Overdue" && (
-                          <Badge className="bg-destructive/20 text-destructive border border-destructive/35 text-xs px-2.5 py-0.5 hover:none animate-pulse">
+                          <Badge className="bg-[#B14A3E]/20 text-[#B14A3E] border border-[#B14A3E]/35 text-xs px-2.5 py-0.5 hover:none animate-pulse">
                             OVERDUE
                           </Badge>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 font-sans">
-                        Type: <span className="font-semibold text-foreground">{activeRoom.type}</span> • Scheduled check-in at <span className="font-semibold text-foreground">{activeRoom.checkIn}</span> • Duration: ~{activeRoom.turnaround}m
+                        Type: <span className="font-semibold text-[#2A2620] dark:text-[#F5F1E8]">{activeRoom.type}</span> • Scheduled check-in at <span className="font-semibold text-[#2A2620] dark:text-[#F5F1E8]">{activeRoom.checkIn}</span> • Duration: ~{activeRoom.turnaround}m
                       </p>
                     </div>
 
@@ -408,10 +405,10 @@ export function StaffDashboard() {
 
                   {/* Priority Alert Banner */}
                   {activeRoom.priorityReason && (
-                    <div className="bg-primary/10 border border-primary/20 text-sm text-foreground p-3 rounded-lg flex items-start gap-2.5">
-                      <BadgeAlert className="size-5 text-primary shrink-0 mt-0.5" />
+                    <div className="bg-[#B5652F]/10 border border-[#B5652F]/20 text-sm text-[#2A2620] dark:text-[#F5F1E8] p-3 rounded-lg flex items-start gap-2.5">
+                      <BadgeAlert className="size-5 text-[#B5652F] shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-bold text-primary block text-xs uppercase tracking-wider">Priority Dispatch Reason</span>
+                        <span className="font-bold text-[#B5652F] block text-xs uppercase tracking-wider">Priority Dispatch Reason</span>
                         <p className="text-xs mt-0.5 leading-relaxed text-foreground/90">{activeRoom.priorityReason}</p>
                       </div>
                     </div>
@@ -421,28 +418,28 @@ export function StaffDashboard() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     
                     {/* Active Timer Block */}
-                    <div className="bg-card p-4 rounded-xl border border-border flex flex-col justify-between">
+                    <div className="bg-card p-4 rounded-xl border border-[#DDD3BE] dark:border-[#3D362C] flex flex-col justify-between">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                        <Timer className="size-3.5 text-primary" /> Stopwatch timer
+                        <Timer className="size-3.5 text-[#B5652F]" /> Stopwatch timer
                       </span>
                       <div className="mt-3 flex items-baseline justify-between">
-                        <span className="font-display text-4xl font-semibold tabular-nums text-foreground">
+                        <span className="font-display text-4xl font-semibold tabular-nums text-[#2A2620] dark:text-[#F5F1E8]">
                           {formatTimer(roomSeconds)}
                         </span>
-                        <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">
+                        <Badge variant="outline" className="text-[9px] border-[#B5652F]/30 text-[#B5652F]">
                           ACTIVE ELAPSED
                         </Badge>
                       </div>
                     </div>
 
                     {/* Progress Checklist Bar */}
-                    <div className="bg-card p-4 rounded-xl border border-border flex flex-col justify-between">
+                    <div className="bg-card p-4 rounded-xl border border-[#DDD3BE] dark:border-[#3D362C] flex flex-col justify-between">
                       <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                         <span>Checklist progress</span>
-                        <span className="text-ready">{Math.round((roomDoneSteps.length / CHECKLIST_STEPS.length) * 100)}%</span>
+                        <span className="text-[#8A9A6B]">{Math.round((roomDoneSteps.length / CHECKLIST_STEPS.length) * 100)}%</span>
                       </div>
                       <div className="mt-3 space-y-1">
-                        <Progress value={(roomDoneSteps.length / CHECKLIST_STEPS.length) * 100} className="h-2 bg-muted" />
+                        <Progress value={(roomDoneSteps.length / CHECKLIST_STEPS.length) * 100} className="h-2 bg-[#DDD3BE]/45" />
                         <span className="text-[10px] text-muted-foreground block text-right mt-1">
                           {roomDoneSteps.length} of {CHECKLIST_STEPS.length} stages checked
                         </span>
@@ -462,8 +459,8 @@ export function StaffDashboard() {
                             key={step}
                             className={`flex items-center gap-3.5 p-3 min-h-[48px] rounded-lg border transition-all cursor-pointer select-none ${
                               isDone
-                                ? "bg-ready/5 border-ready/30 text-muted-foreground line-through"
-                                : "bg-card border-border hover:bg-accent/40 text-foreground"
+                                ? "bg-[#8A9A6B]/5 border-[#8A9A6B]/30 text-muted-foreground line-through"
+                                : "bg-card border-[#DDD3BE] hover:bg-accent/40 text-foreground"
                             }`}
                           >
                             <Checkbox
@@ -471,7 +468,7 @@ export function StaffDashboard() {
                               onCheckedChange={(c) =>
                                 setRoomDoneSteps((prev) => (c ? [...prev, step] : prev.filter((s) => s !== step)))
                               }
-                              className="size-6 border-border"
+                              className="size-6 border-[#DDD3BE]"
                             />
                             <span className="text-xs font-medium font-sans leading-none">{step}</span>
                           </label>
@@ -480,13 +477,13 @@ export function StaffDashboard() {
                     </div>
                                     {/* One-Tap AI photo upload verification */}
                   {activeRoom.status === "Cleaning in Progress" && (
-                    <div className="border border-dashed border-border rounded-xl p-4 bg-muted/50 /20 space-y-4">
-                      <div className="flex items-start justify-between border-b pb-2 border-border/60 /60">
+                    <div className="border border-dashed border-[#DDD3BE] rounded-xl p-4 bg-[#F5F1E8]/50 dark:bg-[#1F1B17]/20 space-y-4">
+                      <div className="flex items-start justify-between border-b pb-2 border-[#DDD3BE]/60 dark:border-[#3D362C]/60">
                         <div className="flex items-center gap-2">
-                          <Camera className="size-4 text-primary" />
-                          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Staging Verification AI</span>
+                          <Camera className="size-4 text-[#B5652F]" />
+                          <span className="text-xs font-bold text-[#2A2620] dark:text-[#F5F1E8] uppercase tracking-wider">Staging Verification AI</span>
                         </div>
-                        <Badge className="text-[9px] bg-primary/10 text-primary hover:none font-mono">Gemini Vision LLM API</Badge>
+                        <Badge className="text-[9px] bg-[#B5652F]/10 text-[#B5652F] hover:none font-mono">Gemini Vision LLM API</Badge>
                       </div>
 
                       <div className="flex flex-col gap-3">
@@ -499,7 +496,7 @@ export function StaffDashboard() {
                         <div className="flex flex-col md:flex-row gap-2">
                           <Button
                             size="lg"
-                            className="flex-1 min-h-[48px] bg-primary hover:bg-primary/90 text-white font-bold text-xs flex items-center justify-center gap-2 rounded-xl"
+                            className="flex-1 min-h-[48px] bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-bold text-xs flex items-center justify-center gap-2 rounded-xl"
                             onClick={() => handleSimulateAiInspection("clean")}
                             disabled={isAiScanning}
                           >
@@ -509,7 +506,7 @@ export function StaffDashboard() {
                           <div className="grid grid-cols-2 gap-2">
                             <Button
                               variant="outline"
-                              className="h-[48px] text-[10px] border-destructive/30 text-destructive hover:bg-destructive/10 font-bold"
+                              className="h-[48px] text-[10px] border-[#B14A3E]/30 text-[#B14A3E] hover:bg-[#B14A3E]/10 font-bold"
                               onClick={() => handleSimulateAiInspection("dirty_bed")}
                               disabled={isAiScanning}
                             >
@@ -517,7 +514,7 @@ export function StaffDashboard() {
                             </Button>
                             <Button
                               variant="outline"
-                              className="h-[48px] text-[10px] border-destructive/30 text-destructive hover:bg-destructive/10 font-bold"
+                              className="h-[48px] text-[10px] border-[#B14A3E]/30 text-[#B14A3E] hover:bg-[#B14A3E]/10 font-bold"
                               onClick={() => handleSimulateAiInspection("dirty_trash")}
                               disabled={isAiScanning}
                             >
@@ -532,7 +529,7 @@ export function StaffDashboard() {
                       {/* Scanning / Output results */}
                       {isAiScanning && (
                         <div className="flex items-center justify-center gap-2 py-2 text-xs font-mono text-muted-foreground bg-card rounded border">
-                          <RefreshCw className="size-4 animate-spin text-primary" />
+                          <RefreshCw className="size-4 animate-spin text-[#B5652F]" />
                           <span>Gemini Vision API parsing staging telemetry...</span>
                         </div>
                       )}
@@ -540,8 +537,8 @@ export function StaffDashboard() {
                       {aiResultText && !isAiScanning && (
                         <div className={`p-3 rounded-lg border text-xs leading-relaxed flex items-start gap-2 ${
                           aiResultText.includes("PASSED")
-                            ? "bg-ready/10 border-ready/30 text-ready"
-                            : "bg-destructive/10 border-destructive/30 text-destructive"
+                            ? "bg-[#8A9A6B]/10 border-[#8A9A6B]/30 text-[#8A9A6B]"
+                            : "bg-[#B14A3E]/10 border-[#B14A3E]/30 text-[#B14A3E]"
                         }`}>
                           {aiResultText.includes("PASSED") ? (
                             <CheckCircle2 className="size-4 shrink-0 mt-0.5" />
@@ -557,17 +554,17 @@ export function StaffDashboard() {
                     </div>
 
                   {/* Action controls footer */}
-                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-border/60 /60">
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-[#DDD3BE]/60 dark:border-[#3D362C]/60">
                     <Button
                       variant="destructive"
-                      className="bg-destructive hover:bg-destructive/90 text-white font-semibold text-xs sm:mr-auto"
+                      className="bg-[#B14A3E] hover:bg-[#B14A3E]/90 text-white font-semibold text-xs sm:mr-auto"
                       onClick={handleBlockRoom}
                     >
                       <AlertTriangle className="size-4 mr-1.5" /> Report maintenance Fault / Block Room
                     </Button>
                     
                     <Button
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs"
+                      className="bg-[#B5652F] hover:bg-[#B5652F]/90 text-[#F5F1E8] font-semibold text-xs"
                       onClick={handleInspectRoom}
                       disabled={activeRoom.status !== "Cleaning in Progress" || roomDoneSteps.length < CHECKLIST_STEPS.length}
                     >
@@ -577,7 +574,7 @@ export function StaffDashboard() {
 
                 </Card>
               ) : (
-                <Card className="py-24 text-center space-y-3 bg-card border border-dashed rounded-xl p-6">
+                <Card className="py-24 text-center space-y-3 bg-white dark:bg-[#2A2620] border border-dashed rounded-xl p-6">
                   <span className="text-4xl">😴</span>
                   <h3 className="font-display text-lg font-bold text-foreground">No active room cleanup turnaround</h3>
                   <p className="text-xs text-muted-foreground max-w-xs mx-auto">
@@ -590,26 +587,26 @@ export function StaffDashboard() {
             {/* TAB CONTENT: GUEST REQUEST CONSOLE */}
             <TabsContent value="request" className="space-y-4 outline-none">
               {activeRequest ? (
-                <Card className="bg-card border border-border shadow-sm p-6 space-y-6">
+                <Card className="bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] shadow-sm p-6 space-y-6">
                   
                   {/* Hero Header */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-border/60 /60">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-[#DDD3BE]/60 dark:border-[#3D362C]/60">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="font-display text-3xl font-bold tracking-tight text-foreground">Room {activeRequest.roomNumber}</h2>
+                        <h2 className="font-display text-3xl font-bold tracking-tight text-[#2A2620] dark:text-[#F5F1E8]">Room {activeRequest.roomNumber}</h2>
                         {activeRequest.priority === "Critical" && (
-                          <Badge className="bg-destructive/15 text-destructive border border-destructive/30 text-xs px-2.5 py-0.5 hover:none">
+                          <Badge className="bg-[#B14A3E]/15 text-[#B14A3E] border border-[#B14A3E]/30 text-xs px-2.5 py-0.5 hover:none">
                             CRITICAL PRIORITY
                           </Badge>
                         )}
                         {activeRequest.priority === "High" && (
-                          <Badge className="bg-primary/15 text-primary border border-primary/30 text-xs px-2.5 py-0.5 hover:none">
+                          <Badge className="bg-[#B5652F]/15 text-[#B5652F] border border-[#B5652F]/30 text-xs px-2.5 py-0.5 hover:none">
                             HIGH PRIORITY
                           </Badge>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 font-sans">
-                        Service type: <span className="font-semibold text-foreground">{activeRequest.category}</span> • target SLA limit: <span className="font-semibold text-foreground">{activeRequest.slaMinutes}m</span>
+                        Service type: <span className="font-semibold text-[#2A2620] dark:text-[#F5F1E8]">{activeRequest.category}</span> • target SLA limit: <span className="font-semibold text-[#2A2620] dark:text-[#F5F1E8]">{activeRequest.slaMinutes}m</span>
                       </p>
                     </div>
 
@@ -619,35 +616,35 @@ export function StaffDashboard() {
                   </div>
 
                   {/* Details Card */}
-                  <div className="bg-card p-4 rounded-xl border border-border space-y-2">
+                  <div className="bg-card p-4 rounded-xl border border-[#DDD3BE] dark:border-[#3D362C] space-y-2">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Requested item details</span>
-                    <p className="text-sm font-semibold text-foreground">{activeRequest.item}</p>
+                    <p className="text-sm font-semibold text-[#2A2620] dark:text-[#F5F1E8]">{activeRequest.item}</p>
                     <p className="text-xs text-muted-foreground leading-normal">{activeRequest.details || "No supplementary guest instructions provided."}</p>
                   </div>
 
                   {/* Stopwatch & Steps */}
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="bg-card p-4 rounded-xl border border-border flex flex-col justify-between">
+                    <div className="bg-card p-4 rounded-xl border border-[#DDD3BE] dark:border-[#3D362C] flex flex-col justify-between">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                        <Timer className="size-3.5 text-primary" /> Timer Elapsed
+                        <Timer className="size-3.5 text-[#B5652F]" /> Timer Elapsed
                       </span>
                       <div className="mt-3 flex items-baseline justify-between">
-                        <span className="font-display text-4xl font-semibold tabular-nums text-foreground">
+                        <span className="font-display text-4xl font-semibold tabular-nums text-[#2A2620] dark:text-[#F5F1E8]">
                           {formatTimer(reqSeconds)}
                         </span>
-                        <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">
+                        <Badge variant="outline" className="text-[9px] border-[#B5652F]/30 text-[#B5652F]">
                           ACTIVE TASK
                         </Badge>
                       </div>
                     </div>
 
-                    <div className="bg-card p-4 rounded-xl border border-border flex flex-col justify-between">
+                    <div className="bg-card p-4 rounded-xl border border-[#DDD3BE] dark:border-[#3D362C] flex flex-col justify-between">
                       <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                         <span>Checklist progress</span>
-                        <span className="text-ready">{Math.round((reqDoneSteps.length / requestSteps.length) * 100)}%</span>
+                        <span className="text-[#8A9A6B]">{Math.round((reqDoneSteps.length / requestSteps.length) * 100)}%</span>
                       </div>
                       <div className="mt-3 space-y-1">
-                        <Progress value={(reqDoneSteps.length / requestSteps.length) * 100} className="h-2 bg-muted" />
+                        <Progress value={(reqDoneSteps.length / requestSteps.length) * 100} className="h-2 bg-[#DDD3BE]/45" />
                         <span className="text-[10px] text-muted-foreground block text-right mt-1">
                           {reqDoneSteps.length} of {requestSteps.length} steps checked
                         </span>
@@ -666,8 +663,8 @@ export function StaffDashboard() {
                             key={step}
                             className={`flex items-center gap-3.5 p-3 min-h-[48px] rounded-lg border transition-all cursor-pointer select-none ${
                               isDone
-                                ? "bg-ready/5 border-ready/30 text-muted-foreground line-through"
-                                : "bg-card border-border hover:bg-accent/40 text-foreground"
+                                ? "bg-[#8A9A6B]/5 border-[#8A9A6B]/30 text-muted-foreground line-through"
+                                : "bg-card border-[#DDD3BE] hover:bg-accent/40 text-foreground"
                             }`}
                           >
                             <Checkbox
@@ -675,7 +672,7 @@ export function StaffDashboard() {
                               onCheckedChange={(c) =>
                                 setReqDoneSteps((prev) => (c ? [...prev, step] : prev.filter((s) => s !== step)))
                               }
-                              className="size-6 border-border"
+                              className="size-6 border-[#DDD3BE]"
                             />
                             <span className="text-xs font-medium font-sans leading-none">{step}</span>
                           </label>
@@ -685,17 +682,17 @@ export function StaffDashboard() {
                   </div>
 
                   {/* Action controls footer */}
-                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-border/60 /60 justify-end">
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-[#DDD3BE]/60 dark:border-[#3D362C]/60 justify-end">
                     <Button
                       variant="outline"
-                      className="text-destructive border-destructive/30 hover:bg-destructive/10 font-semibold text-xs sm:mr-auto"
+                      className="text-[#B14A3E] border-[#B14A3E]/30 hover:bg-[#B14A3E]/10 font-semibold text-xs sm:mr-auto"
                       onClick={handleEscalateRequest}
                     >
                       <AlertTriangle className="size-4 mr-1.5" /> Escalate to Supervisor
                     </Button>
                     
                     <Button
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs"
+                      className="bg-[#B5652F] hover:bg-[#B5652F]/90 text-[#F5F1E8] font-semibold text-xs"
                       onClick={handleResolveRequest}
                       disabled={reqDoneSteps.length < requestSteps.length}
                     >
@@ -705,7 +702,7 @@ export function StaffDashboard() {
 
                 </Card>
               ) : (
-                <Card className="py-24 text-center space-y-3 bg-card border border-dashed rounded-xl p-6">
+                <Card className="py-24 text-center space-y-3 bg-white dark:bg-[#2A2620] border border-dashed rounded-xl p-6">
                   <span className="text-4xl">🎉</span>
                   <h3 className="font-display text-lg font-bold text-foreground">No active guest request task</h3>
                   <p className="text-xs text-muted-foreground max-w-xs mx-auto">
@@ -719,17 +716,17 @@ export function StaffDashboard() {
 
         {/* Right Column: Priority Dispatch Queue Sidebar (Desktop only) */}
         <div className="hidden lg:block space-y-6">
-          <Card className="p-5 bg-card border border-border shadow-sm space-y-4">
+          <Card className="p-5 bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] shadow-sm space-y-4">
             
             {/* Header */}
-            <div className="border-b pb-3 border-border/60 /60 flex items-center justify-between">
+            <div className="border-b pb-3 border-[#DDD3BE]/60 dark:border-[#3D362C]/60 flex items-center justify-between">
               <div>
-                <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-1.5">
-                  <TrendingUp className="size-4.5 text-primary" /> Dispatch Queue
+                <h3 className="font-display text-lg font-bold text-[#2A2620] dark:text-[#F5F1E8] flex items-center gap-1.5">
+                  <TrendingUp className="size-4.5 text-[#B5652F]" /> Dispatch Queue
                 </h3>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Assigned pending tasks sorted by urgency.</p>
               </div>
-              <Badge className="bg-primary/10 text-primary border border-primary/20 text-[10px] font-mono">
+              <Badge className="bg-[#B5652F]/10 text-[#B5652F] border border-[#B5652F]/20 text-[10px] font-mono">
                 {dispatchQueue.length} queued
               </Badge>
             </div>
@@ -741,18 +738,18 @@ export function StaffDashboard() {
                 return (
                   <div
                     key={task.id}
-                    className={`flex flex-col gap-2 p-3 rounded-xl border bg-muted/30 dark:bg-black/5 ${
+                    className={`flex flex-col gap-2 p-3 rounded-xl border bg-[#F5F1E8]/30 dark:bg-black/5 ${
                       isVip
-                        ? "border-destructive/30 bg-destructive/5"
+                        ? "border-[#B14A3E]/30 bg-[#B14A3E]/5"
                         : task.priority === "Early Arrival"
-                          ? "border-primary/30 bg-primary/5"
+                          ? "border-[#B5652F]/30 bg-[#B5652F]/5"
                           : "border-border"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-1">
                       <div>
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-display font-bold text-sm text-foreground">
+                          <span className="font-display font-bold text-sm text-[#2A2620] dark:text-[#F5F1E8]">
                             Room {task.number}
                           </span>
                         </div>
@@ -762,19 +759,19 @@ export function StaffDashboard() {
                         </p>
                       </div>
                       <Badge variant="outline" className={`text-[8px] px-1.5 py-0 border ${
-                        isVip ? "border-destructive/30 text-destructive bg-destructive/5" : "border-border text-muted-foreground"
+                        isVip ? "border-[#B14A3E]/30 text-[#B14A3E] bg-[#B14A3E]/5" : "border-border text-muted-foreground"
                       }`}>
                         {task.priority}
                       </Badge>
                     </div>
 
                     {/* Hover Action Button */}
-                    <div className="w-full pt-1 border-t border-dashed border-border/50 /50 flex justify-end">
+                    <div className="w-full pt-1 border-t border-dashed border-[#DDD3BE]/50 dark:border-[#3D362C]/50 flex justify-end">
                       {task.type === "room" ? (
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 text-[10px] text-primary hover:text-primary hover:bg-primary/10 gap-1 font-bold p-1 px-2.5 rounded transition-all"
+                          className="h-7 text-[10px] text-[#B5652F] hover:text-[#B5652F] hover:bg-[#B5652F]/10 gap-1 font-bold p-1 px-2.5 rounded transition-all"
                           onClick={() => handleStartRoom(task.id)}
                         >
                           <Play className="size-3" /> Start Cleaning
@@ -783,7 +780,7 @@ export function StaffDashboard() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 text-[10px] text-primary hover:text-primary hover:bg-primary/10 gap-1 font-bold p-1 px-2.5 rounded transition-all"
+                          className="h-7 text-[10px] text-[#B5652F] hover:text-[#B5652F] hover:bg-[#B5652F]/10 gap-1 font-bold p-1 px-2.5 rounded transition-all"
                           onClick={() => handleStartRequest(task.id)}
                         >
                           <Play className="size-3" /> Start Service
@@ -802,9 +799,9 @@ export function StaffDashboard() {
             </div>
 
             {/* Static Guidelines removed, replacing with simple mini status tracker bar */}
-            <div className="pt-3 border-t border-border/60 /60 flex items-center justify-between text-[10px] text-muted-foreground font-sans uppercase tracking-wider">
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-ready" /> Active turns</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-primary" /> SLA pending</span>
+            <div className="pt-3 border-t border-[#DDD3BE]/60 dark:border-[#3D362C]/60 flex items-center justify-between text-[10px] text-muted-foreground font-sans uppercase tracking-wider">
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#8A9A6B]" /> Active turns</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#B5652F]" /> SLA pending</span>
             </div>
 
           </Card>
@@ -816,32 +813,32 @@ export function StaffDashboard() {
       <div className="lg:hidden fixed bottom-20 left-4 right-4 z-40">
         <Drawer>
           <DrawerTrigger asChild>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] shadow-lg rounded-xl flex items-center justify-between px-4">
+            <Button className="w-full bg-[#B5652F] hover:bg-[#B5652F]/90 text-white min-h-[48px] shadow-lg rounded-xl flex items-center justify-between px-4">
               <span className="font-bold text-xs uppercase tracking-wider">Upcoming Dispatch Queue ({dispatchQueue.length})</span>
               <ChevronRight className="size-4 shrink-0 text-white" />
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="bg-card border-t border-border pb-6">
+          <DrawerContent className="bg-white border-t border-[#EBE3D1] pb-6">
             <div className="mx-auto w-full max-w-sm p-4 space-y-4">
               <DrawerHeader className="px-0">
-                <DrawerTitle className="text-sm font-bold text-foreground font-display">Upcoming Dispatch Queue</DrawerTitle>
-                <DrawerDescription className="text-xs text-muted-foreground">Tasks assigned to you on this shift.</DrawerDescription>
+                <DrawerTitle className="text-sm font-bold text-[#2A2620] font-display">Upcoming Dispatch Queue</DrawerTitle>
+                <DrawerDescription className="text-xs text-[#736B5E]">Tasks assigned to you on this shift.</DrawerDescription>
               </DrawerHeader>
               <div className="space-y-2.5 max-h-[40vh] overflow-y-auto pr-1">
                 {dispatchQueue.map((task) => (
-                  <div key={task.id} className="p-3 bg-muted/40 border border-border rounded-xl flex items-center justify-between text-xs">
+                  <div key={task.id} className="p-3 bg-[#F5F1E8] border border-[#EBE3D1] rounded-xl flex items-center justify-between text-xs">
                     <div>
-                      <span className="font-bold text-foreground">Room {task.number}</span>
-                      <p className="text-[10px] text-muted-foreground">{task.label} ({task.target})</p>
+                      <span className="font-bold text-[#2A2620]">Room {task.number}</span>
+                      <p className="text-[10px] text-[#736B5E]">{task.label} ({task.target})</p>
                     </div>
                     {task.type === "room" ? (
-                      <Button size="sm" className="h-8 text-[10px] bg-primary text-white font-bold" onClick={() => handleStartRoom(task.id)}>Start</Button>
+                      <Button size="sm" className="h-8 text-[10px] bg-[#B5652F] text-white font-bold" onClick={() => handleStartRoom(task.id)}>Start</Button>
                     ) : (
-                      <Button size="sm" className="h-8 text-[10px] bg-primary text-white font-bold" onClick={() => handleStartRequest(task.id)}>Start</Button>
+                      <Button size="sm" className="h-8 text-[10px] bg-[#B5652F] text-white font-bold" onClick={() => handleStartRequest(task.id)}>Start</Button>
                     )}
                   </div>
                 ))}
-                {dispatchQueue.length === 0 && <p className="text-center text-xs text-muted-foreground py-8">No tasks in queue</p>}
+                {dispatchQueue.length === 0 && <p className="text-center text-xs text-[#736B5E] py-8">No tasks in queue</p>}
               </div>
             </div>
           </DrawerContent>

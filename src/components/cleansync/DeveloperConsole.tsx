@@ -1,6 +1,3 @@
-// Refined UI Pass: Converted 108 hardcoded color references to semantic design tokens.
-// Enhanced developer console cards, badge states, and light/dark theme contrast.
-
 import { useState, useMemo, useEffect } from "react";
 import { useRoomFlow, STAFF_PHONES } from "./store";
 import {
@@ -230,12 +227,12 @@ interface WelcomeEmailResponse {
   // Simple, elegant HTML highlight parser inside pre
   const highlightSyntax = (code: string) => {
     return code
-      .replace(/(".*?")(\s*:)/g, '<span class="text-primary font-medium">$1</span>$2') // JSON keys (primary)
-      .replace(/(:\s*)(".*?")/g, '$1<span class="text-ready">$2</span>') // JSON string values (ready)
-      .replace(/\b(interface|type|const|let|var|function|return|import|export|from|await|async)\b/g, '<span class="text-primary font-bold">$1</span>') // keywords
-      .replace(/\b(string|number|boolean|null|undefined|Record|Array|any|void)\b/g, '<span class="text-muted-foreground font-medium">$1</span>') // TypeScript types
-      .replace(/(\/\/.*)/g, '<span class="text-muted-foreground font-sans italic">$1</span>') // comments
-      .replace(/(<\/?Response>|<\/?Message>)/g, '<span class="text-primary font-semibold">$1</span>'); // xml tags
+      .replace(/(".*?")(\s*:)/g, '<span class="text-[#D69E2E] font-medium">$1</span>$2') // JSON keys (gold)
+      .replace(/(:\s*)(".*?")/g, '$1<span class="text-[#68D391]">$2</span>') // JSON string values (sage)
+      .replace(/\b(interface|type|const|let|var|function|return|import|export|from|await|async)\b/g, '<span class="text-[#B5652F] font-bold">$1</span>') // keywords (copper)
+      .replace(/\b(string|number|boolean|null|undefined|Record|Array|any|void)\b/g, '<span class="text-zinc-400 font-medium">$1</span>') // TypeScript types
+      .replace(/(\/\/.*)/g, '<span class="text-zinc-500 font-sans italic">$1</span>') // comments
+      .replace(/(<\/?Response>|<\/?Message>)/g, '<span class="text-[#B5652F]">$1</span>'); // xml tags (copper)
   };
 
   return (
@@ -244,43 +241,43 @@ interface WelcomeEmailResponse {
       {/* 1. TOP DEVELOPER HEALTH METRICS BAR */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         
-        <Card className="bg-card border border-border shadow-sm p-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-3 text-muted-foreground">
+        <Card className="bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-3 text-[#736B5E]">
             <span className="text-[10px] font-bold uppercase tracking-wider">API Server Status</span>
-            <Server className="size-4 text-primary" />
+            <Server className="size-4 text-[#B5652F]" />
           </div>
           <div className="mt-2.5 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-ready animate-pulse" />
-            <span className="font-sans text-sm font-semibold text-foreground">Healthy (99.9% Uptime)</span>
+            <span className="h-2 w-2 rounded-full bg-[#8A9A6B] animate-pulse" />
+            <span className="font-sans text-sm font-semibold text-[#2A2620] dark:text-[#F5F1E8]">Healthy (99.9% Uptime)</span>
           </div>
           <p className="text-[10px] text-muted-foreground mt-1">Operational live webhook gateway</p>
         </Card>
 
-        <Card className="bg-card border border-border shadow-sm p-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-3 text-muted-foreground">
+        <Card className="bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-3 text-[#736B5E]">
             <span className="text-[10px] font-bold uppercase tracking-wider">Avg Latency</span>
-            <Clock className="size-4 text-primary" />
+            <Clock className="size-4 text-[#B5652F]" />
           </div>
-          <div className="mt-2.5 font-display text-2xl font-bold text-foreground">42 ms</div>
+          <div className="mt-2.5 font-display text-2xl font-bold text-[#2A2620] dark:text-[#F5F1E8]">42 ms</div>
           <p className="text-[10px] text-muted-foreground mt-1">p95 API response turnaround</p>
         </Card>
 
-        <Card className="bg-card border border-border shadow-sm p-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-3 text-muted-foreground">
+        <Card className="bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-3 text-[#736B5E]">
             <span className="text-[10px] font-bold uppercase tracking-wider">Webhooks Processed</span>
-            <Activity className="size-4 text-primary" />
+            <Activity className="size-4 text-[#B5652F]" />
           </div>
-          <div className="mt-2.5 font-display text-2xl font-bold text-foreground">1,248 Today</div>
+          <div className="mt-2.5 font-display text-2xl font-bold text-[#2A2620] dark:text-[#F5F1E8]">1,248 Today</div>
           <p className="text-[10px] text-muted-foreground mt-1">Incoming twilio webhook queries</p>
         </Card>
 
-        <Card className="bg-card border border-border shadow-sm p-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-3 text-muted-foreground">
+        <Card className="bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-3 text-[#736B5E]">
             <span className="text-[10px] font-bold uppercase tracking-wider">AI Inspection Engine</span>
-            <Cpu className="size-4 text-primary" />
+            <Cpu className="size-4 text-[#B5652F]" />
           </div>
           <div className="mt-2.5 flex items-center gap-1.5">
-            <Badge className="bg-ready/15 text-ready border border-ready/20 hover:none text-[10px] font-sans font-medium py-0 px-2 leading-loose">
+            <Badge className="bg-[#8A9A6B]/15 text-[#8A9A6B] border border-[#8A9A6B]/20 hover:none text-[10px] font-sans font-medium py-0 px-2 leading-loose">
               Active (Gemini 1.5)
             </Badge>
           </div>
@@ -293,11 +290,11 @@ interface WelcomeEmailResponse {
       <div className="grid gap-6 lg:grid-cols-5">
         
         {/* LEFT COLUMN: Endpoint selectors & quick parameters input */}
-        <Card className="lg:col-span-2 bg-card border border-border shadow-sm p-5 flex flex-col justify-between h-[450px]">
+        <Card className="lg:col-span-2 bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-5 flex flex-col justify-between h-[450px]">
           <div className="space-y-4">
             <div>
-              <h3 className="font-display font-semibold text-base text-foreground flex items-center gap-1.5">
-                <Code2 className="size-4.5 text-primary" /> Endpoint Explorer
+              <h3 className="font-display font-semibold text-base text-[#2A2620] dark:text-[#F5F1E8] flex items-center gap-1.5">
+                <Code2 className="size-4.5 text-[#B5652F]" /> Endpoint Explorer
               </h3>
               <p className="text-[10px] text-muted-foreground mt-0.5">Select a core endpoint and click test to run it on store.</p>
             </div>
@@ -308,8 +305,8 @@ interface WelcomeEmailResponse {
                 onClick={() => setActiveEndpoint("get-rooms")}
                 className={`w-full text-left text-xs p-2.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer ${
                   activeEndpoint === "get-rooms"
-                    ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-xs"
-                    : "bg-muted/10 border-border hover:bg-accent text-foreground"
+                    ? "bg-[#B5652F]/10 border-[#B5652F]/30 text-[#B5652F] font-bold shadow-xs"
+                    : "bg-muted/10 border-[#EBE3D1] hover:bg-accent text-foreground"
                 }`}
               >
                 <span>GET /api/rooms</span>
@@ -320,8 +317,8 @@ interface WelcomeEmailResponse {
                 onClick={() => setActiveEndpoint("get-requests")}
                 className={`w-full text-left text-xs p-2.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer ${
                   activeEndpoint === "get-requests"
-                    ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-xs"
-                    : "bg-muted/10 border-border hover:bg-accent text-foreground"
+                    ? "bg-[#B5652F]/10 border-[#B5652F]/30 text-[#B5652F] font-bold shadow-xs"
+                    : "bg-muted/10 border-[#EBE3D1] hover:bg-accent text-foreground"
                 }`}
               >
                 <span>GET /api/requests</span>
@@ -332,48 +329,48 @@ interface WelcomeEmailResponse {
                 onClick={() => setActiveEndpoint("post-assign")}
                 className={`w-full text-left text-xs p-2.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer ${
                   activeEndpoint === "post-assign"
-                    ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-xs"
-                    : "bg-muted/10 border-border hover:bg-accent text-foreground"
+                    ? "bg-[#B5652F]/10 border-[#B5652F]/30 text-[#B5652F] font-bold shadow-xs"
+                    : "bg-muted/10 border-[#EBE3D1] hover:bg-accent text-foreground"
                 }`}
               >
                 <span>POST /api/rooms/assign</span>
-                <Badge className="text-[8px] border-primary/20 text-primary bg-primary/5 py-0 font-sans">Mutation</Badge>
+                <Badge className="text-[8px] border-[#B5652F]/20 text-[#B5652F] bg-[#B5652F]/5 py-0 font-sans">Mutation</Badge>
               </button>
 
               <button
                 onClick={() => setActiveEndpoint("post-webhook")}
                 className={`w-full text-left text-xs p-2.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer ${
                   activeEndpoint === "post-webhook"
-                    ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-xs"
-                    : "bg-muted/10 border-border hover:bg-accent text-foreground"
+                    ? "bg-[#B5652F]/10 border-[#B5652F]/30 text-[#B5652F] font-bold shadow-xs"
+                    : "bg-muted/10 border-[#EBE3D1] hover:bg-accent text-foreground"
                 }`}
               >
                 <span>POST /api/webhooks/whatsapp</span>
-                <Badge className="text-[8px] border-primary/20 text-primary bg-primary/5 py-0 font-sans">Webhook</Badge>
+                <Badge className="text-[8px] border-[#B5652F]/20 text-[#B5652F] bg-[#B5652F]/5 py-0 font-sans">Webhook</Badge>
               </button>
 
               <button
                 onClick={() => setActiveEndpoint("post-email")}
                 className={`w-full text-left text-xs p-2.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer ${
                   activeEndpoint === "post-email"
-                    ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-xs"
-                    : "bg-muted/10 border-border hover:bg-accent text-foreground"
+                    ? "bg-[#B5652F]/10 border-[#B5652F]/30 text-[#B5652F] font-bold shadow-xs"
+                    : "bg-muted/10 border-[#EBE3D1] hover:bg-accent text-foreground"
                 }`}
               >
                 <span>POST /api/emails/welcome</span>
-                <Badge className="text-[8px] border-primary/20 text-primary bg-primary/5 py-0 font-sans">Email API</Badge>
+                <Badge className="text-[8px] border-[#B5652F]/20 text-[#B5652F] bg-[#B5652F]/5 py-0 font-sans">Email API</Badge>
               </button>
             </div>
 
             {/* Context parameters */}
             {activeEndpoint === "post-assign" && (
-              <div className="grid grid-cols-2 gap-2 text-xs border-t pt-3 border-border">
+              <div className="grid grid-cols-2 gap-2 text-xs border-t pt-3 border-[#EBE3D1] dark:border-[#3D362C]">
                 <div className="space-y-1">
                   <Label className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Room</Label>
                   <select
                     value={pgAssignRoomNum}
                     onChange={(e) => setPgAssignRoomNum(e.target.value)}
-                    className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-border text-foreground"
+                    className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-[#EBE3D1] text-foreground"
                   >
                     {rooms.map(r => (
                       <option key={r.id} value={r.id} className="bg-background text-foreground">Room {r.number}</option>
@@ -385,7 +382,7 @@ interface WelcomeEmailResponse {
                   <select
                     value={pgAssignStaff}
                     onChange={(e) => setPgAssignStaff(e.target.value)}
-                    className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-border text-foreground"
+                    className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-[#EBE3D1] text-foreground"
                   >
                     {staff.filter(s => s.active).map(s => (
                       <option key={s.id} value={s.name} className="bg-background text-foreground">{s.name}</option>
@@ -396,14 +393,14 @@ interface WelcomeEmailResponse {
             )}
 
             {activeEndpoint === "post-email" && (
-              <div className="grid grid-cols-2 gap-2 text-xs border-t pt-3 border-border">
+              <div className="grid grid-cols-2 gap-2 text-xs border-t pt-3 border-[#EBE3D1] dark:border-[#3D362C]">
                 <div className="space-y-1">
                   <Label className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Target Email</Label>
                   <Input
                     type="email"
                     value={emailTestTarget}
                     onChange={(e) => setEmailTestTarget(e.target.value)}
-                    className="w-full h-7 text-[11px] border rounded-md px-2 bg-transparent border-border text-foreground"
+                    className="w-full h-7 text-[11px] border rounded-md px-2 bg-transparent border-[#EBE3D1] text-foreground"
                   />
                 </div>
                 <div className="space-y-1">
@@ -412,21 +409,21 @@ interface WelcomeEmailResponse {
                     type="text"
                     value={emailTestName}
                     onChange={(e) => setEmailTestName(e.target.value)}
-                    className="w-full h-7 text-[11px] border rounded-md px-2 bg-transparent border-border text-foreground"
+                    className="w-full h-7 text-[11px] border rounded-md px-2 bg-transparent border-[#EBE3D1] text-foreground"
                   />
                 </div>
               </div>
             )}
 
             {activeEndpoint === "post-webhook" && (
-              <div className="space-y-2 border-t pt-3 border-border text-xs">
+              <div className="space-y-2 border-t pt-3 border-[#EBE3D1] dark:border-[#3D362C] text-xs">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Sender Phone</Label>
                     <select
                       value={webhookPhone}
                       onChange={(e) => setWebhookPhone(e.target.value)}
-                      className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-border text-foreground"
+                      className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-[#EBE3D1] text-foreground"
                     >
                       {Object.entries(STAFF_PHONES).map(([name, phone]) => (
                         <option key={phone} value={phone} className="bg-background text-foreground">{name} ({phone})</option>
@@ -438,7 +435,7 @@ interface WelcomeEmailResponse {
                     <select
                       value={webhookPhoto}
                       onChange={(e) => setWebhookPhoto(e.target.value as any)}
-                      className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-border text-foreground"
+                      className="w-full h-7 text-[11px] border rounded-md px-1.5 bg-transparent border-[#EBE3D1] text-foreground"
                     >
                       <option value="none" className="bg-background text-foreground">No Attachment</option>
                       <option value="clean" className="bg-background text-foreground">Staging PASS</option>
@@ -460,22 +457,22 @@ interface WelcomeEmailResponse {
             )}
           </div>
 
-          <Button className="w-full h-9 bg-primary hover:bg-primary/90 text-white font-semibold text-xs mt-4" onClick={handleExecute}>
+          <Button className="w-full h-9 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-semibold text-xs mt-4" onClick={handleExecute}>
             <Play className="size-3.5 mr-1.5" /> Test & Execute Endpoint
           </Button>
         </Card>
 
         {/* RIGHT COLUMN: Code Viewers & Responses Panel */}
-        <Card className="lg:col-span-3 bg-card border border-border shadow-sm p-5 flex flex-col justify-between h-[450px]">
+        <Card className="lg:col-span-3 bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-5 flex flex-col justify-between h-[450px]">
           
-          <div className="flex items-center justify-between border-b pb-3 border-border/60 /60">
+          <div className="flex items-center justify-between border-b pb-3 border-[#EBE3D1]/60 dark:border-[#3D362C]/60">
             {/* Custom Tab selectors */}
-            <div className="flex gap-1.5 bg-muted/40 p-1 rounded-lg border border-border">
+            <div className="flex gap-1.5 bg-[#F5F1E8] dark:bg-[#1F1B17] p-1 rounded-lg border border-[#EBE3D1] dark:border-[#3D362C]">
               <button
                 onClick={() => setRightTab("response")}
                 className={`text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-md font-sans transition-all cursor-pointer ${
                   rightTab === "response"
-                    ? "bg-card text-primary font-bold shadow-xs"
+                    ? "bg-white dark:bg-[#2A2620] text-[#B5652F] font-bold shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -485,7 +482,7 @@ interface WelcomeEmailResponse {
                 onClick={() => setRightTab("schema")}
                 className={`text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-md font-sans transition-all cursor-pointer ${
                   rightTab === "schema"
-                    ? "bg-card text-primary font-bold shadow-xs"
+                    ? "bg-white dark:bg-[#2A2620] text-[#B5652F] font-bold shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -494,19 +491,19 @@ interface WelcomeEmailResponse {
             </div>
 
             {/* Copy Button */}
-            <Button size="sm" variant="outline" className="h-7 text-[10px] border-border" onClick={handleCopy}>
+            <Button size="sm" variant="outline" className="h-7 text-[10px] border-[#EBE3D1]" onClick={handleCopy}>
               {copied ? (
-                <><CheckCircle className="size-3 mr-1 text-ready" /> Copied</>
+                <><CheckCircle className="size-3 mr-1 text-[#8A9A6B]" /> Copied</>
               ) : (
                 <><Copy className="size-3 mr-1" /> Copy JSON</>
               )}
             </Button>
           </div>
 
-          {/* Syntax Highlighted dark code viewer */}
-          <div className="flex-1 mt-4 overflow-hidden rounded-xl border border-border bg-card">
+          {/* Syntax Highlighted dark-slate code viewer */}
+          <div className="flex-1 mt-4 overflow-hidden rounded-xl border border-zinc-950 bg-[#1E1C1A]">
             <pre
-              className="p-4 font-mono text-[10px] leading-relaxed text-foreground overflow-y-auto h-full max-h-[340px] select-text scrollbar-thin"
+              className="p-4 font-mono text-[10px] leading-relaxed text-[#EBE3D1] overflow-y-auto h-full max-h-[340px] select-text scrollbar-thin scrollbar-thumb-zinc-850"
               dangerouslySetInnerHTML={{ __html: highlightSyntax(activeCodeContent) }}
             />
           </div>
@@ -516,16 +513,16 @@ interface WelcomeEmailResponse {
       </div>
 
       {/* 3. COMPACT ARCHITECTURE FOOTER STRIP */}
-      <Card className="p-3 bg-card border border-border shadow-sm flex flex-col sm:flex-row items-center justify-center gap-3 text-[10px] font-sans font-bold text-muted-foreground uppercase tracking-widest">
-        <span className="flex items-center gap-1.5"><Layers className="size-4 text-primary" /> Technology Stack:</span>
+      <Card className="p-3 bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm flex flex-col sm:flex-row items-center justify-center gap-3 text-[10px] font-sans font-bold text-muted-foreground uppercase tracking-widest">
+        <span className="flex items-center gap-1.5"><Layers className="size-4 text-[#B5652F]" /> Technology Stack:</span>
         <span className="hidden sm:inline">•</span>
-        <span className="flex items-center gap-1.5 text-foreground"><Database className="size-3.5 text-primary" /> Supabase (PostgreSQL)</span>
+        <span className="flex items-center gap-1.5 text-foreground"><Database className="size-3.5 text-[#B5652F]" /> Supabase (PostgreSQL)</span>
         <span>•</span>
-        <span className="flex items-center gap-1.5 text-foreground"><Server className="size-3.5 text-primary" /> FastAPI (Python Webhooks)</span>
+        <span className="flex items-center gap-1.5 text-foreground"><Server className="size-3.5 text-[#B5652F]" /> FastAPI (Python Webhooks)</span>
         <span>•</span>
-        <span className="flex items-center gap-1.5 text-foreground"><Code2 className="size-3.5 text-primary" /> Next.js / tRPC</span>
+        <span className="flex items-center gap-1.5 text-foreground"><Code2 className="size-3.5 text-[#B5652F]" /> Next.js / tRPC</span>
         <span>•</span>
-        <span className="flex items-center gap-1.5 text-foreground"><Cpu className="size-3.5 text-destructive" /> Gemini Vision QA</span>
+        <span className="flex items-center gap-1.5 text-foreground"><Cpu className="size-3.5 text-[#B14A3E]" /> Gemini Vision QA</span>
       </Card>
 
     </div>

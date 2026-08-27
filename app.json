@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "RoomFlow Mobile",
+    "slug": "roomflow-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.roomflow.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "RoomFlow needs access to the camera to scan room QR codes and capture room inspection staging photos."
+      }
+    },
+    "android": {
+      "package": "com.roomflow.app",
+      "permissions": [
+        "CAMERA",
+        "VIBRATE",
+        "NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow RoomFlow to access your camera to scan QR codes and inspect room setups."
+        }
+      ]
+    ]
+  }
+}

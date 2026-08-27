@@ -1,6 +1,3 @@
-// Refined UI Pass: Verified 0 hardcoded colors.
-// Fully compliant with design system tokens (bg-surface, text-ready, text-vip, text-urgent, border-border).
-
 import { useState } from "react";
 import {
   Sparkles,

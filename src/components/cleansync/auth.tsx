@@ -14,7 +14,7 @@ export interface UserProfile {
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (email?: string, name?: string) => Promise<void>;
   loginWithGoogleToken: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserRole: (newRole: UserProfile["role"]) => Promise<void>;
@@ -140,9 +140,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (email?: string, name?: string) => {
     setLoading(true);
-    if (isGoogleConfigured) {
+    
+    // If a custom email is provided, bypass real Google/Supabase OAuth redirects 
+    // to allow instant mock login with any Gmail address on all environments/ports.
+    if (email) {
+      setTimeout(() => {
+        const targetEmail = email;
+        const targetName = name || (targetEmail.split("@")[0] || "User").replace(/\./g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        
+        const mockUser: UserProfile = {
+          id: `sim-${Math.random().toString(36).substr(2, 9)}`,
+          email: targetEmail,
+          name: targetName,
+          avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+          role: "ops" // Default role
+        };
+        localStorage.setItem("roomflow_sim_user", JSON.stringify(mockUser));
+        setUser(mockUser);
+        setLoading(false);
+        toast.success(`Welcome back, ${targetName}!`, {
+          description: "Logged in via Simulated Google OAuth (Demo Mode)."
+        });
+      }, 1000);
+      return;
+    }
+
+    const isLocal = typeof window !== "undefined" && 
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+    if (isGoogleConfigured && isLocal) {
       // 1. Google Direct Client OAuth flow linked to MongoDB
       try {
         const authUrl = await getGoogleAuthUrlFn();
@@ -166,19 +194,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     } else {
-      // 3. Simulated Dev Mode Login
+      // 3. Simulated Dev Mode Login (no credentials provided)
       setTimeout(() => {
+        const targetEmail = "sanjay.patel@grandpalace.com";
+        const targetName = "Sanjay Patel";
+        
         const mockUser: UserProfile = {
-          id: "sim-user-12345",
-          email: "sanjay.patel@grandpalace.com",
-          name: "Sanjay Patel",
+          id: `sim-${Math.random().toString(36).substr(2, 9)}`,
+          email: targetEmail,
+          name: targetName,
           avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
           role: "ops" // Default role
         };
         localStorage.setItem("roomflow_sim_user", JSON.stringify(mockUser));
         setUser(mockUser);
         setLoading(false);
-        toast.success("Welcome back, Sanjay!", {
+        toast.success(`Welcome back, ${targetName}!`, {
           description: "Logged in via Simulated Google OAuth (Demo Mode)."
         });
       }, 1000);

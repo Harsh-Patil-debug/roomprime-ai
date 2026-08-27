@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConciergeRouteImport } from './routes/concierge'
+import { Route as ControlRouteImport } from './routes/control'
+import { Route as StaffIndexRouteImport } from './routes/staff/index'
 import { Route as StaffCheckinRouteImport } from './routes/staff/checkin'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +25,16 @@ const ConciergeRoute = ConciergeRouteImport.update({
   path: '/concierge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ControlRoute = ControlRouteImport.update({
+  id: '/control',
+  path: '/control',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffIndexRoute = StaffIndexRouteImport.update({
+  id: '/staff/',
+  path: '/staff/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffCheckinRoute = StaffCheckinRouteImport.update({
   id: '/staff/checkin',
   path: '/staff/checkin',
@@ -32,31 +44,40 @@ const StaffCheckinRoute = StaffCheckinRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/concierge': typeof ConciergeRoute
+  '/control': typeof ControlRoute
   '/staff/checkin': typeof StaffCheckinRoute
+  '/staff/': typeof StaffIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/concierge': typeof ConciergeRoute
+  '/control': typeof ControlRoute
   '/staff/checkin': typeof StaffCheckinRoute
+  '/staff': typeof StaffIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/concierge': typeof ConciergeRoute
+  '/control': typeof ControlRoute
   '/staff/checkin': typeof StaffCheckinRoute
+  '/staff/': typeof StaffIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/concierge' | '/staff/checkin'
+  fullPaths: '/' | '/concierge' | '/control' | '/staff/checkin' | '/staff/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/concierge' | '/staff/checkin'
-  id: '__root__' | '/' | '/concierge' | '/staff/checkin'
+  to: '/' | '/concierge' | '/control' | '/staff/checkin' | '/staff'
+  id:
+    '__root__' | '/' | '/concierge' | '/control' | '/staff/checkin' | '/staff/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConciergeRoute: typeof ConciergeRoute
+  ControlRoute: typeof ControlRoute
   StaffCheckinRoute: typeof StaffCheckinRoute
+  StaffIndexRoute: typeof StaffIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +96,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConciergeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/control': {
+      id: '/control'
+      path: '/control'
+      fullPath: '/control'
+      preLoaderRoute: typeof ControlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/': {
+      id: '/staff/'
+      path: '/staff'
+      fullPath: '/staff/'
+      preLoaderRoute: typeof StaffIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff/checkin': {
       id: '/staff/checkin'
       path: '/staff/checkin'
@@ -88,7 +123,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConciergeRoute: ConciergeRoute,
+  ControlRoute: ControlRoute,
   StaffCheckinRoute: StaffCheckinRoute,
+  StaffIndexRoute: StaffIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -106,30 +106,18 @@ export const initialStaff: Staff[] = [
 ];
 
 const raw: Array<[string, RoomType, RoomStatus, PriorityTag, string | null, string, number, string]> = [
-  ["101", "Standard", "Ready for Guest", "Regular", "Priya Raman", "15:00", 25, "John Doe"],
-  ["102", "Standard", "Vacant Dirty", "Early Arrival", null, "13:00", 30, "Alice Smith"],
-  ["103", "Deluxe", "Occupied", "Regular", null, "—", 0, "Robert Lee"],
-  ["104", "Deluxe", "Inspection Pending", "VIP", "Priya Raman", "14:00", 35, "Emma Watson"],
+  ["101", "Standard", "Cleaning in Progress", "Regular", "Priya Raman", "15:00", 30, "John Doe"],
+  ["102", "Standard", "Vacant Dirty", "Early Arrival", null, "13:00", 25, "Alice Smith"],
+  ["103", "Deluxe", "Ready for Guest", "Regular", "Marco Silva", "15:00", 28, "Robert Lee"],
+  ["104", "Deluxe", "Inspection Pending", "Regular", "Priya Raman", "14:00", 35, "Emma Watson"],
   ["105", "Standard", "Maintenance Blocked", "Regular", null, "—", 0, "—"],
-  ["118", "Suite", "Cleaning in Progress", "VIP", "Priya Raman", "13:30", 45, "David Beckham"],
-  ["201", "Deluxe", "Vacant Dirty", "Overdue", null, "12:00", 30, "Sophia Loren"],
-  ["202", "Standard", "Ready for Guest", "Regular", "Ana Duarte", "16:00", 22, "Michael Jordan"],
-  ["203", "Suite", "Cleaning in Progress", "VIP", "Ana Duarte", "14:30", 48, "Lady Gaga"],
-  ["204", "Standard", "Occupied", "Regular", null, "—", 0, "Chris Evans"],
-  ["205", "Deluxe", "Vacant Dirty", "Early Arrival", null, "13:15", 32, "Natalie Portman"],
-  ["206", "Standard", "Inspection Pending", "Regular", "Ana Duarte", "17:00", 24, "Bruce Wayne"],
-  ["301", "Deluxe", "Ready for Guest", "VIP", "Lucia Moreno", "15:30", 34, "James Bond"],
-  ["302", "Standard", "Vacant Dirty", "Regular", null, "18:00", 28, "Tom Hanks"],
-  ["303", "Suite", "Occupied", "Regular", null, "—", 0, "Scarlett Johansson"],
-  ["305", "Deluxe", "Cleaning in Progress", "Early Arrival", "Lucia Moreno", "13:45", 33, "Taylor Swift"],
-  ["306", "Standard", "Vacant Dirty", "Overdue", null, "12:30", 27, "Leonardo DiCaprio"],
-  ["307", "Standard", "Ready for Guest", "Regular", "Lucia Moreno", "19:00", 23, "Brad Pitt"],
-  ["401", "Suite", "Vacant Dirty", "VIP", null, "14:15", 50, "Beyonce Knowles"],
-  ["402", "Deluxe", "Occupied", "Regular", null, "—", 0, "Keanu Reeves"],
-  ["403", "Standard", "Maintenance Blocked", "Regular", null, "—", 0, "—"],
-  ["405", "Deluxe", "Inspection Pending", "Early Arrival", "Marco Silva", "13:50", 31, "Selena Gomez"],
-  ["412", "Suite", "Cleaning in Progress", "VIP", "Marco Silva", "15:15", 47, "Elon Musk"],
-  ["415", "Standard", "Vacant Dirty", "Regular", null, "20:00", 26, "Will Smith"],
+  ["201", "Standard", "Ready for Guest", "Regular", "Ana Duarte", "16:00", 31, "Sophia Loren"],
+  ["203", "Suite", "Cleaning in Progress", "VIP", "Ana Duarte", "14:30", 45, "Lady Gaga"],
+  ["204", "Suite", "Vacant Dirty", "VIP", null, "14:30", 45, "Chris Evans"],
+  ["206", "Standard", "Inspection Pending", "Regular", "Ana Duarte", "15:30", 25, "Bruce Wayne"],
+  ["302", "Deluxe", "Cleaning in Progress", "Regular", "Marco Silva", "16:00", 35, "Tom Hanks"],
+  ["304", "Suite", "Ready for Guest", "VIP", "Priya Raman", "14:00", 35, "Scarlett Johansson"],
+  ["305", "Standard", "Vacant Dirty", "Regular", null, "16:00", 25, "Taylor Swift"],
 ];
 
 export const initialRooms: Room[] = raw.map(
@@ -152,22 +140,25 @@ export const initialRooms: Room[] = raw.map(
           : priority === "Early Arrival"
             ? `Early Arrival guest check-in scheduled at ${checkIn}`
             : `Standard cleanup queue`,
-    aiQaStatus: status === "Inspection Pending" ? "FLAGGED" : null,
+    aiQaStatus: status === "Inspection Pending"
+      ? (number === "206" ? "PASSED" : "FLAGGED")
+      : null,
     aiQaNotes:
       status === "Inspection Pending"
-        ? "Linens rumpled on right side of bed. Unemptied trash near work desk."
+        ? (number === "206" ? "Clean and staged perfectly." : "Linens rumpled on right side of bed. Unemptied trash near work desk.")
         : null,
     photoUrl:
       status === "Inspection Pending"
-        ? "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=800"
+        ? (number === "206" ? "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=800" : "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=800")
         : null,
     aiQaBboxes:
-      status === "Inspection Pending"
+      status === "Inspection Pending" && number !== "206"
         ? [
-            { label: "Rumpled Linens", x: 250, y: 120, width: 140, height: 70 },
-            { label: "Unemptied Trash", x: 420, y: 280, width: 80, height: 90 },
+            { label: "Rumpled Linens", x: 25, y: 20, width: 40, height: 25 },
+            { label: "Unemptied Trash", x: 50, y: 60, width: 25, height: 30 },
           ]
         : [],
+    maintenanceNote: number === "105" ? "AC Thermostat Unresponsive" : null,
   }),
 );
 

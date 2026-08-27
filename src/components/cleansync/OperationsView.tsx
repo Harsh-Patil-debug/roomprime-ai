@@ -1,6 +1,3 @@
-// Refined UI Pass: Converted 25 hardcoded color references to semantic design tokens.
-// Enhanced layout, border tokens, and theme consistency.
-
 import { useMemo, useState } from "react";
 import { 
   Crown, Search, Wrench, UserRound, CalendarClock, Download, Sparkles, 
@@ -196,8 +193,8 @@ export function OperationsView() {
         </div>
 
         <div className="flex flex-wrap gap-2 w-full md:w-auto justify-end">
-          <Button size="sm" variant="outline" className="border-border hover:bg-primary/5" onClick={() => setQrCenterOpen(true)}>
-            <QrCode className="size-4 mr-1.5 text-primary" /> Room QRs
+          <Button size="sm" variant="outline" className="border-[#EBE3D1] hover:bg-[#B5652F]/5" onClick={() => setQrCenterOpen(true)}>
+            <QrCode className="size-4 mr-1.5 text-[#B5652F]" /> Room QRs
           </Button>
           <Button size="sm" variant="outline" onClick={() => setIngestOpen(true)}>
             <Database className="size-4 mr-1.5" /> Spreadsheet Import
@@ -931,23 +928,23 @@ export function OperationsView() {
 
       {/* Placards Print Generator Dialog */}
       <Dialog open={qrCenterOpen} onOpenChange={setQrCenterOpen}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-muted/40 border-border border-2 rounded-2xl shadow-xl p-6 flex flex-col gap-4">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-[#F5F1E8] border-[#EBE3D1] border-2 rounded-2xl shadow-xl p-6 flex flex-col gap-4">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold font-display flex items-center gap-2 text-foreground">
-              <QrCode className="size-5.5 text-primary" />
+            <DialogTitle className="text-xl font-bold font-display flex items-center gap-2 text-[#2A2620]">
+              <QrCode className="size-5.5 text-[#B5652F]" />
               Placard Generator Center
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground text-xs">
+            <DialogDescription className="text-[#736B5E] text-xs">
               Generate and print placement card placards for guest rooms. Each card contains the Guest Concierge QR and the Staff Check-In QR.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex justify-between items-center my-1 border-b border-border pb-3 shrink-0">
-            <div className="text-xs text-muted-foreground">
-              Generating placards for <span className="font-bold text-primary">{rooms.length}</span> rooms.
+          <div className="flex justify-between items-center my-1 border-b border-[#EBE3D1] pb-3 shrink-0">
+            <div className="text-xs text-[#736B5E]">
+              Generating placards for <span className="font-bold text-[#B5652F]">{rooms.length}</span> rooms.
             </div>
             <Button
-              className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs gap-1.5"
+              className="bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-semibold text-xs gap-1.5"
               onClick={() => {
                 const printWindow = window.open("", "_blank");
                 if (!printWindow) {
@@ -967,8 +964,8 @@ export function OperationsView() {
                     <style>
                       body {
                         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                        background: #FFFFFF;
-                        color: #000000;
+                        background: #F5F1E8;
+                        color: #2A2620;
                         margin: 0;
                         padding: 20px;
                       }
@@ -976,7 +973,7 @@ export function OperationsView() {
                         text-align: center;
                         font-size: 22px;
                         margin-bottom: 30px;
-                        color: #000000;
+                        color: #B5652F;
                       }
                       .grid {
                         display: grid;
@@ -984,20 +981,20 @@ export function OperationsView() {
                         gap: 20px;
                       }
                       .placard {
-                        background: #FFFFFF;
-                        border: 2px solid #B5B5B5;
+                        background: #fff;
+                        border: 2px solid #EBE3D1;
                         border-radius: 16px;
                         padding: 20px;
                         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
                         page-break-inside: avoid;
                       }
                       .header {
-                        border-bottom: 2px solid #D3A376;
+                        border-bottom: 1px solid #EBE3D1;
                         padding-bottom: 10px;
                         margin-bottom: 15px;
                         font-size: 18px;
                         font-weight: bold;
-                        color: #000000;
+                        color: #B5652F;
                       }
                       .qr-container {
                         display: flex;
@@ -1007,14 +1004,14 @@ export function OperationsView() {
                       .qr-box {
                         text-align: center;
                         flex: 1;
-                        background: #F7F7F7;
+                        background: #F5F1E8;
                         padding: 10px;
                         border-radius: 12px;
                       }
                       .qr-title {
                         font-size: 11px;
                         font-weight: bold;
-                        color: #000000;
+                        color: #B5652F;
                         text-transform: uppercase;
                         margin-bottom: 8px;
                       }
@@ -1026,7 +1023,7 @@ export function OperationsView() {
                       }
                       .desc {
                         font-size: 9px;
-                        color: #666666;
+                        color: #736B5E;
                         margin-top: 8px;
                         line-height: 1.3;
                       }

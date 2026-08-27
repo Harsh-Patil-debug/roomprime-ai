@@ -1,6 +1,3 @@
-// Refined UI Pass: Verified 0 hardcoded colors.
-// Fully compliant with design system tokens (border-border, bg-card, exec-shadow, semantic tones).
-
 import { Activity, Clock, Crown, Gauge } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useRoomFlow } from "./store";

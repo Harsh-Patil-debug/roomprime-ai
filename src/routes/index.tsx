@@ -1,20 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { useQrRedirect } from "@/hooks/useQrRedirect";
 import { RoomFlowProvider } from "@/components/cleansync/store";
-import { KpiBar } from "@/components/cleansync/KpiBar";
-import { ControlCenter } from "@/components/cleansync/ControlCenter";
-import { RequestDashboard } from "@/components/cleansync/RequestDashboard";
-import { StaffDashboard } from "@/components/cleansync/StaffDashboard";
-import { GuestPortal } from "@/components/cleansync/GuestPortal";
-import { WhatsAppSandbox } from "@/components/cleansync/WhatsAppSandbox";
-import { DeveloperConsole } from "@/components/cleansync/DeveloperConsole";
 import { AuthProvider, useAuth } from "@/components/cleansync/auth";
-type RoleId = "ops" | "requests" | "staff" | "guest" | "sandbox" | "dev";
-import { LoginScreen } from "@/components/cleansync/LoginScreen";
-import { AppLayout } from "@/components/cleansync/AppLayout";
-import { QrScannerModal } from "@/components/cleansync/QrScannerModal";
+import { AuthScreen } from "@/components/cleansync/AuthScreen";
+import { Loader2 } from "lucide-react";
 
 const title = "RoomFlow — Accessible Hotel Housekeeping & Operations Suite";
 const description =
@@ -45,50 +36,49 @@ function Index() {
 }
 
 function DashboardLayout() {
-  const { user } = useAuth();
-  const [role, setRole] = useState<RoleId>("ops");
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   // Activate post-login redirection checks
   useQrRedirect();
 
-  // Automatically sync navbar tab context to user's assigned role on login
+  // Check roles and query parameter redirect rules
   useEffect(() => {
-    if (user) {
-      setRole(user.role);
+    if (loading) return;
+
+    // Check QR link parameter ?room=203 on index route
+    const searchParams = new URLSearchParams(window.location.search);
+    const roomParam = searchParams.get("room");
+
+    if (roomParam) {
+      router.navigate({ to: "/concierge", search: { room: roomParam } });
+      return;
     }
-  }, [user]);
 
-  const isProtectedRoute = role !== "guest";
+    if (user) {
+      if (user.role === "ops" || user.role === "requests") {
+        router.navigate({ to: "/control" });
+      } else if (user.role === "staff") {
+        router.navigate({ to: "/staff" });
+      } else if (user.role === "guest") {
+        router.navigate({ to: "/concierge" });
+      }
+    }
+  }, [user, loading]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="size-8 text-[#B5652F] animate-spin" />
+        <span className="text-sm font-semibold text-[#736B5E]">Loading RoomFlow...</span>
+      </div>
+    );
+  }
+
+  // If not logged in and no room query param, show Auth Screen to authenticate
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <AppLayout
-        role={role}
-        setRole={setRole}
-        scannerOpen={scannerOpen}
-        setScannerOpen={setScannerOpen}
-      >
-        {isProtectedRoute && !user ? (
-          <LoginScreen />
-        ) : (
-          <>
-            {role === "requests" && <KpiBar />}
-            {role === "ops" && <ControlCenter />}
-            {role === "requests" && <RequestDashboard />}
-            {role === "staff" && <StaffDashboard />}
-            {role === "guest" && <GuestPortal />}
-            {role === "sandbox" && <WhatsAppSandbox />}
-            {role === "dev" && <DeveloperConsole />}
-          </>
-        )}
-      </AppLayout>
-
-      <QrScannerModal
-        open={scannerOpen}
-        onOpenChange={setScannerOpen}
-      />
-
+    <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center p-4">
+      <AuthScreen />
       <Toaster position="top-right" richColors />
     </div>
   );

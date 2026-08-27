@@ -1,6 +1,3 @@
-// Refined UI Pass: Verified 0 hardcoded colors.
-// Fully compliant with design system tokens (bg-surface, bg-card, text-ready, text-vip, exec-shadow).
-
 import { useEffect, useState } from "react";
 import { Camera, CheckCircle2, Crown, Play, Timer, ClipboardCheck, Sparkles, AlertCircle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
@@ -63,8 +60,8 @@ export function HousekeeperView() {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-sm space-y-4 rounded-[2rem] border border-border bg-card p-4 exec-shadow">
+    <div className="mx-auto max-w-4xl w-full">
+      <div className="w-full space-y-4 rounded-xl border border-border bg-card p-6">
         <div className="flex items-center justify-between px-1">
           <div>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Housekeeper Mobile</p>

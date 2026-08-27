@@ -1,22 +1,32 @@
-// Refined UI Pass: Converted 85 hardcoded color references to semantic design tokens.
-// Enhanced guest request cards, badge indicators, and light/dark theme contrast.
-
 import { useState, useMemo, useEffect } from "react";
 import { useRoomFlow } from "./store";
 import {
-  Bell,
-  Heart,
-  Luggage,
-  Wrench,
+  Hotel,
+  Wifi,
   Clock,
+  Camera,
+  Layers,
   Sparkles,
-  ClipboardList,
-  CheckCircle,
-  CornerDownRight,
-  Send,
-  Coffee,
+  Heart,
+  Wrench,
+  Luggage,
   Calendar,
-  Smartphone,
+  PhoneCall,
+  User,
+  Coffee,
+  CheckCircle,
+  Copy,
+  Plus,
+  Send,
+  Loader2,
+  Trash2,
+  Smile,
+  ShieldCheck,
+  CheckCircle2,
+  Utensils,
+  Sun,
+  Moon,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -24,6 +34,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Drawer,
   DrawerContent,
@@ -32,14 +51,57 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { type GuestRequest, type RequestCategory, type Department } from "@/lib/cleansync-data";
+import { type GuestRequest, type RequestCategory, type Department, type RequestPriority } from "@/lib/cleansync-data";
 
-export function GuestPortal() {
-  const { guestRequests, addGuestRequest } = useRoomFlow();
+// ----------------------------------------------------------------------
+// Mock Simulated AI Photos
+// ----------------------------------------------------------------------
+interface MockSnapItem {
+  name: string;
+  url: string;
+  category: RequestCategory;
+  item: string;
+  severity: RequestPriority;
+  dept: Department;
+  details: string;
+}
+
+const MOCK_SNAP_OPTIONS: MockSnapItem[] = [
+  {
+    name: "Broken AC Controller",
+    url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=800",
+    category: "Maintenance",
+    item: "AC Temperature Issue",
+    severity: "High",
+    dept: "Maintenance",
+    details: "AC thermostat buttons are broken and unresponsive. Room is getting warm.",
+  },
+  {
+    name: "Water Spill on Carpet",
+    url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800",
+    category: "Amenities",
+    item: "Room Clean Service Request",
+    severity: "Medium",
+    dept: "Housekeeping",
+    details: "Accidental beverage spill near the nightstand. Needs localized cleaning.",
+  },
+  {
+    name: "Dirty Bed sheets",
+    url: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=800",
+    category: "Amenities",
+    item: "Extra Pillows & Blanket",
+    severity: "Medium",
+    dept: "Housekeeping",
+    details: "Requesting fresh sheet replacement for guest bed.",
+  },
+];
+
+export function GuestConciergePortal() {
+  const { guestRequests, addGuestRequest, rooms } = useRoomFlow();
   
-  // Simulated Room context for the guest
-  const [guestRoom, setGuestRoom] = useState("201");
-
+  // Simulated Room context for the guest, default room 203
+  const [guestRoom, setGuestRoom] = useState("203");
+  
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const roomParam = searchParams.get("room");
@@ -48,85 +110,203 @@ export function GuestPortal() {
     }
   }, []);
 
-  // Catalog Selection Modal State
+  // Fetch Room information to display Guest Name dynamically
+  const activeRoomData = useMemo(() => {
+    return rooms.find((r) => r.number === guestRoom);
+  }, [rooms, guestRoom]);
+
+  const guestSalutation = useMemo(() => {
+    return activeRoomData?.guestName && activeRoomData.guestName !== "—"
+      ? `, ${activeRoomData.guestName}`
+      : ", Mr. Sharma";
+  }, [activeRoomData]);
+
+  // Catalog Item Selection state
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ category: RequestCategory; item: string; defaultDept: Department } | null>(null);
   const [notes, setNotes] = useState("");
 
-  const catalogItems = [
+  // AI visual request box simulation states
+  const [snapOpen, setSnapOpen] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiResult, setAiResult] = useState<MockSnapItem | null>(null);
+
+  // Tracker simulation progress steps state
+  const [trackerRequest, setTrackerRequest] = useState<{ item: string; step: number; staffName: string } | null>(null);
+  
+  // Track manually dismissed request IDs to prevent them from showing up again on re-render
+  const [dismissedRequestIds, setDismissedRequestIds] = useState<string[]>([]);
+  
+  // Custom user typed request text
+  const [customRequestText, setCustomRequestText] = useState("");
+
+  // Helper function to dismiss tracker and add it to dismissed IDs
+  const handleDismissTracker = () => {
+    const myRequests = guestRequests.filter((r) => r.roomNumber === guestRoom);
+    if (myRequests.length > 0) {
+      const latest = myRequests[myRequests.length - 1];
+      if (latest) {
+        setDismissedRequestIds((prev) => [...prev, latest.id]);
+      }
+    }
+    setTrackerRequest(null);
+  };
+
+  // Monitor guest requests to auto-track the most recent request
+  useEffect(() => {
+    const myRequests = guestRequests.filter((r) => r.roomNumber === guestRoom);
+    if (myRequests.length > 0) {
+      const latest = myRequests[myRequests.length - 1];
+      if (!latest) return;
+      
+      // Prevent showing tracker if it has been dismissed by user
+      if (dismissedRequestIds.includes(latest.id)) {
+        setTrackerRequest(null);
+        return;
+      }
+      
+      // Map requests status directly to tracker steps
+      let step = 0;
+      let staffName = latest.assignedStaff || "Lucia Moreno";
+      
+      if (latest.status === "In Progress") {
+        step = 1; // Assigned
+      } else if (latest.status === "Escalated") {
+        step = 2; // On the way
+      } else if (latest.status === "Completed") {
+        step = 3; // Delivered
+      }
+
+      setTrackerRequest({
+        item: latest.item,
+        step,
+        staffName,
+      });
+    }
+  }, [guestRequests, guestRoom, dismissedRequestIds]);
+
+  // Demo simulator ticker to update steps for demo workers
+  useEffect(() => {
+    if (!trackerRequest || trackerRequest.step >= 3) return;
+    const interval = setTimeout(() => {
+      setTrackerRequest((prev) => {
+        if (!prev) return null;
+        if (prev.step >= 3) return prev;
+        const nextStep = prev.step + 1;
+        
+        // Toast status alerts to guest
+        if (nextStep === 1) {
+          toast.info(`Runner assigned: ${prev.staffName} is preparing your request!`);
+        } else if (nextStep === 2) {
+          toast.info(`Runner ${prev.staffName} is on the way! ETA: 3 mins.`);
+        } else if (nextStep === 3) {
+          toast.success(`🎉 Your request "${prev.item}" has been delivered!`);
+        }
+
+        return { ...prev, step: nextStep };
+      });
+    }, 10000); // Progress tracker every 10 seconds for demo pacing
+    return () => clearTimeout(interval);
+  }, [trackerRequest]);
+
+  // Click outside / on side to dismiss delivered request tracker
+  useEffect(() => {
+    if (!trackerRequest || trackerRequest.step < 3) return;
+
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Check if click was on the side/outside of the floating card
+      const cardEl = document.querySelector(".tracker-floating-card");
+      if (cardEl && !cardEl.contains(e.target as Node)) {
+        handleDismissTracker();
+      }
+    };
+
+    // Add event listener with delay to prevent capturing initial click that triggered it
+    const timeout = setTimeout(() => {
+      document.addEventListener("click", handleGlobalClick);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeout);
+      document.removeEventListener("click", handleGlobalClick);
+    };
+  }, [trackerRequest]);
+
+  // 1-Tap quick service catalog config
+  const quickCatalog = [
     {
       category: "Amenities" as RequestCategory,
-      title: "Housekeeping & Amenities",
+      title: "Fresh Bath Towels",
+      subtitle: "Set of 3 cotton towels",
       icon: Heart,
-      color: "text-primary bg-primary/10 border-primary/20",
-      items: [
-        { name: "Extra Fresh Towels", dept: "Housekeeping" as Department },
-        { name: "Toiletries Kit (Shampoo/Soap)", dept: "Housekeeping" as Department },
-        { name: "Extra Pillows & Blanket", dept: "Housekeeping" as Department },
-        { name: "Complementary Bottled Water", dept: "Housekeeping" as Department },
-        { name: "Room Clean Service Request", dept: "Housekeeping" as Department },
-      ],
+      dept: "Housekeeping" as Department,
+    },
+    {
+      category: "Amenities" as RequestCategory,
+      title: "Dental Kit & Toiletries",
+      subtitle: "Dental kit, shampoo, body gel",
+      icon: Smile,
+      dept: "Housekeeping" as Department,
+    },
+    {
+      category: "Amenities" as RequestCategory,
+      title: "Extra Pillows & Blanket",
+      subtitle: "Hypoallergenic pillows",
+      icon: Layers,
+      dept: "Housekeeping" as Department,
+    },
+    {
+      category: "Amenities" as RequestCategory,
+      title: "Room Refresh Turn",
+      subtitle: "Complete room cleaning turn",
+      icon: Sparkles,
+      dept: "Housekeeping" as Department,
     },
     {
       category: "Maintenance" as RequestCategory,
-      title: "Maintenance & Repairs",
+      title: "AC Temperature Check",
+      subtitle: "Air conditioner heating / cooling",
       icon: Wrench,
-      color: "text-destructive bg-destructive/10 border-destructive/20",
-      items: [
-        { name: "AC / HVAC Temperature Issue", dept: "Maintenance" as Department },
-        { name: "Lightbulb Replacement", dept: "Maintenance" as Department },
-        { name: "Bathroom Plumb / Clog Leak", dept: "Maintenance" as Department },
-        { name: "TV / Wifi Connection Fault", dept: "Maintenance" as Department },
-      ],
+      dept: "Maintenance" as Department,
     },
     {
-      category: "Luggage" as RequestCategory,
-      title: "Luggage & Porter Assist",
-      icon: Luggage,
-      color: "text-primary bg-primary/10 border-primary/20",
-      items: [
-        { name: "Baggage Pickup (Check-out)", dept: "Front Desk" as Department },
-        { name: "Baggage Delivery (Arrival)", dept: "Front Desk" as Department },
-      ],
+      category: "Maintenance" as RequestCategory,
+      title: "TV & Wi-Fi Repair",
+      subtitle: "Remote control or network check",
+      icon: Wifi,
+      dept: "Maintenance" as Department,
     },
     {
       category: "Late Checkout" as RequestCategory,
-      title: "Front Desk & Extensions",
+      title: "Late Check-out request",
+      subtitle: "1-tap extensions request",
       icon: Calendar,
-      color: "text-primary bg-primary/10 border-primary/20",
-      items: [
-        { name: "Late Check-out request", dept: "Front Desk" as Department },
-        { name: "Front Desk Callback", dept: "Front Desk" as Department },
-        { name: "Order Airport Taxi", dept: "Front Desk" as Department },
-      ],
+      dept: "Front Desk" as Department,
     },
     {
-      category: "Food Service" as RequestCategory,
-      title: "In-Room Food Service",
-      icon: Coffee,
-      color: "text-ready bg-ready/10 border-ready/20",
-      items: [
-        { name: "Fresh Ice Bucket Delivery", dept: "Room Service" as Department },
-        { name: "Breakfast Order Request", dept: "Room Service" as Department },
-        { name: "Drinks / Soda Refreshments", dept: "Room Service" as Department },
-      ],
+      category: "Luggage" as RequestCategory,
+      title: "Baggage Pickup",
+      subtitle: "Check-out porter assist",
+      icon: Luggage,
+      dept: "Front Desk" as Department,
     },
   ];
 
-  // Retrieve requests submitted by this room
-  const myRequests = useMemo(() => {
-    return guestRequests
-      .filter((req) => req.roomNumber === guestRoom)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [guestRequests, guestRoom]);
+  const handleCopyWifi = () => {
+    navigator.clipboard.writeText("RoomFlow_Luxury_Wifi");
+    toast.success("Wi-Fi password copied to clipboard!");
+  };
 
-  const handleItemSelect = (category: RequestCategory, item: string, defaultDept: Department) => {
-    setSelectedItem({ category, item, defaultDept });
-    setNotes("");
+  const handleCatalogSelect = (item: { category: RequestCategory; title: string; dept: Department }) => {
+    setSelectedItem({
+      category: item.category,
+      item: item.title,
+      defaultDept: item.dept,
+    });
     setCatalogOpen(true);
   };
 
-  const handleRequestSubmit = (e: React.FormEvent) => {
+  const handleCatalogSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItem) return;
 
@@ -134,218 +314,527 @@ export function GuestPortal() {
       guestRoom,
       selectedItem.category,
       selectedItem.item,
-      notes,
+      notes || "Standard request via Guest Portal.",
       "Medium",
       selectedItem.defaultDept
     );
 
-    toast.success("Request submitted successfully!", {
-      description: "You can track its status in the real-time request tracker below.",
+    toast.success(`🎉 Ordered: "${selectedItem.item}" successfully dispatched!`);
+    
+    // Initialize the live tracker instantly for presentation satisfaction
+    setTrackerRequest({
+      item: selectedItem.item,
+      step: 0, // Received
+      staffName: "Priya Raman",
     });
 
-    setCatalogOpen(false);
+    setNotes("");
     setSelectedItem(null);
+    setCatalogOpen(false);
   };
 
-  // State Machine Step Tracker
-  const getStepStatus = (req: GuestRequest, step: number) => {
-    if (req.status === "Completed") return "completed";
-    if (step === 1) return "completed"; // Received is always true for active
-    if (step === 2) return req.status !== "Open" ? "completed" : "pending";
-    return "pending";
+  // Simulate Snap Photo AI analysis workflow
+  const handleSnapOption = (option: MockSnapItem) => {
+    setAnalyzing(true);
+    setAiResult(null);
+
+    // Simulate 2s visual laser scanning delay
+    setTimeout(() => {
+      setAnalyzing(false);
+      setAiResult(option);
+    }, 2000);
   };
 
-  const renderTrackerSteps = (req: GuestRequest) => {
-    const steps = [
-      { num: 1, label: "Request Received", time: new Date(req.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
-      { num: 2, label: "Staff Dispatched", time: req.assignedStaff ? "Active" : "Pending" },
-      { num: 3, label: "Resolved Ready", time: req.status === "Completed" ? "Done" : "Pending" },
-    ];
+  const handleAiConfirmSubmit = () => {
+    if (!aiResult) return;
 
-    return (
-      <div className="relative flex items-center justify-between w-full mt-4 bg-muted/50 dark:bg-card p-3 rounded-lg border border-border/60">
-        {steps.map((st, idx) => {
-          const status = getStepStatus(req, st.num);
-          return (
-            <div key={st.num} className="flex-1 flex flex-col items-center relative text-center">
-              <div className={`size-7 rounded-full flex items-center justify-center border-2 text-xs font-bold font-mono transition-all z-10 ${
-                status === "completed" 
-                  ? "bg-ready border-ready text-white" 
-                  : "bg-card border-border text-muted-foreground"
-              }`}>
-                {st.num}
-              </div>
-              <span className="text-[10px] font-bold text-foreground/90 mt-1.5 leading-none">{st.label}</span>
-              <span className="text-[8px] text-muted-foreground mt-0.5 font-mono">{st.time}</span>
-              {idx < steps.length - 1 && (
-                <div className={`absolute top-3.5 left-1/2 w-full h-0.5 -z-0 ${
-                  getStepStatus(req, st.num + 1) === "completed" ? "bg-ready" : "bg-muted"
-                }`} />
-              )}
-            </div>
-          );
-        })}
-      </div>
+    addGuestRequest(
+      guestRoom,
+      aiResult.category,
+      aiResult.item,
+      aiResult.details,
+      aiResult.severity,
+      aiResult.dept
     );
+
+    toast.success(`Gemini AI Dispatched: Classified "${aiResult.item}" routed to ${aiResult.dept} Department!`);
+    // Reset snap drawer and states
+    setTrackerRequest({
+      item: aiResult.item,
+      step: 0,
+      staffName: aiResult.dept === "Maintenance" ? "Marco Silva" : "Priya Raman",
+    });
+
+    setAiResult(null);
+    setSnapOpen(false);
   };
+
+  const handleCustomSubmit = () => {
+    const text = customRequestText.trim();
+    if (!text) return;
+
+    // Smart classification logic
+    const lower = text.toLowerCase();
+    let category: RequestCategory = "Amenities";
+    let dept: Department = "Housekeeping";
+
+    if (
+      lower.includes("leak") ||
+      lower.includes("ac") ||
+      lower.includes("light") ||
+      lower.includes("plumbing") ||
+      lower.includes("repair") ||
+      lower.includes("broken") ||
+      lower.includes("clog") ||
+      lower.includes("toilet") ||
+      lower.includes("shower") ||
+      lower.includes("wifi") ||
+      lower.includes("internet") ||
+      lower.includes("tv")
+    ) {
+      category = "Maintenance";
+      dept = "Maintenance";
+    } else if (
+      lower.includes("baggage") ||
+      lower.includes("luggage") ||
+      lower.includes("checkout") ||
+      lower.includes("key") ||
+      lower.includes("bellboy") ||
+      lower.includes("taxi") ||
+      lower.includes("wake")
+    ) {
+      category = "Luggage";
+      dept = "Front Desk";
+    } else if (
+      lower.includes("food") ||
+      lower.includes("drink") ||
+      lower.includes("dinner") ||
+      lower.includes("lunch") ||
+      lower.includes("breakfast") ||
+      lower.includes("ice") ||
+      lower.includes("water") ||
+      lower.includes("coke") ||
+      lower.includes("tea") ||
+      lower.includes("coffee")
+    ) {
+      category = "Food Service";
+      dept = "Room Service";
+    }
+
+    addGuestRequest(guestRoom, category, text, "Custom typed guest request.", "Medium", dept);
+    toast.success(`🎉 Request "${text}" sent to ${dept}!`);
+
+    // Reset typing bar and show tracker
+    setTrackerRequest({
+      item: text,
+      step: 0,
+      staffName: dept === "Maintenance" ? "Marco Silva" : "Priya Raman",
+    });
+    setCustomRequestText("");
+  };
+
+  const handleFrontDeskCall = () => {
+    addGuestRequest(
+      guestRoom,
+      "Inquiry" as any,
+      "Front Desk Callback",
+      "Guest requested a direct phone call from Front Desk immediately.",
+      "High",
+      "Front Desk"
+    );
+    toast.success("🛎 Front Desk Call Requested. Agent will dial your room shortly!");
+  };
+
+  const handleLuggageStorage = () => {
+    addGuestRequest(
+      guestRoom,
+      "Luggage" as any,
+      "Luggage Storage Request",
+      "Guest requested luggage holding assistance at checkout.",
+      "Low",
+      "Front Desk"
+    );
+    toast.success("🧳 Luggage Storage Requested. Porter has been dispatched to assist.");
+  };
+
+  // Tracker UI messaging updates
+  const trackerStatusMessage = useMemo(() => {
+    if (!trackerRequest) return "";
+    const messages = [
+      "Front Desk has received your request and is routing it.",
+      `Request assigned to ${trackerRequest.staffName}. Preparing items.`,
+      `Runner ${trackerRequest.staffName} is heading up the elevator.`,
+      "Delivered! Please contact Front Desk if you need anything else.",
+    ];
+    return messages[trackerRequest.step] || "";
+  }, [trackerRequest]);
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="w-full max-w-md mx-auto space-y-6 pb-24 font-sans select-none">
       
-      {/* GUEST HERO STATUS BANNER */}
-      <Card className="bg-card border border-border p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-ready animate-pulse" />
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-sans">Active Connection</span>
-          </div>
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground mt-1.5">Welcome to Room {guestRoom}</h2>
-          <p className="text-xs text-muted-foreground mt-1">Interact directly with housekeeping, maintenance, and concierge.</p>
+      {/* 1. Guest Welcome Header */}
+      <Card className="bg-white border-[#EBE3D1] p-5 rounded-3xl shadow-sm text-left relative overflow-hidden">
+        <div className="flex items-center justify-between mb-3">
+          <Badge className="bg-[#B5652F]/10 hover:bg-[#B5652F]/15 border border-[#B5652F]/20 text-[#B5652F] font-extrabold text-[9px] uppercase tracking-wider px-2.5 py-0.5 rounded-md">
+            Guest Concierge Portal
+          </Badge>
+          <Hotel className="size-5 text-[#B5652F]" />
         </div>
-        <div className="bg-muted/40 border p-3 rounded-xl flex items-center gap-3 shrink-0">
-          <Smartphone className="size-8 text-primary" />
-          <div>
-            <span className="text-[9px] font-bold text-muted-foreground uppercase block tracking-wider">Device Endpoint</span>
-            <span className="text-xs font-bold text-foreground font-mono">Mobile Web App</span>
-          </div>
-        </div>
-      </Card>
-
-      {/* TRACK PENDING CONCIERGE REQUESTS */}
-      <Card className="p-6 bg-card border border-border shadow-sm space-y-4">
-        <div>
-          <h3 className="font-display text-lg font-bold text-foreground">Active Request Tracker</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Real-time status updates of amenities or repairs logged for your room.</p>
-        </div>
-
-        <div className="space-y-3.5">
-          {myRequests.map((req) => (
-            <div key={req.id} className="p-4 rounded-xl border border-border bg-muted/20 dark:bg-black/5 space-y-3">
-              <div className="flex justify-between items-start gap-2">
-                <div>
-                  <span className="font-bold text-sm text-foreground">{req.item}</span>
-                  <p className="text-[10px] text-muted-foreground mt-1.5 font-mono">Request Reference: {req.id}</p>
-                </div>
-                {req.status === "Completed" ? (
-                  <Badge className="bg-ready/15 text-ready border border-ready/30 hover:none flex items-center gap-1 text-[10px] py-0 px-2 leading-loose font-sans font-medium">
-                    <CheckCircle className="size-3" /> Resolved
-                  </Badge>
-                ) : (
-                  <Badge className="bg-primary/10 text-primary border border-primary/20 hover:none text-[10px] py-0 px-2 leading-loose font-sans font-medium animate-pulse">
-                    Processing
-                  </Badge>
-                )}
-              </div>
-
-              {req.details && (
-                <div className="text-xs text-muted-foreground bg-card p-2.5 rounded border border-border leading-relaxed">
-                  <span className="font-bold text-[9px] text-primary uppercase block tracking-wider mb-1">Guest Instructions</span>
-                  {req.details}
-                </div>
-              )}
-
-              {/* State Machine Step Tracker */}
-              {renderTrackerSteps(req)}
-
-              {req.status === "Completed" && (
-                <div className="bg-ready/5 border border-ready/20 p-2 rounded text-xs text-ready text-center font-medium leading-normal mt-2">
-                  ✨ Fulfillment complete. Thank you for your patience!
-                </div>
-              )}
-            </div>
-          ))}
-
-          {myRequests.length === 0 && (
-            <div className="py-12 text-center space-y-3 bg-muted/20 border border-dashed rounded-xl p-6">
-              <ClipboardList className="size-8 text-muted-foreground mx-auto" />
-              <p className="text-sm font-semibold text-foreground">No active requests logged</p>
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Submit items from the service catalog below to initiate guest concierge assistance.
-              </p>
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* REQUEST SERVICE CATALOG */}
-      <div className="space-y-4">
-        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest pl-1">Room Service & Amenity Catalog</h3>
         
-        <div className="grid gap-6 sm:grid-cols-2">
-          {catalogItems.map((category) => (
-            <Card key={category.category} className="bg-card border border-border shadow-sm p-5 space-y-3.5">
-              
-              {/* Category Header */}
-              <div className="flex items-center gap-2 border-b pb-2.5 border-border/60 /60">
-                <span className={`size-8 rounded-lg flex items-center justify-center border ${category.color}`}>
-                  <category.icon className="size-4.5" />
-                </span>
-                <span className="font-display font-bold text-sm text-foreground">{category.title}</span>
-              </div>
+        <h2 className="text-xl font-black text-[#2A2620] tracking-tight">
+          Welcome to Suite {guestRoom}{guestSalutation}
+        </h2>
+        <p className="text-xs text-[#736B5E] mt-1 font-medium">
+          We are committed to making your stay as luxury and seamless as possible.
+        </p>
 
-              {/* Catalog Items buttons */}
-              <div className="flex flex-col gap-1.5">
-                {category.items.map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => handleItemSelect(category.category, item.name, item.dept)}
-                    className="flex items-center justify-between w-full text-left text-xs bg-muted/30 dark:bg-card border border-border/70 hover:border-primary/40 hover:bg-primary/5 p-2.5 rounded-lg transition-colors group cursor-pointer"
-                  >
-                    <span className="text-foreground/90 font-medium group-hover:text-primary transition-colors">{item.name}</span>
-                    <CornerDownRight className="size-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                ))}
+        {/* Room Info Pills */}
+        <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-[#F5F1E8]">
+          <div className="p-2.5 bg-[#F5F1E8] border border-[#EBE3D1] rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wifi className="size-4 text-[#B5652F]" />
+              <div className="text-left">
+                <span className="text-[8px] uppercase tracking-wider text-[#736B5E] font-bold block leading-none">WiFi Password</span>
+                <span className="text-xs font-extrabold text-[#2A2620] leading-none">RoomFlow_WiFi</span>
               </div>
+            </div>
+            <button 
+              type="button" 
+              onClick={handleCopyWifi}
+              className="p-1 hover:bg-white rounded-lg transition-colors cursor-pointer text-[#736B5E]"
+            >
+              <Copy className="size-3.5" />
+            </button>
+          </div>
 
-            </Card>
-          ))}
+          <div className="p-2.5 bg-[#F5F1E8] border border-[#EBE3D1] rounded-2xl flex items-center gap-2">
+            <Clock className="size-4 text-[#B5652F]" />
+            <div className="text-left">
+              <span className="text-[8px] uppercase tracking-wider text-[#736B5E] font-bold block leading-none">Breakfast Hours</span>
+              <span className="text-xs font-extrabold text-[#2A2620]">07:00 - 10:30 AM</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Typing Request Bar */}
+      <Card className="bg-white border-[#EBE3D1] p-2.5 rounded-3xl shadow-sm flex items-center gap-2 select-none">
+        <Input
+          placeholder="Type what you need (e.g. extra soap, fresh sheets)..."
+          className="flex-1 border-0 focus-visible:ring-0 shadow-none text-xs text-[#2A2620] placeholder-[#736B5E] h-10 px-2 bg-transparent focus:outline-none"
+          value={customRequestText}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomRequestText(e.target.value)}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              handleCustomSubmit();
+            }
+          }}
+        />
+        <Button
+          size="icon"
+          onClick={handleCustomSubmit}
+          disabled={!customRequestText.trim()}
+          className="size-10 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white rounded-2xl shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+        >
+          <Send className="size-4" />
+        </Button>
+      </Card>
+
+      <Card 
+        onClick={() => setSnapOpen(true)}
+        className="bg-white border-[#EBE3D1] p-5 rounded-3xl shadow-sm text-center border-dashed border-2 hover:border-[#B5652F] cursor-pointer transition-all duration-300 relative overflow-hidden group select-none"
+      >
+        <div className="mx-auto size-12 bg-[#B5652F]/10 rounded-full flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-300">
+          <Camera className="size-6 text-[#B5652F]" />
+        </div>
+        <h3 className="font-extrabold text-sm text-[#2A2620] uppercase tracking-wider flex items-center justify-center gap-1.5">
+          <Sparkles className="size-4.5 text-[#B5652F] animate-pulse" />
+          <span>Snap Photo or Upload Issue</span>
+        </h3>
+        <p className="text-xs text-[#736B5E] mt-1.5 leading-relaxed font-sans max-w-xs mx-auto">
+          Snap a photo of any room issue (e.g. leaking AC, faulty TV, spill). Gemini AI will auto-classify, set urgency, and dispatch.
+        </p>
+      </Card>
+
+      {/* 3. 1-Tap Quick Service Catalog */}
+      <div className="space-y-3.5">
+        <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#736B5E] text-left">
+          🛎 1-Tap Quick Service Catalog
+        </h3>
+
+        <div className="grid grid-cols-2 gap-3">
+          {quickCatalog.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.title}
+                type="button"
+                onClick={() => handleCatalogSelect(item)}
+                className="bg-white border border-[#EBE3D1] p-4 rounded-3xl hover:border-[#B5652F] hover:shadow-sm text-left transition-all duration-300 cursor-pointer active:scale-95 flex flex-col justify-between min-h-[110px]"
+              >
+                <div className="size-8 bg-[#F5F1E8] rounded-xl flex items-center justify-center text-[#B5652F] mb-3">
+                  <Icon className="size-4 shrink-0" />
+                </div>
+                <div>
+                  <h4 className="font-black text-xs text-[#2A2620] leading-tight">{item.title}</h4>
+                  <p className="text-[10px] text-[#736B5E] mt-0.5 font-medium leading-tight">{item.subtitle}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* CONFIRMATION SUBMISSION BOTTOM-SHEET / DRAWER */}
-      <Drawer open={catalogOpen} onOpenChange={setCatalogOpen}>
-        <DrawerContent className="bg-card border-t border-border pb-6">
-          <div className="mx-auto w-full max-w-sm">
-            <DrawerHeader>
-              <DrawerTitle className="text-foreground font-display font-bold">Confirm Request Details</DrawerTitle>
-              <DrawerDescription className="text-xs text-muted-foreground">
-                Verify dispatch instructions for Room {guestRoom}.
-              </DrawerDescription>
-            </DrawerHeader>
+      {/* 5. Quick Service Actions */}
+      <div className="grid grid-cols-2 gap-3 pt-2">
+        <Button
+          onClick={handleFrontDeskCall}
+          className="h-12 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-extrabold text-xs rounded-2xl cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+        >
+          <PhoneCall className="size-4" />
+          <span>Request Callback</span>
+        </Button>
+        <Button
+          onClick={handleLuggageStorage}
+          variant="outline"
+          className="h-12 border-[#EBE3D1] hover:bg-[#F5F1E8] text-[#2A2620] font-extrabold text-xs rounded-2xl cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Luggage className="size-4 text-[#B5652F]" />
+          <span>Luggage holding</span>
+        </Button>
+      </div>
 
-            {selectedItem && (
-              <form onSubmit={handleRequestSubmit} className="space-y-4 px-4 pt-2">
-                <div className="p-3.5 bg-muted/40 rounded-xl border border-border text-xs">
-                  <span className="text-[9px] text-primary font-bold block uppercase tracking-wide">Selected Catalog Item</span>
-                  <p className="font-semibold text-foreground mt-1">{selectedItem.item}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">Routing queue: {selectedItem.defaultDept} Department</p>
+      {/* 4. Live "Uber-Style" Request Tracker (Bottom Floating Card) */}
+      {trackerRequest && (
+        <div className="fixed bottom-4 left-4 right-4 z-40 max-w-sm mx-auto select-none">
+          <Card className="bg-white border border-[#EBE3D1] p-4.5 rounded-3xl shadow-xl space-y-3.5 border-t-4 border-t-[#B5652F] tracker-floating-card">
+            {/* Header info */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="size-8 bg-[#8A9A6B]/15 rounded-xl flex items-center justify-center text-[#8A9A6B]">
+                  <CheckCircle2 className="size-4.5" />
                 </div>
+                <div className="text-left">
+                  <span className="text-[8px] uppercase tracking-wider text-[#736B5E] font-bold block leading-none">Active Order</span>
+                  <span className="text-xs font-black text-[#2A2620]">{trackerRequest.item}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1.5">
+                <Badge className="bg-[#8A9A6B]/15 text-[#8A9A6B] font-extrabold text-[9px] uppercase tracking-wider py-0.5 rounded-md">
+                  {trackerRequest.step === 3 ? "Delivered" : "In Flight"}
+                </Badge>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDismissTracker();
+                  }}
+                  className="p-1 hover:bg-[#F5F1E8] rounded-full text-[#736B5E] hover:text-[#2A2620] transition-colors cursor-pointer"
+                  title="Dismiss Tracker"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            </div>
 
+            {/* Tracker Step Progress bar */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[8px] uppercase tracking-wider text-[#736B5E] font-bold">
+                <span className={trackerRequest.step >= 0 ? "text-[#8A9A6B]" : ""}>Received</span>
+                <span className={trackerRequest.step >= 1 ? "text-[#8A9A6B]" : ""}>Assigned</span>
+                <span className={trackerRequest.step >= 2 ? "text-[#8A9A6B]" : ""}>On The Way</span>
+                <span className={trackerRequest.step >= 3 ? "text-[#8A9A6B]" : ""}>Delivered</span>
+              </div>
+
+              {/* Ticking indicator bar */}
+              <div className="grid grid-cols-4 gap-1.5 h-1.5 bg-[#F5F1E8] rounded-full overflow-hidden border border-[#EBE3D1]/40">
+                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 0 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 1 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 2 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 3 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+              </div>
+            </div>
+
+            {/* Live details text */}
+            <p className="text-[11px] text-[#736B5E] italic text-left font-medium leading-relaxed bg-[#F5F1E8]/50 p-2 border border-[#EBE3D1] rounded-xl flex items-center gap-1.5">
+              {trackerRequest.step < 3 && <Loader2 className="size-3 text-[#B5652F] animate-spin shrink-0" />}
+              <span>{trackerStatusMessage}</span>
+            </p>
+          </Card>
+        </div>
+      )}
+
+      {/* Drawer catalog request detail logger */}
+      <Drawer open={catalogOpen} onOpenChange={setCatalogOpen}>
+        <DrawerContent className="bg-white border-t border-[#EBE3D1] pb-6 select-none">
+          {selectedItem && (
+            <div className="mx-auto w-full max-w-sm">
+              <DrawerHeader>
+                <DrawerTitle className="text-[#2A2620] font-black text-sm uppercase tracking-wider">Confirm Request Details</DrawerTitle>
+                <DrawerDescription className="text-[11px] text-[#736B5E] font-medium">
+                  Dispatching request for <strong>"{selectedItem.item}"</strong> from Suite {guestRoom}.
+                </DrawerDescription>
+              </DrawerHeader>
+
+              <form onSubmit={handleCatalogSubmit} className="space-y-4 p-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="notes-area" className="text-xs text-foreground">Additional instructions / guest notes</Label>
+                  <Label htmlFor="guest-catalog-notes" className="text-xs font-bold text-[#2A2620]">Add custom notes / quantities (optional)</Label>
                   <Textarea
-                    id="notes-area"
-                    placeholder="e.g. Please leave outside the door, or call first..."
+                    id="guest-catalog-notes"
+                    placeholder="e.g. Please send 3 sets of towels, extra shampoo..."
                     rows={3}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="text-xs border-border"
+                    className="border-[#EBE3D1] text-xs text-[#2A2620] placeholder-[#736B5E]"
                   />
                 </div>
 
                 <DrawerFooter className="px-0 pt-2 flex flex-col gap-2">
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold gap-1.5 min-h-[48px]">
-                    <Send className="size-3.5" /> Submit Request
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-extrabold text-xs min-h-[44px] rounded-xl cursor-pointer"
+                  >
+                    Confirm & Dispatch Order
                   </Button>
-                  <Button type="button" variant="outline" className="w-full border-border text-muted-foreground min-h-[48px]" onClick={() => setCatalogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setCatalogOpen(false)}
+                    className="w-full border-[#EBE3D1] text-[#736B5E] min-h-[44px] rounded-xl cursor-pointer hover:bg-[#F5F1E8]/50"
+                  >
                     Cancel
                   </Button>
                 </DrawerFooter>
               </form>
-            )}
+            </div>
+          )}
+        </DrawerContent>
+      </Drawer>
+
+      {/* Drawer: Snap Photo AI visual scanner */}
+      <Drawer open={snapOpen} onOpenChange={setSnapOpen}>
+        <DrawerContent className="bg-white border-t border-[#EBE3D1] pb-6 select-none">
+          <div className="mx-auto w-full max-w-sm">
+            <DrawerHeader>
+              <DrawerTitle className="text-[#2A2620] font-black text-sm uppercase tracking-wider flex items-center gap-1.5 justify-center">
+                <Sparkles className="size-4.5 text-[#B5652F]" />
+                <span>Snap-a-Need AI Simulation</span>
+              </DrawerTitle>
+              <DrawerDescription className="text-[11px] text-[#736B5E] font-medium text-center">
+                Select a simulated guest snap photo below to test Gemini's auto-routing operations classifier.
+              </DrawerDescription>
+            </DrawerHeader>
+
+            <div className="p-4 space-y-4">
+              
+              {/* Photo Options grid */}
+              {!analyzing && !aiResult && (
+                <div className="grid grid-cols-3 gap-2">
+                  {MOCK_SNAP_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.name}
+                      type="button"
+                      onClick={() => handleSnapOption(opt)}
+                      className="group flex flex-col items-center gap-2 border border-[#EBE3D1] hover:border-[#B5652F] p-2 rounded-2xl bg-white transition-all text-center cursor-pointer"
+                    >
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#F5F1E8] border border-[#EBE3D1]">
+                        <img src={opt.url} alt={opt.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      </div>
+                      <span className="text-[10px] font-bold text-[#2A2620] leading-tight block truncate w-full">{opt.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Scanning visual overlay */}
+              {analyzing && (
+                <div className="flex flex-col items-center justify-center py-10 space-y-4 relative">
+                  <div className="size-20 bg-[#B5652F]/10 rounded-full flex items-center justify-center relative overflow-hidden border border-[#B5652F]/20">
+                    <Camera className="size-8 text-[#B5652F] animate-pulse" />
+                    {/* Visual scanner bouncing laser */}
+                    <div className="absolute left-0 right-0 h-0.5 bg-[#B5652F] shadow-[0_0_8px_#B5652F] animate-bounce" style={{ animationDuration: "1.2s" }} />
+                  </div>
+                  <div className="text-center">
+                    <span className="font-extrabold text-xs text-[#2A2620] block">Gemini Visual AI Analyzing...</span>
+                    <span className="text-[10px] text-[#736B5E] mt-1 block">Classifying ticket category, routing rules, and severity.</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Classification result preview */}
+              {aiResult && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="aspect-video w-full rounded-2xl overflow-hidden border border-[#EBE3D1]">
+                    <img src={aiResult.url} alt={aiResult.name} className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="p-3 bg-[#F5F1E8] border border-[#EBE3D1] rounded-2xl space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-extrabold text-xs text-[#2A2620] flex items-center gap-1">
+                        <ShieldCheck className="size-4.5 text-[#8A9A6B]" />
+                        <span>AI Classification Report</span>
+                      </span>
+                      <Badge className="bg-[#B14A3E]/15 text-[#B14A3E] border-0 text-[8px] font-black tracking-wider uppercase px-2 py-0.5 rounded">
+                        {aiResult.severity} Severity
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] pt-1.5 border-t border-[#EBE3D1]">
+                      <div>
+                        <span className="text-[#736B5E] block font-semibold text-[9px] uppercase tracking-wider">Identified Issue</span>
+                        <strong className="text-[#2A2620]">{aiResult.item}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[#736B5E] block font-semibold text-[9px] uppercase tracking-wider">Assigned Routing</span>
+                        <strong className="text-[#B5652F]">{aiResult.dept} Dept</strong>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] border-t border-[#EBE3D1] pt-1.5">
+                      <span className="text-[#736B5E] block font-semibold text-[9px] uppercase tracking-wider">Extracted Details</span>
+                      <p className="italic text-[#736B5E] leading-normal font-sans mt-0.5">"{aiResult.details}"</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setAiResult(null)}
+                      className="border-[#EBE3D1] text-[#736B5E] text-xs h-10 rounded-xl"
+                    >
+                      Re-take Photo
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleAiConfirmSubmit}
+                      className="bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-extrabold text-xs h-10 rounded-xl flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      Confirm & Dispatch
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <DrawerFooter className="px-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setAiResult(null);
+                  setSnapOpen(false);
+                }}
+                className="w-full border-[#EBE3D1] text-[#736B5E] min-h-[40px] rounded-xl cursor-pointer hover:bg-[#F5F1E8]/50"
+              >
+                Close Camera
+              </Button>
+            </DrawerFooter>
           </div>
         </DrawerContent>
       </Drawer>
     </div>
   );
 }
+export { GuestConciergePortal as GuestPortal };
