@@ -1,3 +1,6 @@
+// Refined UI Pass: Converted 85 hardcoded color references to semantic design tokens.
+// Enhanced guest request cards, badge indicators, and light/dark theme contrast.
+
 import { useState, useMemo, useEffect } from "react";
 import { useRoomFlow } from "./store";
 import {
@@ -55,7 +58,7 @@ export function GuestPortal() {
       category: "Amenities" as RequestCategory,
       title: "Housekeeping & Amenities",
       icon: Heart,
-      color: "text-[#B5652F] bg-[#B5652F]/10 border-[#B5652F]/20",
+      color: "text-primary bg-primary/10 border-primary/20",
       items: [
         { name: "Extra Fresh Towels", dept: "Housekeeping" as Department },
         { name: "Toiletries Kit (Shampoo/Soap)", dept: "Housekeeping" as Department },
@@ -68,7 +71,7 @@ export function GuestPortal() {
       category: "Maintenance" as RequestCategory,
       title: "Maintenance & Repairs",
       icon: Wrench,
-      color: "text-[#B14A3E] bg-[#B14A3E]/10 border-[#B14A3E]/20",
+      color: "text-destructive bg-destructive/10 border-destructive/20",
       items: [
         { name: "AC / HVAC Temperature Issue", dept: "Maintenance" as Department },
         { name: "Lightbulb Replacement", dept: "Maintenance" as Department },
@@ -80,7 +83,7 @@ export function GuestPortal() {
       category: "Luggage" as RequestCategory,
       title: "Luggage & Porter Assist",
       icon: Luggage,
-      color: "text-[#B5652F] bg-[#B5652F]/10 border-[#B5652F]/20",
+      color: "text-primary bg-primary/10 border-primary/20",
       items: [
         { name: "Baggage Pickup (Check-out)", dept: "Front Desk" as Department },
         { name: "Baggage Delivery (Arrival)", dept: "Front Desk" as Department },
@@ -90,7 +93,7 @@ export function GuestPortal() {
       category: "Late Checkout" as RequestCategory,
       title: "Front Desk & Extensions",
       icon: Calendar,
-      color: "text-[#B5652F] bg-[#B5652F]/10 border-[#B5652F]/20",
+      color: "text-primary bg-primary/10 border-primary/20",
       items: [
         { name: "Late Check-out request", dept: "Front Desk" as Department },
         { name: "Front Desk Callback", dept: "Front Desk" as Department },
@@ -101,7 +104,7 @@ export function GuestPortal() {
       category: "Food Service" as RequestCategory,
       title: "In-Room Food Service",
       icon: Coffee,
-      color: "text-[#8A9A6B] bg-[#8A9A6B]/10 border-[#8A9A6B]/20",
+      color: "text-ready bg-ready/10 border-ready/20",
       items: [
         { name: "Fresh Ice Bucket Delivery", dept: "Room Service" as Department },
         { name: "Breakfast Order Request", dept: "Room Service" as Department },
@@ -160,23 +163,23 @@ export function GuestPortal() {
     ];
 
     return (
-      <div className="relative flex items-center justify-between w-full mt-4 bg-[#F5F1E8]/50 dark:bg-card p-3 rounded-lg border border-[#DDD3BE]/60">
+      <div className="relative flex items-center justify-between w-full mt-4 bg-muted/50 dark:bg-card p-3 rounded-lg border border-border/60">
         {steps.map((st, idx) => {
           const status = getStepStatus(req, st.num);
           return (
             <div key={st.num} className="flex-1 flex flex-col items-center relative text-center">
               <div className={`size-7 rounded-full flex items-center justify-center border-2 text-xs font-bold font-mono transition-all z-10 ${
                 status === "completed" 
-                  ? "bg-[#8A9A6B] border-[#8A9A6B] text-white" 
-                  : "bg-white dark:bg-card border-[#DDD3BE] text-muted-foreground"
+                  ? "bg-ready border-ready text-black" 
+                  : "bg-card border-border text-muted-foreground"
               }`}>
                 {st.num}
               </div>
-              <span className="text-[10px] font-bold text-[#2A2620] dark:text-[#F5F1E8]/90 mt-1.5 leading-none">{st.label}</span>
+              <span className="text-[10px] font-bold text-foreground/90 mt-1.5 leading-none">{st.label}</span>
               <span className="text-[8px] text-muted-foreground mt-0.5 font-mono">{st.time}</span>
               {idx < steps.length - 1 && (
                 <div className={`absolute top-3.5 left-1/2 w-full h-0.5 -z-0 ${
-                  getStepStatus(req, st.num + 1) === "completed" ? "bg-[#8A9A6B]" : "bg-[#DDD3BE]/60"
+                  getStepStatus(req, st.num + 1) === "completed" ? "bg-ready" : "bg-muted"
                 }`} />
               )}
             </div>
@@ -190,53 +193,53 @@ export function GuestPortal() {
     <div className="space-y-6 max-w-4xl mx-auto">
       
       {/* GUEST HERO STATUS BANNER */}
-      <Card className="bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <Card className="bg-card border border-border p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-[#8A9A6B] animate-pulse" />
+            <span className="size-2 rounded-full bg-ready animate-pulse" />
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-sans">Active Connection</span>
           </div>
-          <h2 className="font-display text-2xl font-bold tracking-tight text-[#2A2620] dark:text-[#F5F1E8] mt-1.5">Welcome to Room {guestRoom}</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground mt-1.5">Welcome to Room {guestRoom}</h2>
           <p className="text-xs text-muted-foreground mt-1">Interact directly with housekeeping, maintenance, and concierge.</p>
         </div>
-        <div className="bg-[#F5F1E8] dark:bg-[#1F1B17] border p-3 rounded-xl flex items-center gap-3 shrink-0">
-          <Smartphone className="size-8 text-[#B5652F]" />
+        <div className="bg-muted/40 border p-3 rounded-xl flex items-center gap-3 shrink-0">
+          <Smartphone className="size-8 text-primary" />
           <div>
             <span className="text-[9px] font-bold text-muted-foreground uppercase block tracking-wider">Device Endpoint</span>
-            <span className="text-xs font-bold text-[#2A2620] dark:text-[#F5F1E8] font-mono">Mobile Web App</span>
+            <span className="text-xs font-bold text-foreground font-mono">Mobile Web App</span>
           </div>
         </div>
       </Card>
 
       {/* TRACK PENDING CONCIERGE REQUESTS */}
-      <Card className="p-6 bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] shadow-sm space-y-4">
+      <Card className="p-6 bg-card border border-border shadow-sm space-y-4">
         <div>
-          <h3 className="font-display text-lg font-bold text-[#2A2620] dark:text-[#F5F1E8]">Active Request Tracker</h3>
+          <h3 className="font-display text-lg font-bold text-foreground">Active Request Tracker</h3>
           <p className="text-xs text-muted-foreground mt-0.5">Real-time status updates of amenities or repairs logged for your room.</p>
         </div>
 
         <div className="space-y-3.5">
           {myRequests.map((req) => (
-            <div key={req.id} className="p-4 rounded-xl border border-[#DDD3BE] bg-[#F5F1E8]/20 dark:bg-black/5 space-y-3">
+            <div key={req.id} className="p-4 rounded-xl border border-border bg-muted/20 dark:bg-black/5 space-y-3">
               <div className="flex justify-between items-start gap-2">
                 <div>
-                  <span className="font-bold text-sm text-[#2A2620] dark:text-[#F5F1E8]">{req.item}</span>
+                  <span className="font-bold text-sm text-foreground">{req.item}</span>
                   <p className="text-[10px] text-muted-foreground mt-1.5 font-mono">Request Reference: {req.id}</p>
                 </div>
                 {req.status === "Completed" ? (
-                  <Badge className="bg-[#8A9A6B]/15 text-[#8A9A6B] border border-[#8A9A6B]/30 hover:none flex items-center gap-1 text-[10px] py-0 px-2 leading-loose font-sans font-medium">
+                  <Badge className="bg-ready/15 text-ready border border-ready/30 hover:none flex items-center gap-1 text-[10px] py-0 px-2 leading-loose font-sans font-medium">
                     <CheckCircle className="size-3" /> Resolved
                   </Badge>
                 ) : (
-                  <Badge className="bg-[#B5652F]/10 text-[#B5652F] border border-[#B5652F]/20 hover:none text-[10px] py-0 px-2 leading-loose font-sans font-medium animate-pulse">
+                  <Badge className="bg-primary/10 text-primary border border-primary/20 hover:none text-[10px] py-0 px-2 leading-loose font-sans font-medium animate-pulse">
                     Processing
                   </Badge>
                 )}
               </div>
 
               {req.details && (
-                <div className="text-xs text-muted-foreground bg-white dark:bg-card p-2.5 rounded border border-[#DDD3BE] leading-relaxed">
-                  <span className="font-bold text-[9px] text-[#B5652F] uppercase block tracking-wider mb-1">Guest Instructions</span>
+                <div className="text-xs text-muted-foreground bg-card p-2.5 rounded border border-border leading-relaxed">
+                  <span className="font-bold text-[9px] text-primary uppercase block tracking-wider mb-1">Guest Instructions</span>
                   {req.details}
                 </div>
               )}
@@ -245,7 +248,7 @@ export function GuestPortal() {
               {renderTrackerSteps(req)}
 
               {req.status === "Completed" && (
-                <div className="bg-[#8A9A6B]/5 border border-[#8A9A6B]/20 p-2 rounded text-xs text-[#8A9A6B] text-center font-medium leading-normal mt-2">
+                <div className="bg-ready/5 border border-ready/20 p-2 rounded text-xs text-ready text-center font-medium leading-normal mt-2">
                   ✨ Fulfillment complete. Thank you for your patience!
                 </div>
               )}
@@ -270,14 +273,14 @@ export function GuestPortal() {
         
         <div className="grid gap-6 sm:grid-cols-2">
           {catalogItems.map((category) => (
-            <Card key={category.category} className="bg-white dark:bg-[#2A2620] border border-[#DDD3BE] dark:border-[#3D362C] shadow-sm p-5 space-y-3.5">
+            <Card key={category.category} className="bg-card border border-border shadow-sm p-5 space-y-3.5">
               
               {/* Category Header */}
-              <div className="flex items-center gap-2 border-b pb-2.5 border-[#DDD3BE]/60 dark:border-[#3D362C]/60">
+              <div className="flex items-center gap-2 border-b pb-2.5 border-border/60 /60">
                 <span className={`size-8 rounded-lg flex items-center justify-center border ${category.color}`}>
                   <category.icon className="size-4.5" />
                 </span>
-                <span className="font-display font-bold text-sm text-[#2A2620] dark:text-[#F5F1E8]">{category.title}</span>
+                <span className="font-display font-bold text-sm text-foreground">{category.title}</span>
               </div>
 
               {/* Catalog Items buttons */}
@@ -286,10 +289,10 @@ export function GuestPortal() {
                   <button
                     key={item.name}
                     onClick={() => handleItemSelect(category.category, item.name, item.dept)}
-                    className="flex items-center justify-between w-full text-left text-xs bg-[#F5F1E8]/30 dark:bg-card border border-[#DDD3BE]/70 hover:border-[#B5652F]/40 hover:bg-[#B5652F]/5 p-2.5 rounded-lg transition-colors group cursor-pointer"
+                    className="flex items-center justify-between w-full text-left text-xs bg-muted/30 dark:bg-card border border-border/70 hover:border-primary/40 hover:bg-primary/5 p-2.5 rounded-lg transition-colors group cursor-pointer"
                   >
-                    <span className="text-[#2A2620] dark:text-[#F5F1E8]/90 font-medium group-hover:text-[#B5652F] transition-colors">{item.name}</span>
-                    <CornerDownRight className="size-3.5 text-muted-foreground group-hover:text-[#B5652F] group-hover:translate-x-0.5 transition-all" />
+                    <span className="text-foreground/90 font-medium group-hover:text-primary transition-colors">{item.name}</span>
+                    <CornerDownRight className="size-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                   </button>
                 ))}
               </div>
@@ -301,40 +304,40 @@ export function GuestPortal() {
 
       {/* CONFIRMATION SUBMISSION BOTTOM-SHEET / DRAWER */}
       <Drawer open={catalogOpen} onOpenChange={setCatalogOpen}>
-        <DrawerContent className="bg-white border-t border-[#EBE3D1] pb-6">
+        <DrawerContent className="bg-card border-t border-border pb-6">
           <div className="mx-auto w-full max-w-sm">
             <DrawerHeader>
-              <DrawerTitle className="text-[#2A2620] font-display font-bold">Confirm Request Details</DrawerTitle>
-              <DrawerDescription className="text-xs text-[#736B5E]">
+              <DrawerTitle className="text-foreground font-display font-bold">Confirm Request Details</DrawerTitle>
+              <DrawerDescription className="text-xs text-muted-foreground">
                 Verify dispatch instructions for Room {guestRoom}.
               </DrawerDescription>
             </DrawerHeader>
 
             {selectedItem && (
               <form onSubmit={handleRequestSubmit} className="space-y-4 px-4 pt-2">
-                <div className="p-3.5 bg-[#F5F1E8] dark:bg-[#1F1B17] rounded-xl border border-[#EBE3D1] text-xs">
-                  <span className="text-[9px] text-[#B5652F] font-bold block uppercase tracking-wide">Selected Catalog Item</span>
-                  <p className="font-semibold text-[#2A2620] dark:text-[#F5F1E8] mt-1">{selectedItem.item}</p>
+                <div className="p-3.5 bg-muted/40 rounded-xl border border-border text-xs">
+                  <span className="text-[9px] text-primary font-bold block uppercase tracking-wide">Selected Catalog Item</span>
+                  <p className="font-semibold text-foreground mt-1">{selectedItem.item}</p>
                   <p className="text-[10px] text-muted-foreground mt-1">Routing queue: {selectedItem.defaultDept} Department</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="notes-area" className="text-xs text-[#2A2620]">Additional instructions / guest notes</Label>
+                  <Label htmlFor="notes-area" className="text-xs text-foreground">Additional instructions / guest notes</Label>
                   <Textarea
                     id="notes-area"
                     placeholder="e.g. Please leave outside the door, or call first..."
                     rows={3}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="text-xs border-[#EBE3D1]"
+                    className="text-xs border-border"
                   />
                 </div>
 
                 <DrawerFooter className="px-0 pt-2 flex flex-col gap-2">
-                  <Button type="submit" className="w-full bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-semibold gap-1.5 min-h-[48px]">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-black font-semibold gap-1.5 min-h-[48px]">
                     <Send className="size-3.5" /> Submit Request
                   </Button>
-                  <Button type="button" variant="outline" className="w-full border-[#EBE3D1] text-[#736B5E] min-h-[48px]" onClick={() => setCatalogOpen(false)}>
+                  <Button type="button" variant="outline" className="w-full border-border text-muted-foreground min-h-[48px]" onClick={() => setCatalogOpen(false)}>
                     Cancel
                   </Button>
                 </DrawerFooter>

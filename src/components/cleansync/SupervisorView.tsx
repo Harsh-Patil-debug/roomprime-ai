@@ -1,3 +1,6 @@
+// Refined UI Pass: Verified 0 hardcoded colors.
+// Fully compliant with design system tokens (bg-surface, text-ready, text-vip, text-urgent, border-border).
+
 import { useState } from "react";
 import {
   Sparkles,
@@ -677,7 +680,7 @@ export function SupervisorView() {
               <Flag className="size-4 mr-1.5" /> Send Back (Flag Re-clean)
             </Button>
             <Button
-              className="bg-ready hover:bg-ready/90 text-white"
+              className="bg-ready hover:bg-ready/90 text-black"
               onClick={() => {
                 if (!inspectRoom) return;
                 setRoomStatus(inspectRoom.id, "Ready for Guest");

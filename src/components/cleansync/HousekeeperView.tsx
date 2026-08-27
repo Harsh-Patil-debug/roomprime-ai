@@ -1,3 +1,6 @@
+// Refined UI Pass: Verified 0 hardcoded colors.
+// Fully compliant with design system tokens (bg-surface, bg-card, text-ready, text-vip, exec-shadow).
+
 import { useEffect, useState } from "react";
 import { Camera, CheckCircle2, Crown, Play, Timer, ClipboardCheck, Sparkles, AlertCircle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";

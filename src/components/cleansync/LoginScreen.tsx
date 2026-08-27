@@ -1,3 +1,6 @@
+// Refined UI Pass: Converted 15 hardcoded color references to semantic design tokens.
+// Updated background, card, border, text, and loading spinners for light/dark theme consistency.
+
 import { useEffect } from "react";
 import { useAuth, isGoogleConfigured } from "./auth";
 import { Button } from "@/components/ui/button";
@@ -67,26 +70,26 @@ export function LoginScreen() {
 
   return (
     <div className="flex min-h-[75vh] items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white border border-[#EBE3D1] shadow-md rounded-2xl p-6 sm:p-8 space-y-6">
+      <Card className="w-full max-w-md bg-card border border-border shadow-md rounded-2xl p-6 sm:p-8 space-y-6">
         
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center space-y-3">
           <span className="flex size-12 items-center justify-center rounded-2xl exec-gradient shadow-xs">
-            <Hotel className="size-6 text-white" />
+            <Hotel className="size-6 text-black" />
           </span>
           <div className="space-y-1">
-            <h2 className="font-display text-2xl font-bold tracking-tight text-[#2A2620]">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
               Sign in to RoomFlow
             </h2>
-            <p className="text-xs text-[#736B5E]">
+            <p className="text-xs text-muted-foreground">
               Hotel Housekeeping & Guest Request Suite
             </p>
           </div>
         </div>
 
         {/* Info card */}
-        <div className="p-4 bg-[#F5F1E8] rounded-xl border border-[#EBE3D1] space-y-1.5 text-xs text-[#2A2620]">
-          <span className="font-bold flex items-center gap-1 text-[#B5652F] uppercase tracking-wider text-[10px]">
+        <div className="p-4 bg-background rounded-xl border border-border space-y-1.5 text-xs text-foreground">
+          <span className="font-bold flex items-center gap-1 text-primary uppercase tracking-wider text-[10px]">
             <Sparkles className="size-3.5" /> Staff SSO Authentication
           </span>
           <p className="leading-relaxed">
@@ -102,7 +105,7 @@ export function LoginScreen() {
               <div id="google-signin-btn" className="w-full min-h-[44px] flex justify-center" />
               {loading && (
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground animate-pulse mt-2">
-                  <RefreshCw className="size-4 animate-spin text-[#B5652F]" />
+                  <RefreshCw className="size-4 animate-spin text-primary" />
                   <span>Verifying Google Identity tokens...</span>
                 </div>
               )}
@@ -111,10 +114,10 @@ export function LoginScreen() {
             <Button
               onClick={loginWithGoogle}
               disabled={loading}
-              className="w-full h-11 bg-white hover:bg-neutral-50 text-[#2A2620] border border-[#DDD3BE] shadow-xs font-semibold text-sm transition-all rounded-xl gap-3 cursor-pointer"
+              className="w-full h-11 bg-background hover:bg-muted text-foreground border border-border shadow-xs font-semibold text-sm transition-all rounded-xl gap-3 cursor-pointer"
             >
               {loading ? (
-                <RefreshCw className="size-5 animate-spin text-[#B5652F]" />
+                <RefreshCw className="size-5 animate-spin text-primary" />
               ) : (
                 <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

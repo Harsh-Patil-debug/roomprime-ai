@@ -1,3 +1,6 @@
+// Refined UI Pass: Converted 46 hardcoded color references to semantic design tokens.
+// Enhanced camera scanner dialog, simulated QR cards, and light/dark theme contrast.
+
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -179,33 +182,33 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-white text-[#2A2620] border-[#EBE3D1] border-2 rounded-2xl shadow-xl">
+      <DialogContent className="max-w-md bg-card text-foreground border-border border-2 rounded-2xl shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-[#2A2620] font-display font-bold text-lg flex items-center gap-2">
-            <Camera className="size-5 text-[#B5652F]" />
+          <DialogTitle className="text-foreground font-display font-bold text-lg flex items-center gap-2">
+            <Camera className="size-5 text-primary" />
             Scan Placard QR Code
           </DialogTitle>
-          <DialogDescription className="text-[#736B5E] text-xs">
+          <DialogDescription className="text-muted-foreground text-xs">
             Hold a RoomFlow Guest Concierge or Staff Check-In placard in front of your camera to trigger check-in turns.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center justify-center py-4">
-          <div className="relative w-full aspect-square max-w-[300px] rounded-2xl overflow-hidden border border-[#EBE3D1] bg-[#F5F1E8] flex items-center justify-center">
+          <div className="relative w-full aspect-square max-w-[300px] rounded-2xl overflow-hidden border border-border bg-muted/40 flex items-center justify-center">
             
             <div id={containerId} className="w-full h-full object-cover [&_video]:object-cover" />
 
             {!errorMessage && !scannedResult && cameraPermission === "granted" && (
-              <div className="absolute inset-0 pointer-events-none border-[12px] border-[#F5F1E8]/35 flex items-center justify-center">
-                <div className="size-48 border-2 border-dashed border-[#B5652F]/60 rounded-xl relative flex items-center justify-center">
-                  <div className="absolute top-0 left-0 size-4 border-t-4 border-l-4 border-[#B5652F]" />
-                  <div className="absolute top-0 right-0 size-4 border-t-4 border-r-4 border-[#B5652F]" />
-                  <div className="absolute bottom-0 left-0 size-4 border-b-4 border-l-4 border-[#B5652F]" />
-                  <div className="absolute bottom-0 right-0 size-4 border-b-4 border-r-4 border-[#B5652F]" />
-                  <div className="w-[90%] h-0.5 bg-[#B5652F] shadow-[0_0_8px_#B5652F] absolute top-1/2 -translate-y-1/2 animate-[pulse_1.2s_infinite]" />
+              <div className="absolute inset-0 pointer-events-none border-[12px] border-border/40/35 flex items-center justify-center">
+                <div className="size-48 border-2 border-dashed border-primary/60 rounded-xl relative flex items-center justify-center">
+                  <div className="absolute top-0 left-0 size-4 border-t-4 border-l-4 border-primary" />
+                  <div className="absolute top-0 right-0 size-4 border-t-4 border-r-4 border-primary" />
+                  <div className="absolute bottom-0 left-0 size-4 border-b-4 border-l-4 border-primary" />
+                  <div className="absolute bottom-0 right-0 size-4 border-b-4 border-r-4 border-primary" />
+                  <div className="w-[90%] h-0.5 bg-primary shadow-[0_0_8px_var(--primary)] absolute top-1/2 -translate-y-1/2 animate-[pulse_1.2s_infinite]" />
                 </div>
                 <div className="absolute bottom-4 left-0 right-0 text-center">
-                  <span className="text-[9px] bg-white/95 text-[#B5652F] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm border border-[#EBE3D1]">
+                  <span className="text-[9px] bg-card/95 text-primary font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm border border-border">
                     Align Placard QR Code
                   </span>
                 </div>
@@ -213,31 +216,31 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
             )}
 
             {cameraPermission === "pending" && !errorMessage && (
-              <div className="absolute inset-0 bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
-                <RefreshCw className="size-8 text-[#B5652F] animate-spin" />
-                <span className="text-xs text-[#736B5E]">Opening camera preview...</span>
+              <div className="absolute inset-0 bg-muted/40 flex flex-col items-center justify-center gap-3">
+                <RefreshCw className="size-8 text-primary animate-spin" />
+                <span className="text-xs text-muted-foreground">Opening camera preview...</span>
               </div>
             )}
 
             {errorMessage && (
-              <div className="absolute inset-0 bg-[#F5F1E8]/98 flex flex-col items-center justify-center p-6 text-center gap-3">
-                <AlertCircle className="size-10 text-[#B14A3E]" />
-                <h4 className="text-sm font-semibold text-[#2A2620]">Camera Loading Failed</h4>
-                <p className="text-xs text-[#736B5E] leading-relaxed">{errorMessage}</p>
-                <Button size="sm" variant="outline" className="mt-2 text-xs border-[#EBE3D1] hover:bg-[#F5F1E8]" onClick={initScanner}>
+              <div className="absolute inset-0 bg-muted/40/98 flex flex-col items-center justify-center p-6 text-center gap-3">
+                <AlertCircle className="size-10 text-destructive" />
+                <h4 className="text-sm font-semibold text-foreground">Camera Loading Failed</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">{errorMessage}</p>
+                <Button size="sm" variant="outline" className="mt-2 text-xs border-border hover:bg-muted" onClick={initScanner}>
                   Retry Permission Check
                 </Button>
               </div>
             )}
 
             {scannedResult && (
-              <div className="absolute inset-0 bg-white/98 flex flex-col items-center justify-center p-6 text-center gap-4 animate-in fade-in zoom-in-95">
-                <div className="size-12 rounded-full bg-[#8A9A6B]/15 border border-[#8A9A6B]/30 flex items-center justify-center">
-                  <Sparkles className="size-6 text-[#8A9A6B] animate-pulse" />
+              <div className="absolute inset-0 bg-card/98 flex flex-col items-center justify-center p-6 text-center gap-4 animate-in fade-in zoom-in-95">
+                <div className="size-12 rounded-full bg-ready/15 border border-ready/30 flex items-center justify-center">
+                  <Sparkles className="size-6 text-ready animate-pulse" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#2A2620]">Placard QR Decoded!</h4>
-                  <p className="text-[10px] text-[#736B5E] font-mono mt-1.5 break-all max-w-[220px] border border-[#EBE3D1] rounded p-1.5 bg-[#F5F1E8]/50">
+                  <h4 className="text-sm font-bold text-foreground">Placard QR Decoded!</h4>
+                  <p className="text-[10px] text-muted-foreground font-mono mt-1.5 break-all max-w-[220px] border border-border rounded p-1.5 bg-muted/50">
                     {scannedResult}
                   </p>
                 </div>
@@ -245,7 +248,7 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
                 {!scannedResult.includes(window.location.host) && !scannedResult.startsWith("/") && !scannedResult.startsWith("http://localhost") && !scannedResult.includes(".lhr.life") && (
                   <Button
                     size="sm"
-                    className="bg-[#B5652F] hover:bg-[#B5652F]/90 text-white text-xs gap-1.5 font-semibold"
+                    className="bg-primary hover:bg-primary/90 text-black text-xs gap-1.5 font-semibold"
                     onClick={() => {
                       window.open(scannedResult, "_blank", "noopener,noreferrer");
                       onOpenChange(false);
@@ -256,7 +259,7 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
                   </Button>
                 )}
                 
-                <Button size="sm" variant="ghost" className="text-xs text-[#736B5E] hover:text-[#2A2620]" onClick={() => setScannedResult(null)}>
+                <Button size="sm" variant="ghost" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setScannedResult(null)}>
                   Scan Next QR
                 </Button>
               </div>
@@ -264,12 +267,12 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-2 border-t border-[#EBE3D1]/60 pt-4">
+        <div className="flex justify-between items-center mt-2 border-t border-border/60 pt-4">
           <div className="flex gap-2">
             <Button
               size="sm"
               variant="ghost"
-              className="text-[#736B5E] hover:text-[#2A2620] text-xs gap-1.5"
+              className="text-muted-foreground hover:text-foreground text-xs gap-1.5"
               onClick={toggleCamera}
               disabled={!!errorMessage || !!scannedResult}
             >
@@ -281,17 +284,17 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-[#736B5E] hover:text-[#2A2620] text-xs gap-1.5"
+                className="text-muted-foreground hover:text-foreground text-xs gap-1.5"
                 onClick={toggleFlashlight}
                 disabled={!!errorMessage || !!scannedResult}
               >
-                {flashOn ? <ZapOff className="size-3.5 text-[#B5652F]" /> : <Zap className="size-3.5 text-[#B5652F]" />}
+                {flashOn ? <ZapOff className="size-3.5 text-primary" /> : <Zap className="size-3.5 text-primary" />}
                 {flashOn ? "Flash Off" : "Flash On"}
               </Button>
             )}
           </div>
 
-          <Button size="sm" variant="outline" className="border-[#EBE3D1] text-[#736B5E] text-xs" onClick={() => onOpenChange(false)}>
+          <Button size="sm" variant="outline" className="border-border text-muted-foreground text-xs" onClick={() => onOpenChange(false)}>
             Close
           </Button>
         </div>

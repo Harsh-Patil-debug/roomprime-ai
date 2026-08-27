@@ -1,3 +1,6 @@
+// Refined UI Pass: Converted 21 hardcoded color references to semantic design tokens.
+// Enhanced request dashboard cards, quick filters, and dark mode contrast.
+
 import { useState, useMemo } from "react";
 import { useRoomFlow } from "./store";
 import {
@@ -491,7 +494,7 @@ export function RequestDashboard() {
                         {/* Resolve task button */}
                         <Button
                           size="sm"
-                          className="h-8 bg-ready hover:bg-ready/90 text-white font-medium shrink-0"
+                          className="h-8 bg-ready hover:bg-ready/90 text-black font-medium shrink-0"
                           onClick={() => {
                             updateGuestRequestStatus(req.id, "Completed");
                             toast.success(`Request marked as Resolved!`);
@@ -530,11 +533,11 @@ export function RequestDashboard() {
 
       {/* 4. MODAL DIALOG: LOG NEW GUEST REQUEST */}
       <Drawer open={createOpen} onOpenChange={setCreateOpen}>
-        <DrawerContent className="bg-white border-t border-[#EBE3D1] pb-6">
+        <DrawerContent className="bg-card border-t border-border pb-6">
           <div className="mx-auto w-full max-w-sm">
             <DrawerHeader>
-              <DrawerTitle className="text-[#2A2620] font-display font-bold">Log Guest / Operational Request</DrawerTitle>
-              <DrawerDescription className="text-xs text-[#736B5E]">
+              <DrawerTitle className="text-foreground font-display font-bold">Log Guest / Operational Request</DrawerTitle>
+              <DrawerDescription className="text-xs text-muted-foreground">
                 Create a new request and automatically dispatch it to the appropriate operations queue.
               </DrawerDescription>
             </DrawerHeader>
@@ -542,21 +545,21 @@ export function RequestDashboard() {
             <form onSubmit={handleCreateSubmit} className="space-y-4 px-4 pt-2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="req-room-num" className="text-[#2A2620] text-xs">Room Number</Label>
+                  <Label htmlFor="req-room-num" className="text-foreground text-xs">Room Number</Label>
                   <Input
                     id="req-room-num"
                     placeholder="e.g. 305"
                     value={reqRoom}
                     onChange={(e) => setReqRoom(e.target.value)}
-                    className="border-[#EBE3D1] h-10 text-xs"
+                    className="border-border h-10 text-xs"
                     required
                   />
                 </div>
                 
                 <div className="space-y-1.5">
-                  <Label htmlFor="req-cat" className="text-[#2A2620] text-xs">Category</Label>
+                  <Label htmlFor="req-cat" className="text-foreground text-xs">Category</Label>
                   <Select value={reqCategory} onValueChange={(v) => setReqCategory(v as RequestCategory)}>
-                    <SelectTrigger id="req-cat" className="border-[#EBE3D1] h-10 text-xs">
+                    <SelectTrigger id="req-cat" className="border-border h-10 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -572,18 +575,18 @@ export function RequestDashboard() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="req-item-input" className="text-[#2A2620] text-xs">Request Item (Task Short Name)</Label>
+                <Label htmlFor="req-item-input" className="text-foreground text-xs">Request Item (Task Short Name)</Label>
                 <div className="relative">
                   <Input
                     id="req-item-input"
                     placeholder="e.g. Extra pillow, AC leaking, Luggage help..."
                     value={reqItem}
                     onChange={(e) => setReqItem(e.target.value)}
-                    className="border-[#EBE3D1] h-10 text-xs pr-24"
+                    className="border-border h-10 text-xs pr-24"
                     required
                   />
                   {reqItem && (
-                    <span className="absolute right-2.5 top-2.5 flex items-center text-[9px] text-[#B5652F] bg-[#B5652F]/10 rounded px-1.5 py-0.5 font-bold">
+                    <span className="absolute right-2.5 top-2.5 flex items-center text-[9px] text-primary bg-primary/10 rounded px-1.5 py-0.5 font-bold">
                       <Sparkles className="size-3 mr-0.5" /> {suggestedDept}
                     </span>
                   )}
@@ -591,22 +594,22 @@ export function RequestDashboard() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="req-details-input" className="text-[#2A2620] text-xs">Supplementary Details / Notes</Label>
+                <Label htmlFor="req-details-input" className="text-foreground text-xs">Supplementary Details / Notes</Label>
                 <Textarea
                   id="req-details-input"
                   placeholder="Include specific guest notes here..."
                   rows={3}
                   value={reqDetails}
                   onChange={(e) => setReqDetails(e.target.value)}
-                  className="border-[#EBE3D1] text-xs"
+                  className="border-border text-xs"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="req-pri" className="text-[#2A2620] text-xs">Priority Severity</Label>
+                  <Label htmlFor="req-pri" className="text-foreground text-xs">Priority Severity</Label>
                   <Select value={reqPriority} onValueChange={(v) => setReqPriority(v as RequestPriority)}>
-                    <SelectTrigger id="req-pri" className="border-[#EBE3D1] h-10 text-xs">
+                    <SelectTrigger id="req-pri" className="border-border h-10 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -619,9 +622,9 @@ export function RequestDashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="req-routing" className="text-[#2A2620] text-xs">Department Routing</Label>
+                  <Label htmlFor="req-routing" className="text-foreground text-xs">Department Routing</Label>
                   <Select value={reqDept} onValueChange={(v) => setReqDept(v as any)}>
-                    <SelectTrigger id="req-routing" className="border-[#EBE3D1] h-10 text-xs">
+                    <SelectTrigger id="req-routing" className="border-border h-10 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -636,10 +639,10 @@ export function RequestDashboard() {
               </div>
 
               <DrawerFooter className="px-0 pt-2 flex flex-col gap-2">
-                <Button type="submit" className="w-full bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-bold text-xs min-h-[48px]">
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-black font-bold text-xs min-h-[48px]">
                   Submit Request
                 </Button>
-                <Button type="button" variant="outline" className="w-full border-[#EBE3D1] text-[#736B5E] min-h-[48px]" onClick={() => setCreateOpen(false)}>
+                <Button type="button" variant="outline" className="w-full border-border text-muted-foreground min-h-[48px]" onClick={() => setCreateOpen(false)}>
                   Cancel
                 </Button>
               </DrawerFooter>

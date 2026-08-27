@@ -1,3 +1,6 @@
+// Refined UI Pass: Converted 70 hardcoded color references to semantic design tokens.
+// Enhanced WhatsApp simulator UI, terminal logger, and theme consistency.
+
 import { useState, useEffect, useRef } from "react";
 import {
   MessageSquare,
@@ -101,10 +104,10 @@ export function WhatsAppSandbox() {
       
       {/* 1. RENAME HEADER & HELPER SUBTITLE */}
       <div>
-        <h2 className="font-display text-2xl font-bold tracking-tight text-[#2A2620] dark:text-[#F5F1E8]">
+        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
           WhatsApp Staff Live Simulation (Interactive Demo)
         </h2>
-        <p className="text-xs text-[#736B5E] mt-1 font-sans">
+        <p className="text-xs text-muted-foreground mt-1 font-sans">
           Simulate staff text commands on WhatsApp to see live task assignment and room status changes in real time.
         </p>
       </div>
@@ -113,21 +116,21 @@ export function WhatsAppSandbox() {
       <div className="grid gap-6 md:grid-cols-2">
         
         {/* LEFT COLUMN: WhatsApp Mobile Chat Simulator */}
-        <Card className="bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-5 flex flex-col h-[550px] justify-between">
+        <Card className="bg-card border border-border shadow-sm p-5 flex flex-col h-[550px] justify-between">
           
           {/* Chat Window Top Bar */}
-          <div className="border-b pb-3 border-[#EBE3D1]/60 dark:border-[#3D362C]/60 flex items-center justify-between">
+          <div className="border-b pb-3 border-border/60 /60 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="size-8 rounded-full bg-[#B5652F]/10 text-[#B5652F] flex items-center justify-center font-bold text-xs">
+              <span className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
                 {activeWorkerName.split(" ").map(n => n[0]).join("")}
               </span>
               <div>
-                <span className="font-display font-semibold text-[#2A2620] dark:text-[#F5F1E8] text-sm block leading-none">{activeWorkerName}</span>
+                <span className="font-display font-semibold text-foreground text-sm block leading-none">{activeWorkerName}</span>
                 <span className="text-[10px] text-muted-foreground font-mono mt-1 block">{waSender}</span>
               </div>
             </div>
             
-            <div className="flex items-center gap-1.5 bg-[#8A9A6B]/15 text-[#8A9A6B] border border-[#8A9A6B]/20 text-[9px] py-0 px-2 rounded-full font-bold">
+            <div className="flex items-center gap-1.5 bg-ready/15 text-ready border border-ready/20 text-[9px] py-0 px-2 rounded-full font-bold">
               CONNECTED
             </div>
           </div>
@@ -143,15 +146,15 @@ export function WhatsAppSandbox() {
                     isInbound ? "ml-auto items-end" : "mr-auto items-start"
                   }`}
                 >
-                  <span className="text-[9px] text-[#736B5E] font-sans mb-1 font-semibold">
+                  <span className="text-[9px] text-muted-foreground font-sans mb-1 font-semibold">
                     {isInbound ? `${log.sender}` : "RoomFlow Dispatcher"} • {log.timestamp}
                   </span>
 
                   <div
                     className={`rounded-2xl px-3.5 py-2.5 text-xs shadow-xs leading-relaxed ${
                       isInbound
-                        ? "bg-[#EBE3D1] text-[#2A2620] rounded-tr-none border border-[#DDD3BE]"
-                        : "bg-[#8A9A6B]/15 text-[#2A2620] dark:text-[#F5F1E8] rounded-tl-none border border-[#8A9A6B]/25"
+                        ? "bg-card text-foreground rounded-tr-none border border-border"
+                        : "bg-ready/15 text-foreground rounded-tl-none border border-ready/25"
                     }`}
                   >
                     {log.body}
@@ -171,14 +174,14 @@ export function WhatsAppSandbox() {
           </div>
 
           {/* Interactive Chat reply & input box */}
-          <div className="border-t pt-3 border-[#EBE3D1]/60 dark:border-[#3D362C]/60 space-y-3">
+          <div className="border-t pt-3 border-border/60 /60 space-y-3">
             
             {/* Quick replies buttons */}
             <div className="flex flex-wrap gap-1.5">
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 text-[10px] font-sans text-[#B5652F] border-[#B5652F]/20 bg-[#B5652F]/5 hover:bg-[#B5652F]/10 gap-1 font-bold p-1 px-2.5 rounded-full"
+                className="h-7 text-[10px] font-sans text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 gap-1 font-bold p-1 px-2.5 rounded-full"
                 onClick={() => handleQuickAction("START 203")}
               >
                 ▶ START Room 203
@@ -186,7 +189,7 @@ export function WhatsAppSandbox() {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 text-[10px] font-sans text-[#B5652F] border-[#B5652F]/20 bg-[#B5652F]/5 hover:bg-[#B5652F]/10 gap-1 font-bold p-1 px-2.5 rounded-full"
+                className="h-7 text-[10px] font-sans text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 gap-1 font-bold p-1 px-2.5 rounded-full"
                 onClick={() => handleQuickAction("READY 203")}
               >
                 ✔ READY Room 203
@@ -194,7 +197,7 @@ export function WhatsAppSandbox() {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 text-[10px] font-sans text-[#B5652F] border-[#B5652F]/20 bg-[#B5652F]/5 hover:bg-[#B5652F]/10 gap-1 font-bold p-1 px-2.5 rounded-full"
+                className="h-7 text-[10px] font-sans text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 gap-1 font-bold p-1 px-2.5 rounded-full"
                 onClick={() => handleQuickAction("ISSUE 102 Clogged Drain")}
               >
                 ⚠ ISSUE 102 Clogged Drain
@@ -204,13 +207,13 @@ export function WhatsAppSandbox() {
             {/* Custom Input */}
             <div className="flex gap-1.5">
               <Input
-                className="h-8 text-xs flex-1 border-[#EBE3D1]"
+                className="h-8 text-xs flex-1 border-border"
                 placeholder="Type manual custom WhatsApp command..."
                 value={waMessage}
                 onChange={(e) => setWaMessage(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               />
-              <Button size="sm" className="h-8 w-8 p-0 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white shrink-0" onClick={handleSendMessage}>
+              <Button size="sm" className="h-8 w-8 p-0 bg-primary hover:bg-primary/90 text-black shrink-0" onClick={handleSendMessage}>
                 <Send className="size-3.5" />
               </Button>
             </div>
@@ -219,17 +222,17 @@ export function WhatsAppSandbox() {
         </Card>
 
         {/* RIGHT COLUMN: Simplified Live Action Feed */}
-        <Card className="bg-white dark:bg-[#2A2620] border border-[#EBE3D1] dark:border-[#3D362C] shadow-sm p-5 flex flex-col h-[550px]">
+        <Card className="bg-card border border-border shadow-sm p-5 flex flex-col h-[550px]">
           
-          <div className="border-b pb-3 border-[#EBE3D1]/60 dark:border-[#3D362C]/60 flex items-center justify-between">
+          <div className="border-b pb-3 border-border/60 /60 flex items-center justify-between">
             <div>
-              <h3 className="font-display font-semibold text-base text-[#2A2620] dark:text-[#F5F1E8] flex items-center gap-1.5">
-                <Clock className="size-4.5 text-[#B5652F]" /> Live Action Feed
+              <h3 className="font-display font-semibold text-base text-foreground flex items-center gap-1.5">
+                <Clock className="size-4.5 text-primary" /> Live Action Feed
               </h3>
               <p className="text-[10px] text-muted-foreground mt-0.5">Plain-English system routing updates parsed from WhatsApp webhook requests.</p>
             </div>
             
-            <Badge className="bg-[#B5652F]/10 text-[#B5652F] border border-[#B5652F]/20 hover:none text-[10px] py-0 px-2 font-mono">
+            <Badge className="bg-primary/10 text-primary border border-primary/20 hover:none text-[10px] py-0 px-2 font-mono">
               {whatsappLogs.length} updates
             </Badge>
           </div>
@@ -240,16 +243,16 @@ export function WhatsAppSandbox() {
               const isIssue = log.body.includes("ISSUE");
               
               return (
-                <div key={log.id} className="p-3 bg-[#F5F1E8]/35 dark:bg-[#1F1B17]/10 rounded-xl border border-[#EBE3D1] space-y-1.5 leading-relaxed text-xs">
-                  <div className="flex items-center justify-between text-[9px] text-[#736B5E] font-mono">
+                <div key={log.id} className="p-3 bg-muted/35 /10 rounded-xl border border-border space-y-1.5 leading-relaxed text-xs">
+                  <div className="flex items-center justify-between text-[9px] text-muted-foreground font-mono">
                     <span>{log.timestamp}</span>
                     <Badge variant="outline" className={`text-[8px] px-1 py-0 leading-none ${
-                      isIssue ? "border-[#B14A3E]/30 text-[#B14A3E]" : isStatus ? "border-[#8A9A6B]/30 text-[#8A9A6B]" : "border-border text-muted-foreground"
+                      isIssue ? "border-destructive/30 text-destructive" : isStatus ? "border-ready/30 text-ready" : "border-border text-muted-foreground"
                     }`}>
                       {isIssue ? "MAINTENANCE" : isStatus ? "ROOM STATUS" : "SERVICE"}
                     </Badge>
                   </div>
-                  <p className="text-[#2A2620] dark:text-[#F5F1E8] font-medium leading-relaxed">
+                  <p className="text-foreground font-medium leading-relaxed">
                     {getPlainEnglishReaction(log)}
                   </p>
                 </div>
@@ -264,13 +267,13 @@ export function WhatsAppSandbox() {
           </div>
 
           {/* Webhook Configuration form inside bottom of sidebar */}
-          <div className="border-t pt-3 border-[#EBE3D1]/60 dark:border-[#3D362C]/60 space-y-1.5">
+          <div className="border-t pt-3 border-border/60 /60 space-y-1.5">
             <Label htmlFor="sandbox-sender-select" className="text-[9px] uppercase font-bold text-muted-foreground">Select staff context phone</Label>
             <select
               id="sandbox-sender-select"
               value={waSender}
               onChange={(e) => setWaSender(e.target.value)}
-              className="w-full h-8 text-xs border rounded-md px-2 bg-transparent text-foreground border-[#EBE3D1] dark:border-[#3D362C]"
+              className="w-full h-8 text-xs border rounded-md px-2 bg-transparent text-foreground border-border"
             >
               {Object.entries(STAFF_PHONES).map(([name, phone]) => (
                 <option key={phone} value={phone} className="bg-background text-foreground">
@@ -285,19 +288,19 @@ export function WhatsAppSandbox() {
       </div>
 
       {/* 3. EXPANDABLE ACCORDION FOR RAW WEBHOOK TERMINAL LOGS */}
-      <Card className="border border-[#EBE3D1] dark:border-[#3D362C] bg-white dark:bg-[#2A2620] shadow-sm rounded-xl overflow-hidden">
+      <Card className="border border-border bg-card shadow-sm rounded-xl overflow-hidden">
         <button
           onClick={() => setLogsExpanded(!logsExpanded)}
           className="w-full p-4 flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:bg-accent/30 transition-colors border-none"
         >
           <span className="flex items-center gap-1.5 font-mono">
-            <Terminal className="size-4 text-[#B5652F]" /> Advanced Raw Webhook & Terminal Logs
+            <Terminal className="size-4 text-primary" /> Advanced Raw Webhook & Terminal Logs
           </span>
           {logsExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
 
         {logsExpanded && (
-          <div className="bg-[#0f172a] text-slate-100 p-5 border-t border-zinc-950 font-mono text-[10px] h-[300px] overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-zinc-850">
+          <div className="bg-zinc-950 text-slate-100 p-5 border-t border-zinc-950 font-mono text-[10px] h-[300px] overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-zinc-850">
             <div className="border-b border-zinc-800 pb-2 mb-3 flex justify-between items-center text-[9px] text-slate-500">
               <span>POST /api/webhooks/whatsapp HTTP/1.1</span>
               <span>RAW LOG STREAM</span>

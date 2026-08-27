@@ -45,17 +45,12 @@ function Index() {
 }
 
 function DashboardLayout() {
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user } = useAuth();
   const [role, setRole] = useState<RoleId>("ops");
-  const [dark, setDark] = useState(true);
   const [scannerOpen, setScannerOpen] = useState(false);
 
   // Activate post-login redirection checks
   useQrRedirect();
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
 
   // Automatically sync navbar tab context to user's assigned role on login
   useEffect(() => {
@@ -67,7 +62,7 @@ function DashboardLayout() {
   const isProtectedRoute = role !== "guest";
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8]">
+    <div className="min-h-screen bg-background text-foreground">
       <AppLayout
         role={role}
         setRole={setRole}
