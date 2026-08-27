@@ -248,7 +248,7 @@ export function QrScannerModal({ open, onOpenChange, onScanResult }: QrScannerMo
                 {!scannedResult.includes(window.location.host) && !scannedResult.startsWith("/") && !scannedResult.startsWith("http://localhost") && !scannedResult.includes(".lhr.life") && (
                   <Button
                     size="sm"
-                    className="bg-primary hover:bg-primary/90 text-black text-xs gap-1.5 font-semibold"
+                    className="bg-primary hover:bg-primary/90 text-white text-xs gap-1.5 font-semibold"
                     onClick={() => {
                       window.open(scannedResult, "_blank", "noopener,noreferrer");
                       onOpenChange(false);

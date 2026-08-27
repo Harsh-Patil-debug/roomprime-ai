@@ -186,7 +186,7 @@ function ControlToolbar({
             <Button size="sm" variant="outline" className="border-border text-foreground hover:bg-muted" onClick={onExportCSV}>
               <Download className="size-3.5 mr-1.5" /> Export CSV
             </Button>
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-black font-bold gap-1.5 shadow-sm" onClick={onAutoDispatch}>
+            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white font-bold gap-1.5 shadow-sm" onClick={onAutoDispatch}>
               <Sparkles className="size-3.5" /> Auto-Dispatch Staff
             </Button>
           </div>
@@ -331,7 +331,7 @@ function ControlToolbar({
                   <Button size="sm" variant="outline" className="min-h-[44px] justify-start text-xs border-border text-foreground" onClick={() => { onExportCSV(); setDrawerOpen(false); }}>
                     <Download className="size-4 mr-2 text-muted-foreground" /> Export Spreadsheet CSV
                   </Button>
-                  <Button size="sm" className="min-h-[44px] justify-center text-xs bg-primary text-black font-bold" onClick={() => { onAutoDispatch(); setDrawerOpen(false); }}>
+                  <Button size="sm" className="min-h-[44px] justify-center text-xs bg-primary text-white font-bold" onClick={() => { onAutoDispatch(); setDrawerOpen(false); }}>
                     <Sparkles className="size-4 mr-2" /> Auto-Dispatch Staff
                   </Button>
                 </div>
@@ -368,11 +368,7 @@ function RoomGrid({ rooms, staff, onInspectPhoto, onUpdateStatus, onAssignStaff 
       {rooms.map((room) => {
         const styles = statusStyles[room.status];
         return (
-          <Card key={room.id} className="bg-card border-border border p-3.5 shadow-sm rounded-xl flex flex-col justify-between gap-3 transition-all hover:shadow-md hover:border-primary/30 relative">
-            <div className="absolute top-0 right-0 bg-primary text-black text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-              RoomFlow Placard
-            </div>
-            
+          <Card key={room.id} className="bg-card border-border border p-3.5 shadow-sm rounded-xl flex flex-col justify-between gap-3 transition-all hover:shadow-md hover:border-primary/30">
             {/* Header */}
             <div className="flex items-start justify-between gap-2 border-b border-border/40 pb-2.5">
               <div>
@@ -447,7 +443,7 @@ function RoomGrid({ rooms, staff, onInspectPhoto, onUpdateStatus, onAssignStaff 
               {room.status === "Inspection Pending" && (
                 <Button
                   size="xs"
-                  className="bg-primary hover:bg-primary/90 text-black font-bold text-[9px] h-[36px] md:h-7 px-3.5 rounded-lg flex items-center gap-1"
+                  className="bg-primary hover:bg-primary/90 text-white font-bold text-[9px] h-[36px] md:h-7 px-3.5 rounded-lg flex items-center gap-1"
                   onClick={() => onInspectPhoto(room)}
                 >
                   <Eye className="size-3" /> Inspect Photo
@@ -774,11 +770,11 @@ export function ControlCenter() {
                         <Card key={room.id} className="p-3 bg-card border-border space-y-2 text-xs">
                           <div className="flex justify-between items-center">
                             <span className="font-bold text-foreground">Room {room.number}</span>
-                            {room.priority === "VIP" && <Badge className="bg-primary text-black text-[8px] scale-90 px-1 py-0 h-4">VIP</Badge>}
+                            {room.priority === "VIP" && <Badge className="bg-primary text-white text-[8px] scale-90 px-1 py-0 h-4">VIP</Badge>}
                           </div>
                           <p className="text-[10px] text-muted-foreground truncate">Staff: {room.assignedStaff || "Unassigned"}</p>
                           {room.status === "Inspection Pending" && (
-                            <Button size="xs" className="w-full text-[9px] h-10 md:h-6 mt-1 bg-primary hover:bg-primary/90 text-black font-semibold" onClick={() => setInspectRoom(room)}>
+                            <Button size="xs" className="w-full text-[9px] h-10 md:h-6 mt-1 bg-primary hover:bg-primary/90 text-white font-semibold" onClick={() => setInspectRoom(room)}>
                               Inspect Photo
                             </Button>
                           )}
@@ -920,7 +916,7 @@ export function ControlCenter() {
       {inspectionQueue.length > 0 && viewMode !== "kanban" && (
         <Drawer>
           <DrawerTrigger asChild>
-            <button className="xl:hidden fixed bottom-20 right-4 z-50 bg-primary text-black py-3 px-4 rounded-full shadow-xl flex items-center gap-2 hover:bg-primary/90 active:scale-95 transition-all select-none min-h-[48px] animate-bounce">
+            <button className="xl:hidden fixed bottom-20 right-4 z-50 bg-primary text-white py-3 px-4 rounded-full shadow-xl flex items-center gap-2 hover:bg-primary/90 active:scale-95 transition-all select-none min-h-[48px] animate-bounce">
               <Camera className="size-4.5" />
               <span className="text-[10px] font-bold uppercase tracking-wider">Inspect QA ({inspectionQueue.length})</span>
             </button>
@@ -1036,7 +1032,7 @@ export function ControlCenter() {
               <Flag className="size-3.5 mr-1" /> Request Re-Clean
             </Button>
             <Button
-              className="bg-ready hover:bg-ready/90 text-black text-xs font-semibold min-h-[44px] sm:min-h-0"
+              className="bg-ready hover:bg-ready/90 text-white text-xs font-semibold min-h-[44px] sm:min-h-0"
               onClick={() => {
                 if (!inspectRoom) return;
                 setRoomStatus(inspectRoom.id, "Ready for Guest");
@@ -1103,7 +1099,7 @@ export function ControlCenter() {
             <DrawerFooter className="pb-6">
               <Button
                 disabled={!maintRoom}
-                className="w-full bg-primary hover:bg-primary/90 text-black font-semibold min-h-[44px]"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold min-h-[44px]"
                 onClick={() => {
                   blockRoom(maintRoom, `${maintIssue}${maintNote ? ` — ${maintNote}` : ""}`);
                   toast.success(`Room ${maintRoom} blocked. Engineering dispatched.`);
@@ -1206,7 +1202,7 @@ export function ControlCenter() {
                   <Button type="button" variant="outline" size="sm" className="text-xs border-border text-muted-foreground min-h-[44px] sm:min-h-0" onClick={() => setIngestOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit" size="sm" className="bg-primary hover:bg-primary/90 text-black font-semibold text-xs min-h-[44px] sm:min-h-0">
+                  <Button type="submit" size="sm" className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs min-h-[44px] sm:min-h-0">
                     <Plus className="size-3.5 mr-1.5" /> Ingest Room
                   </Button>
                 </div>
@@ -1253,7 +1249,7 @@ export function ControlCenter() {
                 <Button variant="outline" size="sm" className="text-xs border-border text-muted-foreground min-h-[44px] sm:min-h-0" onClick={() => setIngestOpen(false)}>
                   Cancel
                 </Button>
-                <Button size="sm" className="bg-primary hover:bg-primary/90 text-black font-semibold text-xs min-h-[44px] sm:min-h-0" onClick={handleCsvImport}>
+                <Button size="sm" className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs min-h-[44px] sm:min-h-0" onClick={handleCsvImport}>
                   <Upload className="size-3.5 mr-1.5" /> Import
                 </Button>
               </div>
@@ -1280,7 +1276,7 @@ export function ControlCenter() {
               Generating placards for <span className="font-bold text-primary">{rooms.length}</span> rooms.
             </div>
             <Button
-              className="bg-primary hover:bg-primary/90 text-black font-semibold text-xs gap-1.5"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs gap-1.5"
               onClick={() => {
                 const printWindow = window.open("", "_blank");
                 if (!printWindow) {
@@ -1325,7 +1321,7 @@ export function ControlCenter() {
                         page-break-inside: avoid;
                       }
                       .header {
-                        border-bottom: 2px solid #A7ED10;
+                        border-bottom: 2px solid #D3A376;
                         padding-bottom: 10px;
                         margin-bottom: 15px;
                         font-size: 18px;

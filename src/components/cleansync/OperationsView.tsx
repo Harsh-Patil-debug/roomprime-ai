@@ -704,7 +704,7 @@ export function OperationsView() {
               <Flag className="size-3.5 mr-1" /> Request Re-Clean
             </Button>
             <Button
-              className="bg-ready hover:bg-ready/90 text-black text-xs"
+              className="bg-ready hover:bg-ready/90 text-white text-xs"
               onClick={() => {
                 if (!inspectRoom) return;
                 setRoomStatus(inspectRoom.id, "Ready for Guest");
@@ -947,7 +947,7 @@ export function OperationsView() {
               Generating placards for <span className="font-bold text-primary">{rooms.length}</span> rooms.
             </div>
             <Button
-              className="bg-primary hover:bg-primary/90 text-black font-semibold text-xs gap-1.5"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs gap-1.5"
               onClick={() => {
                 const printWindow = window.open("", "_blank");
                 if (!printWindow) {
@@ -992,7 +992,7 @@ export function OperationsView() {
                         page-break-inside: avoid;
                       }
                       .header {
-                        border-bottom: 2px solid #A7ED10;
+                        border-bottom: 2px solid #D3A376;
                         padding-bottom: 10px;
                         margin-bottom: 15px;
                         font-size: 18px;

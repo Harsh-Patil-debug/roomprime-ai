@@ -75,7 +75,7 @@ export function LoginScreen() {
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center space-y-3">
           <span className="flex size-12 items-center justify-center rounded-2xl exec-gradient shadow-xs">
-            <Hotel className="size-6 text-black" />
+            <Hotel className="size-6 text-white" />
           </span>
           <div className="space-y-1">
             <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">

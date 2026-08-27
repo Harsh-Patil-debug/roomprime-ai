@@ -680,7 +680,7 @@ export function SupervisorView() {
               <Flag className="size-4 mr-1.5" /> Send Back (Flag Re-clean)
             </Button>
             <Button
-              className="bg-ready hover:bg-ready/90 text-black"
+              className="bg-ready hover:bg-ready/90 text-white"
               onClick={() => {
                 if (!inspectRoom) return;
                 setRoomStatus(inspectRoom.id, "Ready for Guest");

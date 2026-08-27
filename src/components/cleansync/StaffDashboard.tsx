@@ -499,7 +499,7 @@ export function StaffDashboard() {
                         <div className="flex flex-col md:flex-row gap-2">
                           <Button
                             size="lg"
-                            className="flex-1 min-h-[48px] bg-primary hover:bg-primary/90 text-black font-bold text-xs flex items-center justify-center gap-2 rounded-xl"
+                            className="flex-1 min-h-[48px] bg-primary hover:bg-primary/90 text-white font-bold text-xs flex items-center justify-center gap-2 rounded-xl"
                             onClick={() => handleSimulateAiInspection("clean")}
                             disabled={isAiScanning}
                           >
@@ -816,9 +816,9 @@ export function StaffDashboard() {
       <div className="lg:hidden fixed bottom-20 left-4 right-4 z-40">
         <Drawer>
           <DrawerTrigger asChild>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-black min-h-[48px] shadow-lg rounded-xl flex items-center justify-between px-4">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] shadow-lg rounded-xl flex items-center justify-between px-4">
               <span className="font-bold text-xs uppercase tracking-wider">Upcoming Dispatch Queue ({dispatchQueue.length})</span>
-              <ChevronRight className="size-4 shrink-0 text-black" />
+              <ChevronRight className="size-4 shrink-0 text-white" />
             </Button>
           </DrawerTrigger>
           <DrawerContent className="bg-card border-t border-border pb-6">
@@ -835,9 +835,9 @@ export function StaffDashboard() {
                       <p className="text-[10px] text-muted-foreground">{task.label} ({task.target})</p>
                     </div>
                     {task.type === "room" ? (
-                      <Button size="sm" className="h-8 text-[10px] bg-primary text-black font-bold" onClick={() => handleStartRoom(task.id)}>Start</Button>
+                      <Button size="sm" className="h-8 text-[10px] bg-primary text-white font-bold" onClick={() => handleStartRoom(task.id)}>Start</Button>
                     ) : (
-                      <Button size="sm" className="h-8 text-[10px] bg-primary text-black font-bold" onClick={() => handleStartRequest(task.id)}>Start</Button>
+                      <Button size="sm" className="h-8 text-[10px] bg-primary text-white font-bold" onClick={() => handleStartRequest(task.id)}>Start</Button>
                     )}
                   </div>
                 ))}

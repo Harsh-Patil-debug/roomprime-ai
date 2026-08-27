@@ -57,7 +57,7 @@ export function RoomQrCard({ roomNumber, roomType }: RoomQrCardProps) {
   return (
     <Card className="bg-card border-border border-2 shadow-md rounded-2xl overflow-hidden max-w-xl mx-auto p-6 flex flex-col gap-6 text-foreground relative">
       {/* Accent corner tag */}
-      <div className="absolute top-0 right-0 bg-primary text-black text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+      <div className="absolute top-0 right-0 bg-primary text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
         RoomFlow Placard
       </div>
 

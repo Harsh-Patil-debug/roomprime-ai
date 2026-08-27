@@ -170,7 +170,7 @@ export function GuestPortal() {
             <div key={st.num} className="flex-1 flex flex-col items-center relative text-center">
               <div className={`size-7 rounded-full flex items-center justify-center border-2 text-xs font-bold font-mono transition-all z-10 ${
                 status === "completed" 
-                  ? "bg-ready border-ready text-black" 
+                  ? "bg-ready border-ready text-white" 
                   : "bg-card border-border text-muted-foreground"
               }`}>
                 {st.num}
@@ -334,7 +334,7 @@ export function GuestPortal() {
                 </div>
 
                 <DrawerFooter className="px-0 pt-2 flex flex-col gap-2">
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-black font-semibold gap-1.5 min-h-[48px]">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold gap-1.5 min-h-[48px]">
                     <Send className="size-3.5" /> Submit Request
                   </Button>
                   <Button type="button" variant="outline" className="w-full border-border text-muted-foreground min-h-[48px]" onClick={() => setCatalogOpen(false)}>

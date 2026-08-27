@@ -213,7 +213,7 @@ export function WhatsAppSandbox() {
                 onChange={(e) => setWaMessage(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               />
-              <Button size="sm" className="h-8 w-8 p-0 bg-primary hover:bg-primary/90 text-black shrink-0" onClick={handleSendMessage}>
+              <Button size="sm" className="h-8 w-8 p-0 bg-primary hover:bg-primary/90 text-white shrink-0" onClick={handleSendMessage}>
                 <Send className="size-3.5" />
               </Button>
             </div>

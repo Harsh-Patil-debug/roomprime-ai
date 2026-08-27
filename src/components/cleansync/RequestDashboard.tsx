@@ -494,7 +494,7 @@ export function RequestDashboard() {
                         {/* Resolve task button */}
                         <Button
                           size="sm"
-                          className="h-8 bg-ready hover:bg-ready/90 text-black font-medium shrink-0"
+                          className="h-8 bg-ready hover:bg-ready/90 text-white font-medium shrink-0"
                           onClick={() => {
                             updateGuestRequestStatus(req.id, "Completed");
                             toast.success(`Request marked as Resolved!`);
@@ -639,7 +639,7 @@ export function RequestDashboard() {
               </div>
 
               <DrawerFooter className="px-0 pt-2 flex flex-col gap-2">
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-black font-bold text-xs min-h-[48px]">
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xs min-h-[48px]">
                   Submit Request
                 </Button>
                 <Button type="button" variant="outline" className="w-full border-border text-muted-foreground min-h-[48px]" onClick={() => setCreateOpen(false)}>

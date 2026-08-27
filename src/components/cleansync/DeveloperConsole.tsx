@@ -460,7 +460,7 @@ interface WelcomeEmailResponse {
             )}
           </div>
 
-          <Button className="w-full h-9 bg-primary hover:bg-primary/90 text-black font-semibold text-xs mt-4" onClick={handleExecute}>
+          <Button className="w-full h-9 bg-primary hover:bg-primary/90 text-white font-semibold text-xs mt-4" onClick={handleExecute}>
             <Play className="size-3.5 mr-1.5" /> Test & Execute Endpoint
           </Button>
         </Card>
