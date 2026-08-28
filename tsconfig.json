@@ -1,4 +1,5 @@
 {
+  "extends": "expo/tsconfig.base",
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
@@ -37,6 +38,5 @@
         "./src/*"
       ]
     }
-  },
-  "extends": "expo/tsconfig.base"
+  }
 }

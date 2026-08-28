@@ -105,18 +105,18 @@ export function AuthScreen() {
 
   return (
     <div className="flex min-h-[85vh] items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white border border-[#EBE3D1] shadow-xl rounded-[2rem] p-6 sm:p-8 space-y-6">
+      <Card className="w-full max-w-md bg-[#ECECDC] dark:bg-[#0E4239] border border-[#D2D2BC] dark:border-[#185E52] shadow-2xl rounded-[2rem] p-6 sm:p-8 space-y-6 text-[#09332C] dark:text-[#ECECDC]">
         
         {/* Header Section */}
         <div className="flex flex-col items-center text-center space-y-3">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-[#B5652F] text-white shadow-md">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-[#09332C] dark:bg-[#A0C9CB] text-[#ECECDC] dark:text-[#09332C] shadow-md">
             <Hotel className="size-7" />
           </span>
           <div className="space-y-1">
-            <h1 className="font-display text-2xl font-bold tracking-widest text-[#2A2620] uppercase">
+            <h1 className="font-display text-2xl font-bold tracking-widest text-[#09332C] dark:text-[#ECECDC] uppercase">
               ROOMFLOW
             </h1>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#B14A3E]/30 bg-[#B14A3E]/5 text-[9px] font-bold text-[#B14A3E] tracking-wider uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#733635]/30 bg-[#733635]/10 text-[9px] font-bold text-[#733635] dark:text-[#FF6037] tracking-wider uppercase">
               <ShieldCheck className="size-3" />
               🛡 SECURE ACCESS PROTOCOL V2.0
             </div>
@@ -124,13 +124,13 @@ export function AuthScreen() {
         </div>
 
         {/* Tab Toggle */}
-        <div className="grid grid-cols-2 p-1 bg-[#F5F1E8] border border-[#EBE3D1] rounded-xl text-xs font-semibold">
+        <div className="grid grid-cols-2 p-1 bg-[#DFDFC8] dark:bg-[#072620] border border-[#D2D2BC] dark:border-[#185E52] rounded-xl text-xs font-semibold">
           <button
             onClick={() => setTab("signin")}
             className={`py-2 rounded-lg transition-all ${
               tab === "signin"
-                ? "bg-white text-[#B5652F] shadow-xs"
-                : "text-[#736B5E] hover:text-[#2A2620]"
+                ? "bg-[#ECECDC] dark:bg-[#0E4239] text-[#09332C] dark:text-[#A0C9CB] shadow-xs font-bold"
+                : "text-[#5C6E6A] dark:text-[#A0C9CB]/70 hover:text-[#09332C] dark:hover:text-[#ECECDC]"
             }`}
           >
             SIGN IN
@@ -139,8 +139,8 @@ export function AuthScreen() {
             onClick={() => setTab("register")}
             className={`py-2 rounded-lg transition-all ${
               tab === "register"
-                ? "bg-white text-[#B5652F] shadow-xs"
-                : "text-[#736B5E] hover:text-[#2A2620]"
+                ? "bg-[#ECECDC] dark:bg-[#0E4239] text-[#09332C] dark:text-[#A0C9CB] shadow-xs font-bold"
+                : "text-[#5C6E6A] dark:text-[#A0C9CB]/70 hover:text-[#09332C] dark:hover:text-[#ECECDC]"
             }`}
           >
             REGISTER STAFF
@@ -152,11 +152,11 @@ export function AuthScreen() {
           
           {tab === "register" && (
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#5C6E6A] dark:text-[#A0C9CB] block">
                 STAFF ID / FULL NAME
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#5C6E6A] dark:text-[#A0C9CB]">
                   <User className="size-4" />
                 </span>
                 <input
@@ -165,18 +165,18 @@ export function AuthScreen() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoComplete="off"
-                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
+                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#D2D2BC] dark:border-[#185E52] bg-white dark:bg-[#072620] text-xs text-[#09332C] dark:text-[#ECECDC] placeholder-[#5C6E6A]/50 focus:outline-none focus:ring-1 focus:ring-[#09332C] dark:focus:ring-[#A0C9CB] focus:border-[#09332C] transition-all"
                 />
               </div>
             </div>
           )}
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#5C6E6A] dark:text-[#A0C9CB] block">
               WORK EMAIL / USER ID
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#5C6E6A] dark:text-[#A0C9CB]">
                 <Mail className="size-4" />
               </span>
               <input
@@ -185,18 +185,18 @@ export function AuthScreen() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="off"
-                className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
+                className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#D2D2BC] dark:border-[#185E52] bg-white dark:bg-[#072620] text-xs text-[#09332C] dark:text-[#ECECDC] placeholder-[#5C6E6A]/50 focus:outline-none focus:ring-1 focus:ring-[#09332C] dark:focus:ring-[#A0C9CB] focus:border-[#09332C] transition-all"
               />
             </div>
           </div>
 
           {tab === "register" && (
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#5C6E6A] dark:text-[#A0C9CB] block">
                 PHONE NUMBER
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#5C6E6A] dark:text-[#A0C9CB]">
                   <Phone className="size-4" />
                 </span>
                 <input
@@ -205,18 +205,18 @@ export function AuthScreen() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   autoComplete="off"
-                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
+                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#D2D2BC] dark:border-[#185E52] bg-white dark:bg-[#072620] text-xs text-[#09332C] dark:text-[#ECECDC] placeholder-[#5C6E6A]/50 focus:outline-none focus:ring-1 focus:ring-[#09332C] dark:focus:ring-[#A0C9CB] focus:border-[#09332C] transition-all"
                 />
               </div>
             </div>
           )}
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#5C6E6A] dark:text-[#A0C9CB] block">
               SECURITY PASSCODE
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#5C6E6A] dark:text-[#A0C9CB]">
                 <Lock className="size-4" />
               </span>
               <input
@@ -225,12 +225,12 @@ export function AuthScreen() {
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 autoComplete="new-password"
-                className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
+                className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#D2D2BC] dark:border-[#185E52] bg-white dark:bg-[#072620] text-xs text-[#09332C] dark:text-[#ECECDC] placeholder-[#5C6E6A]/50 focus:outline-none focus:ring-1 focus:ring-[#09332C] dark:focus:ring-[#A0C9CB] focus:border-[#09332C] transition-all"
               />
               <button
                 type="button"
                 onClick={() => setShowPasscode(!showPasscode)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#736B5E]/70 hover:text-[#B5652F] cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#5C6E6A]/70 hover:text-[#09332C] dark:hover:text-[#A0C9CB] cursor-pointer"
               >
                 {showPasscode ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
@@ -238,17 +238,17 @@ export function AuthScreen() {
           </div>
 
           {tab === "register" && (
-            <label className="flex items-start gap-2.5 text-[11px] text-[#736B5E] select-none cursor-pointer leading-normal mt-2">
+            <label className="flex items-start gap-2.5 text-[11px] text-[#5C6E6A] dark:text-[#A0C9CB] select-none cursor-pointer leading-normal mt-2">
               <input
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="mt-0.5 accent-[#B5652F] h-3.5 w-3.5 rounded border-[#E8E2D5] bg-[#F7F5F0]"
+                className="mt-0.5 accent-[#09332C] dark:accent-[#A0C9CB] h-3.5 w-3.5 rounded border-[#D2D2BC] bg-white"
               />
               <span>
                 I agree to the{" "}
-                <span className="text-[#B5652F] font-semibold hover:underline">Terms & Conditions</span> and{" "}
-                <span className="text-[#B5652F] font-semibold hover:underline">Operational Privacy Policy</span>.
+                <span className="text-[#733635] dark:text-[#FF6037] font-semibold hover:underline">Terms & Conditions</span> and{" "}
+                <span className="text-[#733635] dark:text-[#FF6037] font-semibold hover:underline">Operational Privacy Policy</span>.
               </span>
             </label>
           )}
@@ -257,7 +257,7 @@ export function AuthScreen() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-11 bg-[#B5652F] hover:bg-[#9C5424] text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md mt-2 cursor-pointer"
+            className="w-full h-11 bg-[#09332C] hover:bg-[#06241F] text-[#ECECDC] font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md mt-2 cursor-pointer dark:bg-[#A0C9CB] dark:text-[#09332C] dark:hover:bg-[#8ebbbb]"
           >
             {loading ? (
               <RefreshCw className="size-4 animate-spin text-white" />
@@ -269,11 +269,11 @@ export function AuthScreen() {
 
         {/* Divider */}
         <div className="relative flex py-2 items-center">
-          <div className="flex-grow border-t border-[#EBE3D1]"></div>
-          <span className="flex-shrink mx-4 text-[10px] font-bold text-[#736B5E]/60 tracking-wider">
+          <div className="flex-grow border-t border-[#D2D2BC] dark:border-[#185E52]"></div>
+          <span className="flex-shrink mx-4 text-[10px] font-bold text-[#5C6E6A]/60 dark:text-[#A0C9CB]/60 tracking-wider">
             OR ACCESS VIA
           </span>
-          <div className="flex-grow border-t border-[#EBE3D1]"></div>
+          <div className="flex-grow border-t border-[#D2D2BC] dark:border-[#185E52]"></div>
         </div>
 
         {/* OAuth Buttons */}
@@ -282,10 +282,10 @@ export function AuthScreen() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full h-11 bg-white hover:bg-neutral-50 text-[#2A2620] border border-[#EBE3D1] shadow-xs font-semibold text-xs tracking-wider uppercase transition-all rounded-xl gap-3 cursor-pointer"
+            className="w-full h-11 bg-white dark:bg-[#072620] hover:bg-neutral-50 dark:hover:bg-[#0a352c] text-[#09332C] dark:text-[#ECECDC] border border-[#D2D2BC] dark:border-[#185E52] shadow-xs font-semibold text-xs tracking-wider uppercase transition-all rounded-xl gap-3 cursor-pointer"
           >
             {loading ? (
-              <RefreshCw className="size-4 animate-spin text-[#B5652F]" />
+              <RefreshCw className="size-4 animate-spin text-[#09332C]" />
             ) : (
               <svg className="size-4.5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -296,7 +296,7 @@ export function AuthScreen() {
             )}
             <span>CONTINUE WITH GOOGLE</span>
           </Button>
-          <p className="text-[10px] text-center text-muted-foreground/80 leading-normal">
+          <p className="text-[10px] text-center text-[#5C6E6A] dark:text-[#A0C9CB]/80 leading-normal">
             SSO sandbox enabled. Enter your Gmail in the form above and click the button to log in.
           </p>
         </div>

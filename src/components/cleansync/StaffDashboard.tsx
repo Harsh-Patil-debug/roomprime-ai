@@ -38,10 +38,10 @@ import {
 } from "@/components/ui/drawer";
 
 const requestStatusStyles: Record<RequestStatus, string> = {
-  Open: "bg-dirty/10 text-dirty/80 border-dirty/20",
-  "In Progress": "bg-[#B5652F]/10 text-[#B5652F] border-[#B5652F]/20",
-  Completed: "bg-[#8A9A6B]/10 text-[#8A9A6B] border-[#8A9A6B]/20",
-  Escalated: "bg-[#B14A3E]/10 text-[#B14A3E] border-[#B14A3E]/20 animate-pulse font-semibold",
+  Open: "bg-dirty/10 text-dirty border-dirty/20",
+  "In Progress": "bg-progress/15 text-progress border-progress/30",
+  Completed: "bg-ready/15 text-ready border-ready/30",
+  Escalated: "bg-urgent/15 text-urgent border-urgent/30 animate-pulse font-semibold",
 };
 
 export function StaffDashboard() {

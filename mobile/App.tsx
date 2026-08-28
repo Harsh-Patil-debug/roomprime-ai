@@ -19,13 +19,13 @@ export default function App() {
         {currentScreen === "concierge" && <ConciergeScreen />}
       </View>
 
-      {/* Universal Tab Navigation Bar (Copper & Cream design) */}
+      {/* Universal Tab Navigation Bar (Luxury theme) */}
       <View style={styles.tabBar}>
         <TouchableOpacity 
           style={[styles.tabButton, currentScreen === "supervisor" && styles.activeTabButton]}
           onPress={() => setCurrentScreen("supervisor")}
         >
-          <LayoutGrid size={20} color={currentScreen === "supervisor" ? "#FFFFFF" : "#736B5E"} />
+          <LayoutGrid size={20} color={currentScreen === "supervisor" ? "#ECECDC" : "#5C6E6A"} />
           <Text style={[styles.tabText, currentScreen === "supervisor" && styles.activeTabText]}>
             Supervisor
           </Text>
@@ -35,7 +35,7 @@ export default function App() {
           style={[styles.tabButton, currentScreen === "staff" && styles.activeTabButton]}
           onPress={() => setCurrentScreen("staff")}
         >
-          <ClipboardCheck size={20} color={currentScreen === "staff" ? "#FFFFFF" : "#736B5E"} />
+          <ClipboardCheck size={20} color={currentScreen === "staff" ? "#ECECDC" : "#5C6E6A"} />
           <Text style={[styles.tabText, currentScreen === "staff" && styles.activeTabText]}>
             Staff Portal
           </Text>
@@ -45,7 +45,7 @@ export default function App() {
           style={[styles.tabButton, currentScreen === "concierge" && styles.activeTabButton]}
           onPress={() => setCurrentScreen("concierge")}
         >
-          <Smartphone size={20} color={currentScreen === "concierge" ? "#FFFFFF" : "#736B5E"} />
+          <Smartphone size={20} color={currentScreen === "concierge" ? "#ECECDC" : "#5C6E6A"} />
           <Text style={[styles.tabText, currentScreen === "concierge" && styles.activeTabText]}>
             Concierge
           </Text>
@@ -58,7 +58,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F1E8",
+    backgroundColor: "#ECECDC",
   },
   viewport: {
     flex: 1,
@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: "row",
     height: 65,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ECECDC",
     borderTopWidth: 1,
-    borderTopColor: "#EBE3D1",
+    borderTopColor: "#D2D2BC",
     paddingBottom: 8,
     paddingTop: 8,
     justifyContent: "space-around",
@@ -83,15 +83,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   activeTabButton: {
-    backgroundColor: "#B5652F",
+    backgroundColor: "#09332C",
   },
   tabText: {
     fontSize: 10,
     fontWeight: "bold",
-    color: "#736B5E",
+    color: "#5C6E6A",
     marginTop: 4,
   },
   activeTabText: {
-    color: "#FFFFFF",
+    color: "#ECECDC",
   },
 });

@@ -56,15 +56,15 @@ function ConciergeGuardContent() {
 
   if (loading || (user && (user.role === "ops" || user.role === "requests" || user.role === "staff"))) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#B5652F] animate-spin" />
-        <span className="text-sm font-semibold text-[#736B5E]">Verifying guest access...</span>
+      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying guest access...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] text-[#2A2620]">
+    <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] text-[#09332C] dark:text-[#ECECDC]">
       <ConciergeHeader />
 
       <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
@@ -92,27 +92,27 @@ function ConciergeHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/80 backdrop-blur py-3.5 px-4 shadow-sm">
+    <header className="sticky top-0 z-40 border-b border-[#D2D2BC] dark:border-[#185E52] bg-[#ECECDC]/80 dark:bg-[#09332C]/80 backdrop-blur py-3.5 px-4 shadow-sm">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-[#B5652F]/10">
-            <Hotel className="size-5 text-[#B5652F]" />
+          <span className="flex size-9 items-center justify-center rounded-xl bg-[#09332C]/10 dark:bg-[#A0C9CB]/15">
+            <Hotel className="size-5 text-[#09332C] dark:text-[#A0C9CB]" />
           </span>
           <div>
-            <h1 className="text-base font-bold leading-none text-[#2A2620]">RoomFlow Guest Portal</h1>
-            <p className="text-[10px] text-[#736B5E] mt-0.5 uppercase tracking-wider font-bold">Concierge Service Desk</p>
+            <h1 className="text-base font-bold leading-none text-[#09332C] dark:text-[#ECECDC]">RoomFlow Guest Portal</h1>
+            <p className="text-[10px] text-[#5C6E6A] dark:text-[#A0C9CB] mt-0.5 uppercase tracking-wider font-bold">Concierge Service Desk</p>
           </div>
         </div>
 
         {/* FLOATING DEMO PERSONA SWITCHER PILL */}
-        <div className="flex items-center bg-[#B5652F]/10 border border-[#B5652F]/20 p-0.5 rounded-full gap-0.5 shadow-sm select-none">
-          <span className="hidden sm:inline-block text-[9px] font-black text-[#B5652F] uppercase tracking-wider px-2 border-r border-[#B5652F]/20">
+        <div className="flex items-center bg-[#09332C]/10 dark:bg-[#A0C9CB]/15 border border-[#09332C]/20 dark:border-[#A0C9CB]/30 p-0.5 rounded-full gap-0.5 shadow-sm select-none">
+          <span className="hidden sm:inline-block text-[9px] font-black text-[#09332C] dark:text-[#ECECDC] uppercase tracking-wider px-2 border-r border-[#09332C]/20 dark:border-[#A0C9CB]/30">
             Demo Switcher
           </span>
           <Button
             size="sm"
             variant="ghost"
-            className="h-7 text-[10px] font-extrabold rounded-full px-2.5 py-0 transition-all cursor-pointer text-[#736B5E] hover:text-[#2A2620] hover:bg-[#B5652F]/5"
+            className="h-7 text-[10px] font-extrabold rounded-full px-2.5 py-0 transition-all cursor-pointer text-[#5C6E6A] dark:text-[#ECECDC]/80 hover:text-[#09332C] dark:hover:text-[#ECECDC] hover:bg-[#09332C]/5 dark:hover:bg-white/10"
             onClick={() => handleRoleSwitch("ops")}
           >
             👑 Supervisor
@@ -120,7 +120,7 @@ function ConciergeHeader() {
           <Button
             size="sm"
             variant="ghost"
-            className="h-7 text-[10px] font-extrabold rounded-full px-2.5 py-0 transition-all cursor-pointer text-[#736B5E] hover:text-[#2A2620] hover:bg-[#B5652F]/5"
+            className="h-7 text-[10px] font-extrabold rounded-full px-2.5 py-0 transition-all cursor-pointer text-[#5C6E6A] dark:text-[#ECECDC]/80 hover:text-[#09332C] dark:hover:text-[#ECECDC] hover:bg-[#09332C]/5 dark:hover:bg-white/10"
             onClick={() => handleRoleSwitch("staff")}
           >
             🧹 Staff
@@ -128,7 +128,7 @@ function ConciergeHeader() {
           <Button
             size="sm"
             variant="ghost"
-            className="h-7 text-[10px] font-extrabold rounded-full px-2.5 py-0 transition-all cursor-pointer bg-[#B5652F] text-white shadow-sm hover:bg-[#B5652F]"
+            className="h-7 text-[10px] font-extrabold rounded-full px-2.5 py-0 transition-all cursor-pointer bg-[#09332C] dark:bg-[#A0C9CB] text-[#ECECDC] dark:text-[#09332C] shadow-sm hover:bg-[#09332C]/90 dark:hover:bg-[#A0C9CB]/90"
             onClick={() => handleRoleSwitch("guest")}
           >
             🛎 Guest

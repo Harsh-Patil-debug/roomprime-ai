@@ -68,16 +68,16 @@ function DashboardLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#B5652F] animate-spin" />
-        <span className="text-sm font-semibold text-[#736B5E]">Loading RoomFlow...</span>
+      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Loading RoomFlow...</span>
       </div>
     );
   }
 
   // If not logged in and no room query param, show Auth Screen to authenticate
   return (
-    <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center p-4">
       <AuthScreen />
       <Toaster position="top-right" richColors />
     </div>

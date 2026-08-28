@@ -50,15 +50,15 @@ function StaffContent() {
 
   if (loading || !user || user.role !== "staff") {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#B5652F] animate-spin" />
-        <span className="text-sm font-semibold text-[#736B5E]">Verifying staff access...</span>
+      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying staff access...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8]">
+    <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C]">
       <AppLayout
         role="staff"
         setRole={() => {}}

@@ -26,14 +26,14 @@ export async function sendWelcomeEmail(email: string, name: string) {
         to: [email],
         subject: "Welcome to RoomFlow Operations! 🏨",
         html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #EBE3D1; border-radius: 16px; background-color: #F5F1E8; color: #2A2620;">
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #D2D2BC; border-radius: 16px; background-color: #ECECDC; color: #09332C;">
             <div style="text-align: center; margin-bottom: 25px;">
-              <span style="display: inline-block; padding: 12px; background-color: #B5652F; border-radius: 12px; color: #FFFFFF; font-weight: bold; font-size: 20px;">
+              <span style="display: inline-block; padding: 12px; background-color: #09332C; border-radius: 12px; color: #ECECDC; font-weight: bold; font-size: 20px;">
                 🏨 RoomFlow
               </span>
             </div>
             
-            <h1 style="color: #B5652F; font-size: 22px; margin-bottom: 15px; font-weight: bold; text-align: center;">
+            <h1 style="color: #09332C; font-size: 22px; margin-bottom: 15px; font-weight: bold; text-align: center;">
               Welcome to RoomFlow, ${name}!
             </h1>
             
@@ -42,14 +42,14 @@ export async function sendWelcomeEmail(email: string, name: string) {
             </p>
             
             <p style="font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-              RoomFlow is a high-speed, warm-aesthetic hotel operational manager. You now have complete access to housekeeping schedules, task checklists, and live developer console logs.
+              RoomFlow is a high-speed, luxury hotel operational manager. You now have complete access to housekeeping schedules, task checklists, and live developer console logs.
             </p>
             
-            <div style="margin: 25px 0; padding: 20px; background-color: #FFFFFF; border: 1px solid #EBE3D1; border-radius: 10px;">
-              <strong style="color: #B5652F; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">
+            <div style="margin: 25px 0; padding: 20px; background-color: #FFFFFF; border: 1px solid #D2D2BC; border-radius: 10px;">
+              <strong style="color: #09332C; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">
                 Operations Command Center Access
               </strong>
-              <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #736B5E; line-height: 1.8;">
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #5C6E6A; line-height: 1.8;">
                 <li><strong>Control Center</strong>: Edit room states (Vacant ➔ Cleaning ➔ Ready).</li>
                 <li><strong>Request Queue</strong>: Monitor guest requests with automated SLA stopwatch timers.</li>
                 <li><strong>Staff Portal</strong>: Housekeeper mobile-friendly tasks and visual QA checks.</li>
@@ -61,9 +61,9 @@ export async function sendWelcomeEmail(email: string, name: string) {
               If you have any questions or require training materials, please reach out to your hotel operations supervisor.
             </p>
             
-            <hr style="border: 0; border-top: 1px solid #EBE3D1; margin-bottom: 20px;" />
+            <hr style="border: 0; border-top: 1px solid #D2D2BC; margin-bottom: 20px;" />
             
-            <p style="color: #736B5E; font-size: 11px; text-align: center; margin: 0;">
+            <p style="color: #5C6E6A; font-size: 11px; text-align: center; margin: 0;">
               RoomFlow Operations Suite • Grand Palace Hotel Group
             </p>
           </div>
