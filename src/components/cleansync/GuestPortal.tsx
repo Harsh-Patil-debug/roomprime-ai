@@ -153,85 +153,47 @@ export function GuestConciergePortal() {
     setTrackerRequest(null);
   };
 
-  // Monitor guest requests to auto-track the most recent request
-  useEffect(() => {
-    const myRequests = guestRequests.filter((r) => r.roomNumber === guestRoom);
-    if (myRequests.length > 0) {
-      const latest = myRequests[myRequests.length - 1];
-      if (!latest) return;
-      
-      // Prevent showing tracker if it has been dismissed by user
-      if (dismissedRequestIds.includes(latest.id)) {
-        setTrackerRequest(null);
-        return;
-      }
-      
-      // Map requests status directly to tracker steps
-      let step = 0;
-      let staffName = latest.assignedStaff || "Lucia Moreno";
-      
-      if (latest.status === "In Progress") {
-        step = 1; // Assigned
-      } else if (latest.status === "Escalated") {
-        step = 2; // On the way
-      } else if (latest.status === "Completed") {
-        step = 3; // Delivered
-      }
-
-      setTrackerRequest({
-        item: latest.item,
-        step,
-        staffName,
-      });
-    }
+  // Monitor guest requests for active room directly from global store
+  const activeRoomRequest = useMemo(() => {
+    const roomRequests = guestRequests.filter(
+      (r) => r.roomNumber === guestRoom && !dismissedRequestIds.includes(r.id)
+    );
+    if (!roomRequests.length) return null;
+    const activeOne = roomRequests.find((r) => r.status !== "Completed");
+    return activeOne || roomRequests[0];
   }, [guestRequests, guestRoom, dismissedRequestIds]);
 
-  // Demo simulator ticker to update steps for demo workers
+  // Compute live step stage index (0: Received, 1: Assigned, 2: On the Way, 3: Delivered)
+  const activeStep = useMemo(() => {
+    if (!activeRoomRequest) return 0;
+    if (activeRoomRequest.status === "Completed" || activeRoomRequest.stage === "delivered") return 3;
+    if (activeRoomRequest.stage === "on_the_way") return 2;
+    if (activeRoomRequest.assignedStaff || activeRoomRequest.stage === "assigned") return 1;
+    return 0;
+  }, [activeRoomRequest]);
+
+  // Tracker UI messaging updates
+  const trackerStatusMessage = useMemo(() => {
+    if (!activeRoomRequest) return "";
+    const staffName = activeRoomRequest.assignedStaff || "Runner";
+    if (activeStep === 0) return "Front Desk has received your request and is routing it to nearest runner.";
+    if (activeStep === 1) return `Request assigned to ${staffName}. Preparing items for delivery.`;
+    if (activeStep === 2) return `Runner ${staffName} is heading to Suite ${guestRoom} (ETA: ~2 mins).`;
+    return `Delivered by ${staffName}! Thank you for staying with RoomFlow.`;
+  }, [activeRoomRequest, activeStep, guestRoom]);
+
+  // Live Toast notifications when activeStep advances across tabs
   useEffect(() => {
-    if (!trackerRequest || trackerRequest.step >= 3) return;
-    const interval = setTimeout(() => {
-      setTrackerRequest((prev) => {
-        if (!prev) return null;
-        if (prev.step >= 3) return prev;
-        const nextStep = prev.step + 1;
-        
-        // Toast status alerts to guest
-        if (nextStep === 1) {
-          toast.info(`Runner assigned: ${prev.staffName} is preparing your request!`);
-        } else if (nextStep === 2) {
-          toast.info(`Runner ${prev.staffName} is on the way! ETA: 3 mins.`);
-        } else if (nextStep === 3) {
-          toast.success(`🎉 Your request "${prev.item}" has been delivered!`);
-        }
-
-        return { ...prev, step: nextStep };
-      });
-    }, 10000); // Progress tracker every 10 seconds for demo pacing
-    return () => clearTimeout(interval);
-  }, [trackerRequest]);
-
-  // Click outside / on side to dismiss delivered request tracker
-  useEffect(() => {
-    if (!trackerRequest || trackerRequest.step < 3) return;
-
-    const handleGlobalClick = (e: MouseEvent) => {
-      // Check if click was on the side/outside of the floating card
-      const cardEl = document.querySelector(".tracker-floating-card");
-      if (cardEl && !cardEl.contains(e.target as Node)) {
-        handleDismissTracker();
-      }
-    };
-
-    // Add event listener with delay to prevent capturing initial click that triggered it
-    const timeout = setTimeout(() => {
-      document.addEventListener("click", handleGlobalClick);
-    }, 100);
-
-    return () => {
-      clearTimeout(timeout);
-      document.removeEventListener("click", handleGlobalClick);
-    };
-  }, [trackerRequest]);
+    if (!activeRoomRequest) return;
+    const staffName = activeRoomRequest.assignedStaff || "Runner";
+    if (activeStep === 1) {
+      toast.info(`Runner assigned: ${staffName} is preparing your request!`);
+    } else if (activeStep === 2) {
+      toast.info(`Runner ${staffName} is on the way to Suite ${guestRoom}! (ETA: ~2 mins)`);
+    } else if (activeStep === 3) {
+      toast.success(`🎉 Your request "${activeRoomRequest.item}" has been delivered!`);
+    }
+  }, [activeStep, activeRoomRequest?.id]);
 
   // 1-Tap quick service catalog config
   const quickCatalog = [
