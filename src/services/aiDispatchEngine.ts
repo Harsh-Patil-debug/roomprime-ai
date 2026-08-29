@@ -176,6 +176,7 @@ export function findBestStaffMatch(
  * Batch Auto-Dispatch Engine:
  * Gathers all unassigned "Vacant Dirty" rooms and open guest tickets,
  * runs proximity and workload matching across active staff, and returns optimal assignments.
+ * STRICT RULE: Enforces 1 assignment per person (no staff member is assigned twice in the same batch).
  */
 export function runBatchAutoDispatch(
   rooms: Room[],
@@ -183,73 +184,73 @@ export function runBatchAutoDispatch(
   staffList: Staff[]
 ): BatchDispatchItem[] {
   const batchList: BatchDispatchItem[] = [];
+  const assignedInBatch = new Set<string>();
 
-  // Track dynamic simulated task counts during batch assignment to prevent over-assigning a single staff member
-  const simulatedStaffTaskCounts: Record<string, number> = {};
-  staffList.forEach((s) => {
-    const existingRooms = rooms.filter(
-      (r) => r.assignedStaff === s.name && (r.status === "Cleaning in Progress" || r.status === "Vacant Dirty")
-    ).length;
-    const existingRequests = guestRequests.filter(
-      (r) => r.assignedStaff === s.name && (r.status === "In Progress" || r.status === "Open")
-    ).length;
-    simulatedStaffTaskCounts[s.name] = existingRooms + existingRequests;
-  });
-
-  // 1. Gather unassigned "Vacant Dirty" rooms
+  // Gather unassigned items
   const unassignedRooms = rooms.filter((r) => r.status === "Vacant Dirty" && !r.assignedStaff);
-  // Sort VIP rooms first
-  const sortedRooms = [...unassignedRooms].sort((a, b) => (b.priority === "VIP" ? 1 : 0) - (a.priority === "VIP" ? 1 : 0));
-
-  sortedRooms.forEach((r) => {
-    const isVip = r.priority === "VIP";
-    const roomFloor = r.floor || Number(r.number[0]) || 1;
-    const ranked = rankAllStaffMatches(r.number, roomFloor, isVip, staffList, rooms, guestRequests);
-
-    // Pick top staff considering simulated batch count
-    const bestMatch = ranked.find(
-      (m) => (simulatedStaffTaskCounts[m.staffName] || 0) < 3
-    ) || ranked[0];
-
-    if (bestMatch) {
-      simulatedStaffTaskCounts[bestMatch.staffName] = (simulatedStaffTaskCounts[bestMatch.staffName] || 0) + 1;
-      batchList.push({
-        type: "room",
-        targetId: r.id,
-        targetNumber: r.number,
-        targetLabel: `Room ${r.number} (${r.type}${isVip ? " • VIP" : ""})`,
-        isVip,
-        floor: roomFloor,
-        match: bestMatch,
-      });
-    }
-  });
-
-  // 2. Gather unassigned open guest requests
   const unassignedRequests = guestRequests.filter((req) => req.status === "Open" && !req.assignedStaff);
 
-  unassignedRequests.forEach((req) => {
-    const reqFloor = Number(req.roomNumber[0]) || 1;
-    const isVip = req.priority === "Critical" || req.priority === "High";
-    const ranked = rankAllStaffMatches(req.roomNumber, reqFloor, isVip, staffList, rooms, guestRequests);
+  // Priority order: VIP Rooms -> Critical/High Requests -> Standard Rooms -> Normal Requests
+  const vipRooms = unassignedRooms.filter((r) => r.priority === "VIP");
+  const urgentRequests = unassignedRequests.filter((r) => r.priority === "Critical" || r.priority === "High");
+  const standardRooms = unassignedRooms.filter((r) => r.priority !== "VIP");
+  const normalRequests = unassignedRequests.filter((r) => r.priority !== "Critical" && r.priority !== "High");
 
-    const bestMatch = ranked.find(
-      (m) => (simulatedStaffTaskCounts[m.staffName] || 0) < 3
-    ) || ranked[0];
+  const priorityItems: Array<
+    | { type: "room"; data: Room }
+    | { type: "request"; data: GuestRequest }
+  > = [
+    ...vipRooms.map((r) => ({ type: "room" as const, data: r })),
+    ...urgentRequests.map((r) => ({ type: "request" as const, data: r })),
+    ...standardRooms.map((r) => ({ type: "room" as const, data: r })),
+    ...normalRequests.map((r) => ({ type: "request" as const, data: r })),
+  ];
 
-    if (bestMatch) {
-      simulatedStaffTaskCounts[bestMatch.staffName] = (simulatedStaffTaskCounts[bestMatch.staffName] || 0) + 1;
-      batchList.push({
-        type: "request",
-        targetId: req.id,
-        targetNumber: req.roomNumber,
-        targetLabel: `Suite ${req.roomNumber}: ${req.item} (${req.category})`,
-        isVip,
-        floor: reqFloor,
-        match: bestMatch,
-      });
+  for (const item of priorityItems) {
+    if (item.type === "room") {
+      const r = item.data;
+      const isVip = r.priority === "VIP";
+      const roomFloor = r.floor || Number(r.number[0]) || 1;
+      const ranked = rankAllStaffMatches(r.number, roomFloor, isVip, staffList, rooms, guestRequests);
+
+      // Pick top ranked staff who HAS NOT been assigned in this batch
+      const bestMatch = ranked.find((m) => !assignedInBatch.has(m.staffName));
+
+      if (bestMatch) {
+        assignedInBatch.add(bestMatch.staffName);
+        batchList.push({
+          type: "room",
+          targetId: r.id,
+          targetNumber: r.number,
+          targetLabel: `Room ${r.number} (${r.type}${isVip ? " • VIP" : ""})`,
+          isVip,
+          floor: roomFloor,
+          match: bestMatch,
+        });
+      }
+    } else {
+      const req = item.data;
+      const reqFloor = Number(req.roomNumber[0]) || 1;
+      const isVip = req.priority === "Critical" || req.priority === "High";
+      const ranked = rankAllStaffMatches(req.roomNumber, reqFloor, isVip, staffList, rooms, guestRequests);
+
+      // Pick top ranked staff who HAS NOT been assigned in this batch
+      const bestMatch = ranked.find((m) => !assignedInBatch.has(m.staffName));
+
+      if (bestMatch) {
+        assignedInBatch.add(bestMatch.staffName);
+        batchList.push({
+          type: "request",
+          targetId: req.id,
+          targetNumber: req.roomNumber,
+          targetLabel: `Suite ${req.roomNumber}: ${req.item} (${req.category})`,
+          isVip,
+          floor: reqFloor,
+          match: bestMatch,
+        });
+      }
     }
-  });
+  }
 
   return batchList;
 }
