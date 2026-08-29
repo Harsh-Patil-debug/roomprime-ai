@@ -502,19 +502,19 @@ export function SupervisorDashboard() {
                           </Button>
                         )}
                         <Select
-                          value="_pick"
+                          value={req.assignedStaff || "none"}
                           onValueChange={(val) => {
-                            if (val === "_pick") return;
-                            const match = staff.find((s) => s.id === val || s.name === val);
-                            if (match) assignTaskToStaff(req.id, match.id, match.name);
+                            const staffName = val === "none" ? null : val;
+                            assignGuestRequest(req.id, staffName);
                           }}
                         >
-                          <SelectTrigger className="h-7 text-[9px] border-[#EBE3D1] w-[110px]">
-                            <SelectValue placeholder="Assign runner..." />
+                          <SelectTrigger className="h-8 text-xs border-[#EBE3D1] bg-white text-[#2A2620] font-bold min-w-[135px] rounded-xl shadow-xs">
+                            <SelectValue placeholder="Assign Staff..." />
                           </SelectTrigger>
                           <SelectContent className="bg-white border-[#EBE3D1]">
+                            <SelectItem value="none" className="text-xs font-semibold">Unassigned</SelectItem>
                             {staff.filter((s) => s.active).map((s) => (
-                              <SelectItem key={s.id} value={s.name} className="text-[10px]">
+                              <SelectItem key={s.id} value={s.name} className="text-xs font-bold">
                                 {s.name}
                               </SelectItem>
                             ))}
@@ -831,8 +831,8 @@ export function SupervisorDashboard() {
                           value={room.assignedStaff || "none"}
                           onValueChange={(val: string) => assignRoom(room.id, val === "none" ? null : val)}
                         >
-                          <SelectTrigger className="w-[120px] h-7 text-[10px] border-[#EBE3D1] rounded-lg">
-                            <SelectValue placeholder="Assign Staff" />
+                          <SelectTrigger className="min-w-[135px] h-8 text-xs border-[#EBE3D1] bg-white text-[#2A2620] font-bold rounded-xl shadow-xs">
+                            <SelectValue placeholder="Assign Staff..." />
                           </SelectTrigger>
                           <SelectContent className="bg-white border-[#EBE3D1]">
                             <SelectItem value="none" className="text-[10px]">Unassigned</SelectItem>

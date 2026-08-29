@@ -498,8 +498,8 @@ export function RequestCardList({
                           }
                         }}
                       >
-                        <SelectTrigger className="w-32 h-8 text-xs border-[#EBE3D1] bg-white text-[#2A2620]">
-                          <SelectValue placeholder="Assign Staff" />
+                        <SelectTrigger className="min-w-[135px] h-8 text-xs border-[#EBE3D1] bg-white text-[#2A2620] font-bold rounded-xl shadow-xs">
+                          <SelectValue placeholder="Assign Staff..." />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-[#EBE3D1]">
                           <SelectItem value="unassigned" className="text-xs">Unassigned</SelectItem>
