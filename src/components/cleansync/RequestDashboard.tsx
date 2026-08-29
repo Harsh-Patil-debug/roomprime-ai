@@ -806,6 +806,7 @@ import { findBestStaffMatch } from "@/services/aiDispatchEngine";
 export function RequestDashboard() {
   const {
     guestRequests,
+    rooms,
     staff,
     addGuestRequest,
     updateGuestRequestStatus,

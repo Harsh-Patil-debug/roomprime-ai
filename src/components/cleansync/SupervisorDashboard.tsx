@@ -55,6 +55,7 @@ export function SupervisorDashboard() {
     rejectRecleanRoom,
     addRoom,
     importCSV,
+    setRoomPhotoAndRunAi,
     assignTaskToStaff,
     assignGuestRequest,
     updateGuestRequestStatus,

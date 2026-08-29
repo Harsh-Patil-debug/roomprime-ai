@@ -46,7 +46,7 @@ export function calculateStaffDispatchScore(
   allRooms: Room[],
   allRequests: GuestRequest[]
 ): DispatchMatch {
-  const staffFloor = STAFF_FLOORS[staffMember.name] || staffMember.floor || 1;
+  const staffFloor = STAFF_FLOORS[staffMember.name] || (staffMember as any).floor || 1;
   const metrics = STAFF_METRICS[staffMember.name] || { shiftStatus: "On Shift", qaPassRate: 90 };
 
   // Hard filter out if inactive or on break/off duty
