@@ -22,6 +22,28 @@ import { type Room, type RoomStatus, type RoomType, type PriorityTag } from "@/l
 import { AiInspectorModal } from "@/components/cleansync/AiInspectorModal";
 import { useAuth } from "@/components/cleansync/auth";
 
+// Robust staff name fuzzy matching helper
+function isStaffMatch(assignedStaff: string | null | undefined, activeWorkerName: string): boolean {
+  if (!assignedStaff || !activeWorkerName) return false;
+  const assigned = assignedStaff.trim().toLowerCase();
+  const worker = activeWorkerName.trim().toLowerCase();
+  if (assigned === worker) return true;
+
+  const assignedParts = assigned.split(" ");
+  const workerParts = worker.split(" ");
+
+  const assignedFirst = assignedParts[0];
+  const workerFirst = workerParts[0];
+
+  return (
+    assigned.includes(worker) ||
+    worker.includes(assigned) ||
+    assigned.includes(workerFirst) ||
+    worker.includes(assignedFirst) ||
+    (assignedFirst.length >= 3 && workerFirst.length >= 3 && assignedFirst === workerFirst)
+  );
+}
+
 export function StaffPortalInteractive() {
   const {
     rooms,
@@ -47,9 +69,10 @@ export function StaffPortalInteractive() {
 
   // Auto-sync with supervisor assignment or logged in auth user
   useEffect(() => {
-    if (lastAssignedStaff && staff.some((s) => s.name === lastAssignedStaff)) {
-      setSelectedStaffName(lastAssignedStaff);
-    } else if (user?.name && staff.some((s) => s.name === user.name)) {
+    if (lastAssignedStaff && staff.some((s) => isStaffMatch(s.name, lastAssignedStaff))) {
+      const match = staff.find((s) => isStaffMatch(s.name, lastAssignedStaff));
+      if (match) setSelectedStaffName(match.name);
+    } else if (user?.name && staff.some((s) => isStaffMatch(s.name, user.name))) {
       setSelectedStaffName(user.name);
     }
   }, [lastAssignedStaff, user?.name, staff]);
@@ -61,7 +84,9 @@ export function StaffPortalInteractive() {
   // Active assigned guest requests/service tasks
   const assignedTasks = useMemo(() => {
     return guestRequests.filter(
-      (req) => req.assignedStaff === activeWorker.name && (req.status === "In Progress" || req.status === "Open")
+      (req) =>
+        isStaffMatch(req.assignedStaff, activeWorker.name) &&
+        (req.status === "In Progress" || req.status === "Open")
     );
   }, [guestRequests, activeWorker.name]);
 
@@ -154,7 +179,7 @@ export function StaffPortalInteractive() {
 
   // Filter & priority sort assigned rooms
   const assignedRooms = useMemo(() => {
-    return rooms.filter((r) => r.assignedStaff === activeWorker.name);
+    return rooms.filter((r) => isStaffMatch(r.assignedStaff, activeWorker.name));
   }, [rooms, activeWorker.name]);
 
   const activeRoom = useMemo(() => {
@@ -507,18 +532,23 @@ export function StaffPortalInteractive() {
       <div className="flex items-center justify-between p-3 bg-white border border-[#EBE3D1] rounded-2xl shadow-sm text-xs">
         <div className="flex items-center gap-1.5 text-[#736B5E]">
           <User className="size-4 text-[#B5652F]" />
-          <span>Duty Profile Selector:</span>
+          <span className="font-extrabold text-[#2A2620]">Staff Member View:</span>
         </div>
         <Select value={selectedStaffName} onValueChange={setSelectedStaffName}>
-          <SelectTrigger className="w-[145px] h-8 text-xs border-[#EBE3D1] rounded-xl font-bold bg-[#F5F1E8]/40">
+          <SelectTrigger className="w-[195px] h-8 text-xs border-[#EBE3D1] rounded-xl font-extrabold bg-[#F5F1E8]/60 text-[#2A2620]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-white border-[#EBE3D1] text-xs">
-            {staff.filter((s) => s.active).map((s) => (
-              <SelectItem key={s.name} value={s.name} className="text-xs">
-                {s.name} {STAFF_FLOORS[s.name] ? `(Floor ${STAFF_FLOORS[s.name]})` : ""}
-              </SelectItem>
-            ))}
+            {staff.filter((s) => s.active).map((s) => {
+              const rCount = rooms.filter((r) => isStaffMatch(r.assignedStaff, s.name) && r.status !== "Ready for Guest").length;
+              const gCount = guestRequests.filter((req) => isStaffMatch(req.assignedStaff, s.name) && req.status !== "Completed").length;
+              const tot = rCount + gCount;
+              return (
+                <SelectItem key={s.name} value={s.name} className="text-xs font-bold cursor-pointer">
+                  {s.name} {tot > 0 ? `(${tot} active tasks)` : "(0 tasks)"}
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
