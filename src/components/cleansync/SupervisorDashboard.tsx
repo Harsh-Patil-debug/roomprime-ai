@@ -37,6 +37,7 @@ import { RoomQrCard } from "./RoomQrCard";
 import { calculatePriorityScore, transitionRoomState } from "@/lib/dispatchEngine";
 import { type Room, type RoomStatus, type RoomType, type PriorityTag } from "@/lib/cleansync-data";
 import { rankStaffForRequest } from "@/lib/dispatchEngine";
+import { findBestStaffMatch, runBatchAutoDispatch, type BatchDispatchItem } from "@/services/aiDispatchEngine";
 
 export function SupervisorDashboard() {
   const {
@@ -54,11 +55,11 @@ export function SupervisorDashboard() {
     rejectRecleanRoom,
     addRoom,
     importCSV,
-    setRoomPhotoAndRunAi,
     assignTaskToStaff,
     assignGuestRequest,
     updateGuestRequestStatus,
     addGuestRequest,
+    runBatchDispatch,
   } = useRoomFlow();
 
   // Log guest request dialog states
@@ -67,6 +68,27 @@ export function SupervisorDashboard() {
   const [newReqCategory, setNewReqCategory] = useState<any>("Amenities");
   const [newReqItem, setNewReqItem] = useState("");
   const [newReqDetails, setNewReqDetails] = useState("");
+
+  // Batch Auto-Dispatch Modal states
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
+  const [batchList, setBatchList] = useState<BatchDispatchItem[]>([]);
+
+  const handleRunBatchEngine = () => {
+    const matches = runBatchAutoDispatch(rooms, guestRequests, staff);
+    setBatchList(matches);
+    setBatchModalOpen(true);
+  };
+
+  const handleConfirmBatchDispatch = () => {
+    const assignments = batchList.map((b) => ({
+      targetId: b.targetId,
+      targetType: b.type,
+      staffName: b.match.staffName,
+    }));
+
+    runBatchDispatch(assignments);
+    setBatchModalOpen(false);
+  };
 
   // State controls
   const [searchQuery, setSearchQuery] = useState("");
@@ -582,10 +604,11 @@ export function SupervisorDashboard() {
 
           <Button 
             size="sm"
-            onClick={handleAutoDispatch}
-            className="h-10 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-semibold text-xs px-4 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
+            onClick={handleRunBatchEngine}
+            className="h-10 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-extrabold text-xs px-4 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
           >
-            <Sparkles className="size-3.5" /> Auto-Dispatch Engine
+            <Sparkles className="size-3.5 text-amber-300 animate-pulse" />
+            <span>⚡ Run AI Auto-Dispatch Engine</span>
           </Button>
         </div>
       </Card>
@@ -748,13 +771,45 @@ export function SupervisorDashboard() {
                       </div>
                     )}
 
-                    {/* Maintenance defect notes */}
-                    {room.status === "Maintenance Blocked" && room.maintenanceNote && (
-                      <div className="p-2 bg-[#736B5E]/5 border border-[#EBE3D1] rounded-xl mt-3 text-[10px] text-[#736B5E]">
-                        <span className="font-bold block text-[#2A2620]">Reported Defect:</span>
-                        <p className="italic mt-0.5 leading-snug">{room.maintenanceNote}</p>
-                      </div>
-                    )}
+                    {/* AI Proximity & Availability Recommended Match */}
+                    {room.status === "Vacant Dirty" && !room.assignedStaff && (() => {
+                      const isVip = room.priority === "VIP";
+                      const roomFloor = room.floor || Number(room.number[0]) || 1;
+                      const bestMatch = findBestStaffMatch(room.number, roomFloor, isVip, staff, rooms, guestRequests);
+
+                      if (!bestMatch) return null;
+
+                      return (
+                        <div className="mt-3 p-2 bg-[#8A9A6B]/10 border border-[#8A9A6B]/25 rounded-xl space-y-1.5">
+                          <div className="flex items-center justify-between text-[9px] font-extrabold text-[#8A9A6B]">
+                            <span className="flex items-center gap-1">
+                              <Sparkles className="size-3 text-[#B5652F]" />
+                              <span>⚡ AI Recommended Match</span>
+                            </span>
+                            <Badge className="bg-[#B5652F] text-white text-[8px] font-mono py-0 px-1.5">
+                              Score: {bestMatch.calculatedScore}/100
+                            </Badge>
+                          </div>
+
+                          <div className="text-[10px] font-bold text-[#2A2620] leading-tight">
+                            {bestMatch.staffName} (Floor {bestMatch.currentFloor} • ⏱ ~{bestMatch.estimatedArrivalMin}m ETA)
+                          </div>
+
+                          <p className="text-[9px] text-[#736B5E] italic leading-tight" title={bestMatch.aiReasoning}>
+                            💡 {bestMatch.aiReasoning}
+                          </p>
+
+                          <Button
+                            size="sm"
+                            onClick={() => assignRoom(room.id, bestMatch.staffName)}
+                            className="w-full h-6 font-extrabold text-[9px] bg-[#B5652F] hover:bg-[#B5652F]/90 text-white rounded-lg cursor-pointer gap-1 shadow-xs"
+                          >
+                            <Sparkles className="size-2.5" />
+                            <span>⚡ 1-Click Auto-Assign ({bestMatch.staffName})</span>
+                          </Button>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Card Footer */}
@@ -1419,6 +1474,74 @@ export function SupervisorDashboard() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+      {/* BATCH AI AUTO-DISPATCH SUMMARY SHEET MODAL */}
+      <Dialog open={batchModalOpen} onOpenChange={setBatchModalOpen}>
+        <DialogContent className="bg-white border-[#EBE3D1] sm:max-w-lg select-none">
+          <DialogHeader>
+            <DialogTitle className="text-base font-extrabold text-[#2A2620] flex items-center gap-2">
+              <Sparkles className="size-5 text-[#B5652F] animate-pulse" />
+              <span>AI Auto-Dispatch Optimization Summary</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-[#736B5E]">
+              Evaluated floor proximity, active task counts, shift status & VIP QA pass rates across all active staff.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2 max-h-[380px] overflow-y-auto pr-1">
+            {batchList.length === 0 ? (
+              <div className="p-6 text-center bg-[#F5F1E8]/40 border border-dashed border-[#EBE3D1] rounded-xl">
+                <CheckCircle2 className="size-6 text-[#8A9A6B] mx-auto mb-1.5" />
+                <h4 className="text-xs font-bold text-[#2A2620]">All Tasks & Rooms Already Assigned!</h4>
+                <p className="text-[10px] text-[#736B5E] mt-0.5">No unassigned "Vacant Dirty" rooms or open guest requests.</p>
+              </div>
+            ) : (
+              batchList.map((item, idx) => (
+                <div key={idx} className="p-3 bg-[#F5F1E8]/40 border border-[#EBE3D1] rounded-xl flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-extrabold text-xs text-[#2A2620]">{item.targetLabel}</span>
+                    <Badge className="bg-[#B5652F] text-white font-mono text-[9px]">
+                      Score: {item.match.calculatedScore}/100
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] bg-white p-2 rounded-lg border border-[#EBE3D1]">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-[#2A2620]">➔ {item.match.staffName}</span>
+                      <span className="text-[10px] text-[#736B5E]">(Floor {item.match.currentFloor})</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#8A9A6B]">⏱ ~{item.match.estimatedArrivalMin}m ETA</span>
+                  </div>
+
+                  <p className="text-[10px] text-[#736B5E] italic">
+                    💡 {item.match.aiReasoning}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+
+          <DialogFooter className="pt-2 flex items-center justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setBatchModalOpen(false)}
+              className="h-9 text-xs border-[#EBE3D1] cursor-pointer"
+            >
+              Dismiss
+            </Button>
+            {batchList.length > 0 && (
+              <Button
+                type="button"
+                onClick={handleConfirmBatchDispatch}
+                className="h-9 text-xs font-extrabold bg-[#B5652F] hover:bg-[#B5652F]/90 text-white cursor-pointer gap-1.5 shadow-sm"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Confirm All ({batchList.length}) Dispatches</span>
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

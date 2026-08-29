@@ -129,6 +129,9 @@ interface RoomFlowCtx {
   // Dispatch & AI
   autoDispatchEngine: () => number;
   autoOptimize: () => number;
+  runBatchDispatch: (
+    assignments: Array<{ targetId: string; targetType: "room" | "request"; staffName: string }>
+  ) => void;
   setRoomPhotoAndRunAi: (roomId: string, photoType: "clean" | "dirty_bed" | "dirty_trash") => void;
   simulateIncomingWhatsApp: (
     from: string,
@@ -705,6 +708,35 @@ export function RoomFlowProvider({ children }: { children: ReactNode }) {
       })
       .sort((a, b) => (b.priorityScore || 0) - (a.priorityScore || 0));
 
+    const runBatchDispatch = (
+      assignments: Array<{ targetId: string; targetType: "room" | "request"; staffName: string }>
+    ) => {
+      let roomCount = 0;
+      let requestCount = 0;
+      let lastStaff = "";
+
+      assignments.forEach((item) => {
+        if (item.targetType === "room") {
+          assignRoom(item.targetId, item.staffName);
+          roomCount++;
+        } else {
+          const matchStaff = staff.find((s) => s.name === item.staffName || s.id === item.staffName);
+          const staffId = matchStaff?.id || "s1";
+          assignTaskToStaff(item.targetId, staffId, item.staffName);
+          requestCount++;
+        }
+        lastStaff = item.staffName;
+      });
+
+      if (lastStaff) {
+        broadcastLastAssignedStaff(lastStaff);
+      }
+
+      toast.success(`⚡ Batch Dispatch Completed!`, {
+        description: `Auto-allocated ${roomCount} room turnarounds & ${requestCount} guest service tickets.`,
+      });
+    };
+
     const autoDispatchEngine = () => {
       const activeCleaners = staff.filter((s) => s.active);
       if (!activeCleaners.length) {
@@ -1122,6 +1154,7 @@ export function RoomFlowProvider({ children }: { children: ReactNode }) {
 
       autoDispatchEngine,
       autoOptimize,
+      runBatchDispatch,
       setRoomPhotoAndRunAi,
       simulateIncomingWhatsApp,
 
