@@ -1,4 +1,103 @@
-import { type Room, type RoomStatus, type Staff } from "./cleansync-data";
+import { type Room, type RoomStatus, type Staff, type GuestRequest, STAFF_FLOORS } from "./cleansync-data";
+
+// ─── AI Proximity & Workload Dispatch Engine ───
+
+export interface StaffRecommendation {
+  staffId: string;
+  staffName: string;
+  currentFloor: number;
+  activeTasks: number;
+  etaMinutes: number;
+  score: number;
+  matchReason: string;
+}
+
+// Scoring weights
+const PROXIMITY_SAME_FLOOR = 50;
+const PROXIMITY_ADJACENT_FLOOR = 25;
+const PROXIMITY_FAR_FLOOR = 10;
+const WORKLOAD_PENALTY_PER_TASK = 15;
+const LOW_WORKLOAD_BONUS = 20;
+
+/**
+ * Ranks all available staff members for a given guest request based on:
+ * 1. Floor proximity to the request room
+ * 2. Current active task count (workload)
+ * 3. Availability (excludes inactive/off-duty staff)
+ *
+ * Returns a sorted array of recommendations, best match first.
+ */
+export function rankStaffForRequest(
+  request: GuestRequest,
+  allStaff: Staff[],
+  allRequests: GuestRequest[]
+): StaffRecommendation[] {
+  const requestFloor = Number(request.roomNumber[0]) || 1;
+
+  // Only consider active staff
+  const availableStaff = allStaff.filter((s) => s.active);
+
+  const recommendations: StaffRecommendation[] = availableStaff.map((s) => {
+    const staffFloor = STAFF_FLOORS[s.name] || 1;
+    const floorDiff = Math.abs(requestFloor - staffFloor);
+
+    // Floor proximity score
+    let proximityScore: number;
+    if (floorDiff === 0) {
+      proximityScore = PROXIMITY_SAME_FLOOR;
+    } else if (floorDiff === 1) {
+      proximityScore = PROXIMITY_ADJACENT_FLOOR;
+    } else {
+      proximityScore = PROXIMITY_FAR_FLOOR;
+    }
+
+    // Count active tasks for this staff member
+    const activeTasks = allRequests.filter(
+      (r) =>
+        r.assignedStaff === s.name &&
+        (r.status === "In Progress" || r.status === "Open")
+    ).length;
+
+    // Workload penalty
+    const workloadPenalty = activeTasks * WORKLOAD_PENALTY_PER_TASK;
+
+    // Availability bonus for staff with low workload
+    const availabilityBonus = s.workload < 50 ? LOW_WORKLOAD_BONUS : 0;
+
+    // Total score
+    const score = proximityScore - workloadPenalty + availabilityBonus;
+
+    // ETA estimate: base 2 min same floor, +1.5 min per floor distance, +2 min per active task
+    const etaMinutes = Math.max(1, Math.round(2 + floorDiff * 1.5 + activeTasks * 2));
+
+    // Human-readable match reason
+    const floorLabel =
+      floorDiff === 0
+        ? `same floor (Floor ${staffFloor})`
+        : floorDiff === 1
+        ? `adjacent floor (Floor ${staffFloor})`
+        : `Floor ${staffFloor} (${floorDiff} floors away)`;
+
+    const matchReason = `${s.name} is on ${floorLabel} • ${activeTasks} active task${activeTasks !== 1 ? "s" : ""} • ETA ${etaMinutes} min${etaMinutes !== 1 ? "s" : ""}`;
+
+    return {
+      staffId: s.id,
+      staffName: s.name,
+      currentFloor: staffFloor,
+      activeTasks,
+      etaMinutes,
+      score,
+      matchReason,
+    };
+  });
+
+  // Sort by score descending (best match first), then by ETA ascending as tiebreaker
+  return recommendations.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.etaMinutes - b.etaMinutes;
+  });
+}
+
 
 export interface PriorityBreakdown {
   score: number;

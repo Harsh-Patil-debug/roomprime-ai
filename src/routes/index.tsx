@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { useQrRedirect } from "@/hooks/useQrRedirect";
 import { RoomFlowProvider } from "@/components/cleansync/store";
-import { AuthProvider, useAuth } from "@/components/cleansync/auth";
+import { AuthProvider, useAuth, type SessionScope } from "@/components/cleansync/auth";
 import { AuthScreen } from "@/components/cleansync/AuthScreen";
 import { Loader2 } from "lucide-react";
 

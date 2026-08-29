@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
+import { Alert } from "react-native";
 import { CameraView } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { toast } from "sonner";
 
 export function useCameraInspection() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
@@ -16,6 +16,9 @@ export function useCameraInspection() {
     try {
       const options = { quality: 0.85, skipProcessing: false };
       const photo = await cameraRef.current.takePictureAsync(options);
+      if (!photo) {
+        throw new Error("No photo captured");
+      }
       setPhotoUri(photo.uri);
 
       // Cache the photo locally in offline storage
@@ -40,9 +43,9 @@ export function useCameraInspection() {
         console.log("Haptics not supported on this platform.");
       }
 
-      toast.success("Inspection photo saved locally!");
+      Alert.alert("Success", "Inspection photo saved locally!");
     } catch (err: any) {
-      toast.error("Failed to capture inspection photo: " + err.message);
+      Alert.alert("Error", "Failed to capture inspection photo: " + err.message);
     } finally {
       setCapturing(false);
     }

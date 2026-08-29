@@ -28,6 +28,8 @@ export interface Room {
   photoUrl?: string | null;
   issueNotes?: string | null;
   aiQaBboxes?: Array<{ label: string; x: number; y: number; width: number; height: number }>;
+  completedSopSteps?: string[];
+  recleanNote?: string | null;
 }
 
 export interface Staff {
@@ -95,6 +97,37 @@ export const priorityWeight: Record<PriorityTag, number> = {
   "Early Arrival": 60,
   Regular: 20,
 };
+
+export const STAFF_FLOORS: Record<string, number> = {
+  "Ana Duarte": 2,
+  "Marco Silva": 4,
+  "Priya Raman": 1,
+  "Jonas Weber": 3,
+  "Lucia Moreno": 2,
+};
+
+export const STAFF_PHONES: Record<string, string> = {
+  "Ana Duarte": "+15551010001",
+  "Marco Silva": "+15551010002",
+  "Priya Raman": "+15551010003",
+  "Jonas Weber": "+15551010004",
+  "Lucia Moreno": "+15551010005",
+};
+
+export function checkUrgentSentiment(text: string): boolean {
+  const t = text.toLowerCase();
+  return (
+    t.includes("urgent") ||
+    t.includes("asap") ||
+    t.includes("emergency") ||
+    t.includes("broken") ||
+    t.includes("flood") ||
+    t.includes("fire") ||
+    t.includes("leak") ||
+    t.includes("hurry") ||
+    t.includes("immediate")
+  );
+}
 
 export const initialStaff: Staff[] = [
   { id: "s1", name: "Ana Duarte", active: true, completed: 7, currentRoom: "203", workload: 88, avgSpeed: 24 },
@@ -191,6 +224,8 @@ export interface GuestRequest {
   createdAt: string;
   slaMinutes: number;
   elapsedSeconds: number;
+  stage?: "received" | "assigned" | "on_the_way" | "delivered";
+  resolvedAt?: number;
 }
 
 export const initialGuestRequests: GuestRequest[] = [

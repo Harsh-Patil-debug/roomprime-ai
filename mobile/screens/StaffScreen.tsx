@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Text, View, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from "react-native";
+import { ScrollView, Text, View, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Alert } from "react-native";
 import { CameraView } from "expo-camera";
 import { useNativeQRScanner } from "../hooks/useNativeQRScanner";
 import { useCameraInspection } from "../hooks/useCameraInspection";
 import * as Haptics from "expo-haptics";
 import { Sparkles, CheckCircle2, Circle, Camera as CameraIcon, Scan, Clock } from "lucide-react-native";
-import { toast } from "sonner";
 
 export function StaffScreen() {
   const { scanning, setScanning, startScan, handleBarCodeScanned } = useNativeQRScanner();
@@ -40,7 +39,7 @@ export function StaffScreen() {
     const roomNum = await handleBarCodeScanned(result);
     if (roomNum) {
       setActiveRoom(roomNum);
-      toast.success(`Checked into Room ${roomNum}!`);
+      Alert.alert("Success", `Checked into Room ${roomNum}!`);
       
       // Reset checklist
       setChecklist(prev => prev.map(item => ({ ...item, checked: false })));
@@ -50,7 +49,7 @@ export function StaffScreen() {
 
   const handleStageInspection = () => {
     if (!allChecked) {
-      toast.error("Please complete all checklist items before inspection.");
+      Alert.alert("Error", "Please complete all checklist items before inspection.");
       return;
     }
     setCameraOpen(true);
@@ -341,7 +340,7 @@ const styles = StyleSheet.create({
   aiPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#8A9A6B/15",
+    backgroundColor: "rgba(138, 154, 107, 0.15)",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,

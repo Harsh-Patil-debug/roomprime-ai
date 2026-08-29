@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Image, Modal } from "react-native";
+import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Image, Modal, Alert } from "react-native";
 import { CameraView } from "expo-camera";
 import { useCameraInspection } from "../hooks/useCameraInspection";
 import { Hotel, Wifi, Clock, Camera as CameraIcon, Heart, Wrench, Luggage, Calendar, Sparkles, CheckCircle2 } from "lucide-react-native";
-import { toast } from "sonner";
 
 export function ConciergeScreen() {
   const { cameraRef, photoUri, capturing, takePhoto, clearPhoto } = useCameraInspection();
@@ -20,7 +19,7 @@ export function ConciergeScreen() {
   ];
 
   const handleOrderCatalogItem = (title: string) => {
-    toast.success(`🎉 Request "${title}" dispatched successfully!`);
+    Alert.alert("Success", `🎉 Request "${title}" dispatched successfully!`);
     setTrackerRequest({
       item: title,
       step: 0, // Received
@@ -36,13 +35,13 @@ export function ConciergeScreen() {
     setCameraOpen(false);
     
     // Simulate classification delay
-    toast.info("Gemini AI analyzing request setup...");
+    Alert.alert("Processing", "Gemini AI analyzing request setup...");
     setTimeout(() => {
       setTrackerRequest({
         item: "AI Clean Request",
         step: 0,
       });
-      toast.success("AI classified request as High Urgency, routed to Housekeeping.");
+      Alert.alert("Success", "AI classified request as High Urgency, routed to Housekeeping.");
     }, 2000);
   };
 
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   portalBadge: {
-    backgroundColor: "#B5652F/10",
+    backgroundColor: "rgba(181, 101, 47, 0.1)",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -244,7 +243,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#B5652F/10",
+    backgroundColor: "rgba(181, 101, 47, 0.1)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,

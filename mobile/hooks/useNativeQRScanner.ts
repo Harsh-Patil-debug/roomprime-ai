@@ -1,23 +1,19 @@
 import { useState, useEffect } from "react";
-import { Camera } from "expo-camera";
+import { useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
-import { toast } from "sonner"; // For web fallback / simulated mode notifications
+import { Alert } from "react-native";
 
 export function useNativeQRScanner() {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
-  }, []);
-
-  const startScan = () => {
-    if (!hasPermission) {
-      toast.error("Camera permissions required to scan QR codes.");
-      return;
+  const startScan = async () => {
+    if (!permission?.granted) {
+      const result = await requestPermission();
+      if (!result.granted) {
+        Alert.alert("Permission Required", "Camera permissions required to scan QR codes.");
+        return;
+      }
     }
     setScanning(true);
   };
@@ -43,7 +39,7 @@ export function useNativeQRScanner() {
   };
 
   return {
-    hasPermission,
+    hasPermission: permission?.granted ?? null,
     scanning,
     setScanning,
     startScan,

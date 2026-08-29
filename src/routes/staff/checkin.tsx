@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useAuth, AuthProvider } from "@/components/cleansync/auth";
+import { useAuth, AuthProvider, type SessionScope } from "@/components/cleansync/auth";
 import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { StaffDashboard } from "@/components/cleansync/StaffDashboard";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/staff/checkin")({
 
 function StaffCheckinRoute() {
   return (
-    <AuthProvider>
+    <AuthProvider sessionScope="staff">
       <RoomFlowProvider>
         <StaffCheckinContent />
       </RoomFlowProvider>

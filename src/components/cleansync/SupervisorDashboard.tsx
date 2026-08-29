@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { 
   Gauge, Clock, Crown, Users, Search, QrCode, FileSpreadsheet, 
   Sparkles, CheckCircle2, XCircle, AlertTriangle, Plus, MoreVertical, 
-  Wrench, Printer, Check, Filter, RefreshCw, Camera
+  Wrench, Printer, Check, Filter, RefreshCw, Camera, Bell
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -36,19 +36,37 @@ import { useRoomFlow } from "./store";
 import { RoomQrCard } from "./RoomQrCard";
 import { calculatePriorityScore, transitionRoomState } from "@/lib/dispatchEngine";
 import { type Room, type RoomStatus, type RoomType, type PriorityTag } from "@/lib/cleansync-data";
+import { rankStaffForRequest } from "@/lib/dispatchEngine";
 
 export function SupervisorDashboard() {
   const {
     rooms,
     staff,
+    guestRequests,
+    autoDispatchEngine,
     autoOptimize,
     setRoomStatus,
     blockRoom,
     assignRoom,
+    approveRoom,
+    rejectRoom,
+    overruleApproveRoom,
+    rejectRecleanRoom,
     addRoom,
     importCSV,
     setRoomPhotoAndRunAi,
+    assignTaskToStaff,
+    assignGuestRequest,
+    updateGuestRequestStatus,
+    addGuestRequest,
   } = useRoomFlow();
+
+  // Log guest request dialog states
+  const [newReqModalOpen, setNewReqModalOpen] = useState(false);
+  const [newReqRoom, setNewReqRoom] = useState("203");
+  const [newReqCategory, setNewReqCategory] = useState<any>("Amenities");
+  const [newReqItem, setNewReqItem] = useState("");
+  const [newReqDetails, setNewReqDetails] = useState("");
 
   // State controls
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,20 +236,15 @@ export function SupervisorDashboard() {
 
   // Action handlers
   const handleAutoDispatch = () => {
-    const assignedCount = autoOptimize();
-    toast.success(`Auto-Dispatch Engine running! Balanced workload across ${assignedCount} active housekeepers.`);
+    autoDispatchEngine();
   };
 
   const handleApproveInspection = (roomId: string) => {
-    const nextStatus = transitionRoomState("Inspection Pending", "APPROVE");
-    setRoomStatus(roomId, nextStatus);
-    toast.success(`Room ${roomId} approved! Guest notified of secure key code via SMS.`);
+    approveRoom(roomId);
   };
 
   const handleRejectInspection = (roomId: string) => {
-    const nextStatus = transitionRoomState("Inspection Pending", "REJECT");
-    setRoomStatus(roomId, nextStatus);
-    toast.error(`Room ${roomId} staging rejected. Housekeeper re-routed to correct defects.`);
+    rejectRoom(roomId, "Visual defects flagged in inspection photo.");
   };
 
   const handleManualStatusChange = (roomId: string, status: RoomStatus) => {
@@ -368,6 +381,131 @@ export function SupervisorDashboard() {
           </div>
         </Card>
       </div>
+
+      {/* 1.5. GUEST REQUESTS & SERVICE DISPATCH HUB */}
+      <Card className="bg-white border-2 border-[#B5652F] p-5 rounded-2xl shadow-md space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#F5F1E8] pb-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-3 w-3 rounded-full bg-[#B5652F] animate-ping" />
+            <div>
+              <h3 className="font-extrabold text-sm text-[#2A2620] uppercase tracking-wider flex items-center gap-1.5">
+                <Bell className="size-4 text-[#B5652F]" />
+                <span>Guest Requests & Service Dispatch Hub ({guestRequests.filter((r) => r.status !== "Completed").length})</span>
+              </h3>
+              <p className="text-[10px] text-[#736B5E] font-medium mt-0.5">
+                Live tracking for towel orders, broken room service, AC/TV issues & guest requests
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Badge className="bg-[#B5652F] text-white font-mono text-[10px]">
+              {guestRequests.filter((r) => r.status === "Open").length} Open for Dispatch
+            </Badge>
+            <Button
+              size="sm"
+              onClick={() => setNewReqModalOpen(true)}
+              className="h-8 bg-[#B5652F] hover:bg-[#B5652F]/90 text-white font-bold text-xs rounded-xl px-3 flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Plus className="size-3.5" />
+              <span>Log Guest Request</span>
+            </Button>
+          </div>
+        </div>
+
+        {guestRequests.filter((r) => r.status !== "Completed").length === 0 ? (
+          <div className="p-6 bg-[#F5F1E8]/30 border border-dashed border-[#EBE3D1] rounded-xl text-center">
+            <CheckCircle2 className="size-6 text-[#8A9A6B] mx-auto mb-1.5" />
+            <h4 className="text-xs font-bold text-[#2A2620]">All Guest Requests & Service Tickets Resolved!</h4>
+            <p className="text-[11px] text-[#736B5E] mt-0.5">No open requests for towels, broken amenities, or maintenance.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {guestRequests.filter((r) => r.status !== "Completed").map((req) => {
+              const ranked = rankStaffForRequest(req, staff, guestRequests);
+              const topRunner = ranked[0] || null;
+
+              const categoryBadgeStyle = 
+                req.category === "Maintenance" ? "bg-[#B14A3E]/10 text-[#B14A3E] border-[#B14A3E]/20" :
+                req.category === "Amenities" ? "bg-[#8A9A6B]/15 text-[#8A9A6B] border-[#8A9A6B]/30" :
+                req.category === "Food Service" ? "bg-[#B5652F]/15 text-[#B5652F] border-[#B5652F]/30" :
+                "bg-[#F5F1E8] text-[#736B5E] border-[#EBE3D1]";
+
+              const categoryIcon = 
+                req.category === "Maintenance" ? "🔧" :
+                req.category === "Amenities" ? "🧹" :
+                req.category === "Food Service" ? "🍽" :
+                "🛎";
+
+              return (
+                <div key={req.id} className="p-3.5 bg-white border border-[#EBE3D1] rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-2.5">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Badge className="bg-[#2A2620] text-white font-extrabold text-[9px] uppercase">
+                        Suite {req.roomNumber}
+                      </Badge>
+                      <Badge variant="outline" className={`text-[9px] font-bold ${categoryBadgeStyle}`}>
+                        {categoryIcon} {req.category}
+                      </Badge>
+                    </div>
+
+                    <h4 className="font-extrabold text-xs text-[#2A2620] mt-1">{req.item}</h4>
+                    {req.details && <p className="text-[10px] text-[#736B5E] italic leading-tight">{req.details}</p>}
+                  </div>
+
+                  {/* Assignment state or AI Match pill */}
+                  {req.assignedStaff ? (
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#8A9A6B] bg-[#8A9A6B]/10 p-2 rounded-lg border border-[#8A9A6B]/20">
+                      <CheckCircle2 className="size-3.5" />
+                      <span>Assigned to {req.assignedStaff}</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 pt-1 border-t border-[#EBE3D1]">
+                      {topRunner && (
+                        <span className="text-[9px] font-extrabold text-[#8A9A6B] bg-[#8A9A6B]/15 px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <Sparkles className="size-3 text-[#B5652F]" />
+                          ⚡ AI Match: {topRunner.staffName} (Floor {topRunner.currentFloor} • ETA {topRunner.etaMinutes}m)
+                        </span>
+                      )}
+
+                      <div className="flex items-center gap-1.5">
+                        {topRunner && (
+                          <Button
+                            size="sm"
+                            onClick={() => assignTaskToStaff(req.id, topRunner.staffId, topRunner.staffName)}
+                            className="h-7 text-[9px] font-black bg-[#B5652F] hover:bg-[#B5652F]/90 text-white rounded-lg px-2 flex-1 cursor-pointer"
+                          >
+                            ⚡ 1-Tap Auto-Assign
+                          </Button>
+                        )}
+                        <Select
+                          value="_pick"
+                          onValueChange={(val) => {
+                            if (val === "_pick") return;
+                            const match = staff.find((s) => s.id === val || s.name === val);
+                            if (match) assignTaskToStaff(req.id, match.id, match.name);
+                          }}
+                        >
+                          <SelectTrigger className="h-7 text-[9px] border-[#EBE3D1] w-[110px]">
+                            <SelectValue placeholder="Assign runner..." />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-[#EBE3D1]">
+                            {staff.filter((s) => s.active).map((s) => (
+                              <SelectItem key={s.id} value={s.name} className="text-[10px]">
+                                {s.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Card>
 
       {/* 2. UNIFIED OPERATIONS CONTROL BAR */}
       <Card className="bg-white border-[#EBE3D1] p-4 rounded-2xl shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
@@ -568,18 +706,36 @@ export function SupervisorDashboard() {
 
                     {/* Active Timer and estimated breach bar */}
                     {room.status === "Cleaning in Progress" && (
-                      <div className="space-y-1 mt-3">
-                        <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-[#736B5E]">Estimated Clean Timer:</span>
-                          <span className={`font-mono font-bold ${isTimeBreached ? "text-[#B14A3E]" : "text-[#B5652F]"}`}>
-                            {Math.floor((cleaningElapsed[room.id] || 0) / 60)}m elapsed / {room.turnaround}m target
-                          </span>
+                      <div className="space-y-2 mt-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-[#736B5E]">Estimated Clean Timer:</span>
+                            <span className={`font-mono font-bold ${isTimeBreached ? "text-[#B14A3E]" : "text-[#B5652F]"}`}>
+                              {Math.floor((cleaningElapsed[room.id] || 0) / 60)}m elapsed / {room.turnaround}m target
+                            </span>
+                          </div>
+                          <div className="w-full bg-[#F5F1E8] h-1.5 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-300 ${isTimeBreached ? "bg-[#B14A3E]" : "bg-[#B5652F]"}`}
+                              style={{ width: `${cleaningPercent}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-[#F5F1E8] h-1.5 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full transition-all duration-300 ${isTimeBreached ? "bg-[#B14A3E]" : "bg-[#B5652F]"}`}
-                            style={{ width: `${cleaningPercent}%` }}
-                          />
+
+                        {/* Live SOP Stage Bar */}
+                        <div className="space-y-1 border-t border-[#F5F1E8] pt-1.5">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-[#736B5E] font-medium">SOP Stage:</span>
+                            <span className="font-bold text-[#8A9A6B]">
+                              {room.completedSopSteps ? `Step ${room.completedSopSteps.length}/4 Done (${Math.round((room.completedSopSteps.length / 4) * 100)}%)` : "Step 0/4 Done (0%)"}
+                            </span>
+                          </div>
+                          <div className="w-full bg-[#F5F1E8] h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#8A9A6B] transition-all duration-300"
+                              style={{ width: `${Math.round(((room.completedSopSteps?.length || 0) / 4) * 100)}%` }}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -768,13 +924,28 @@ export function SupervisorDashboard() {
                 </div>
 
                 {/* AI Review text details */}
-                <div className="p-3.5 bg-[#F5F1E8]/50 border border-[#EBE3D1] rounded-xl text-xs space-y-1.5">
+                <div className="p-3.5 bg-[#F5F1E8]/50 border border-[#EBE3D1] rounded-xl text-xs space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#2A2620]">Gemini Visual Staging QA:</span>
                     <Badge className="bg-[#B14A3E]/15 text-[#B14A3E] border border-[#B14A3E]/20 font-bold text-[9px] uppercase tracking-wide">
                       FLAGGED DEFECT
                     </Badge>
                   </div>
+
+                  {/* Detected issues badge pills */}
+                  {activeInspectRoom.aiQaBboxes && activeInspectRoom.aiQaBboxes.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {activeInspectRoom.aiQaBboxes.map((b, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 bg-[#B14A3E]/10 border border-[#B14A3E]/25 text-[#B14A3E] px-2 py-0.5 rounded-md text-[9px] font-extrabold"
+                        >
+                          ⚠️ {b.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
                   <p className="text-[11px] text-[#736B5E] italic leading-relaxed">
                     "{activeInspectRoom.aiQaNotes || "Review staging photo carefully for wrinkles, dust, or unemptied trash bins."}"
                   </p>
@@ -790,13 +961,13 @@ export function SupervisorDashboard() {
                     variant="outline"
                     className="border-[#B14A3E] text-[#B14A3E] hover:bg-[#B14A3E]/5 font-bold text-xs h-9 rounded-xl flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <XCircle className="size-3.5" /> Reject Staging
+                    <XCircle className="size-3.5" /> Send Re-clean Request
                   </Button>
                   <Button
                     onClick={() => handleApproveInspection(activeInspectRoom.id)}
                     className="bg-[#8A9A6B] hover:bg-[#8A9A6B]/90 text-white font-bold text-xs h-9 rounded-xl flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <CheckCircle2 className="size-3.5 animate-pulse" /> Approve & Ready
+                    <CheckCircle2 className="size-3.5 animate-pulse" /> Overrule & Approve
                   </Button>
                 </div>
               </div>
@@ -1072,6 +1243,184 @@ export function SupervisorDashboard() {
         </DialogContent>
       </Dialog>
 
+      {/* Modal D: Inspection Review Modal */}
+      <Dialog open={!!selectedInspectRoomId} onOpenChange={() => setSelectedInspectRoomId(null)}>
+        <DialogContent className="bg-white border-[#EBE3D1] max-w-md rounded-2xl">
+          {(() => {
+            const inspectRoom = rooms.find((r) => r.id === selectedInspectRoomId);
+            if (!inspectRoom) return null;
+            return (
+              <div className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle className="text-base font-black text-[#2A2620] flex items-center justify-between">
+                    <span>Room {inspectRoom.number} QA Inspection</span>
+                    <Badge className="bg-[#B5652F] text-white text-[9px] uppercase tracking-wider">
+                      {inspectRoom.type} • Floor {inspectRoom.floor}
+                    </Badge>
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-[#736B5E]">
+                    Review AI Computer Vision staging audit and approve or request re-clean.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {/* Photo Thumbnail Viewfinder */}
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#EBE3D1] bg-[#F5F1E8]">
+                  <img
+                    src={inspectRoom.photoUrl || "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=800"}
+                    alt="Room Staging Scan"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <Badge className={inspectRoom.aiQaStatus === "PASSED" ? "bg-[#8A9A6B] text-white text-[9px] font-extrabold" : "bg-[#B14A3E] text-white text-[9px] font-extrabold"}>
+                      {inspectRoom.aiQaStatus === "PASSED" ? "✨ AI PASS" : "⚠ AI FLAGGED"}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Notes & Flaws */}
+                <div className="p-3 bg-[#F5F1E8]/50 border border-[#EBE3D1] rounded-xl text-xs space-y-1">
+                  <span className="font-extrabold text-[#2A2620]">AI Diagnosis Notes:</span>
+                  <p className="text-[11px] text-[#736B5E] italic leading-relaxed">
+                    "{inspectRoom.aiQaNotes || "Linens rumpled on right side of bed. Unemptied trash near work desk."}"
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <DialogFooter className="gap-2 flex-col sm:flex-row">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const note = prompt("Enter re-clean instructions for housekeeper:", "Please straighten bed linens and empty trash.") || "Please straighten bed linens.";
+                      rejectRecleanRoom(inspectRoom.id, note);
+                      setSelectedInspectRoomId(null);
+                    }}
+                    className="border-[#B14A3E] text-[#B14A3E] hover:bg-[#B14A3E]/10 font-bold text-xs h-10 rounded-xl cursor-pointer flex-1"
+                  >
+                    <AlertTriangle className="size-4 mr-1" /> Reject & Re-Clean
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      overruleApproveRoom(inspectRoom.id);
+                      setSelectedInspectRoomId(null);
+                    }}
+                    className="bg-[#8A9A6B] hover:bg-[#8A9A6B]/90 text-white font-bold text-xs h-10 rounded-xl cursor-pointer flex-1 shadow-sm"
+                  >
+                    <CheckCircle2 className="size-4 mr-1" /> Overrule & Approve
+                  </Button>
+                </DialogFooter>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* LOG GUEST REQUEST DIALOG */}
+      <Dialog open={newReqModalOpen} onOpenChange={setNewReqModalOpen}>
+        <DialogContent className="bg-white border-[#EBE3D1] sm:max-w-md select-none">
+          <DialogHeader>
+            <DialogTitle className="text-base font-extrabold text-[#2A2620] flex items-center gap-2">
+              <Bell className="size-5 text-[#B5652F]" />
+              <span>Log Incoming Guest Request / Service Issue</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-[#736B5E]">
+              Log towel orders, broken room service, AC/TV repairs, or guest phone calls.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!newReqItem.trim()) return;
+              addGuestRequest(
+                newReqRoom,
+                newReqCategory,
+                newReqItem,
+                newReqDetails || "Logged directly by Operations Supervisor.",
+                "Medium"
+              );
+              toast.success(`Logged & Dispatched: "${newReqItem}" for Room ${newReqRoom}`);
+              setNewReqItem("");
+              setNewReqDetails("");
+              setNewReqModalOpen(false);
+            }}
+            className="space-y-4 py-2"
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#2A2620]">Room Number</Label>
+                <Select value={newReqRoom} onValueChange={setNewReqRoom}>
+                  <SelectTrigger className="h-9 text-xs border-[#EBE3D1]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-[#EBE3D1]">
+                    {rooms.map((r) => (
+                      <SelectItem key={r.id} value={r.number} className="text-xs">
+                        Room {r.number} ({r.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#2A2620]">Category</Label>
+                <Select value={newReqCategory} onValueChange={(val: any) => setNewReqCategory(val)}>
+                  <SelectTrigger className="h-9 text-xs border-[#EBE3D1]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-[#EBE3D1]">
+                    <SelectItem value="Amenities" className="text-xs">🧹 Amenities (Towels, Soap)</SelectItem>
+                    <SelectItem value="Maintenance" className="text-xs">🔧 Maintenance (AC, TV, Plumbing)</SelectItem>
+                    <SelectItem value="Food Service" className="text-xs">🍽 Food Service (Dining, Ice)</SelectItem>
+                    <SelectItem value="Luggage" className="text-xs">🧳 Luggage / Desk</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold text-[#2A2620]">Request Title / Issue Description</Label>
+              <Input
+                placeholder="e.g. 3 Fresh Bath Towels, AC not cooling, TV no signal..."
+                value={newReqItem}
+                onChange={(e) => setNewReqItem(e.target.value)}
+                className="h-9 text-xs border-[#EBE3D1]"
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-bold text-[#2A2620]">Additional Notes (Optional)</Label>
+              <Textarea
+                placeholder="e.g. Guest requested delivery within 10 minutes..."
+                value={newReqDetails}
+                onChange={(e) => setNewReqDetails(e.target.value)}
+                className="text-xs border-[#EBE3D1] resize-none h-16"
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setNewReqModalOpen(false)}
+                className="h-9 text-xs border-[#EBE3D1] cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-9 text-xs font-extrabold bg-[#B5652F] hover:bg-[#B5652F]/90 text-white cursor-pointer"
+              >
+                Dispatch Request
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AuthProvider, useAuth } from "@/components/cleansync/auth";
+import { AuthProvider, useAuth, type SessionScope } from "@/components/cleansync/auth";
 import { RoomFlowProvider } from "@/components/cleansync/store";
 import { SupervisorDashboard } from "@/components/cleansync/SupervisorDashboard";
 import { RequestDashboard } from "@/components/cleansync/RequestDashboard";
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/control")({
 
 function ControlRouteComponent() {
   return (
-    <AuthProvider>
+    <AuthProvider sessionScope="ops">
       <RoomFlowProvider>
         <ControlContent />
       </RoomFlowProvider>
@@ -25,7 +25,7 @@ function ControlRouteComponent() {
 }
 
 function ControlContent() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateUserRole } = useAuth();
   const router = useRouter();
   const [role, setRole] = useState<"ops" | "requests">("ops");
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -39,21 +39,13 @@ function ControlContent() {
       return;
     }
 
-    if (user.role !== "ops" && user.role !== "requests") {
-      toast.error(`Permission Denied: Supervisors only. Your role: ${user.role}`);
-      if (user.role === "staff") {
-        router.navigate({ to: "/staff" });
-      } else {
-        router.navigate({ to: "/concierge", search: { room: "203" } });
-      }
-      return;
+    // Default to their exact role (ops or requests)
+    if (user.role === "ops" || user.role === "requests") {
+      setRole(user.role as "ops" | "requests");
     }
-
-    // Default to their exact role
-    setRole(user.role as "ops" | "requests");
   }, [user, loading]);
 
-  if (loading || !user || (user.role !== "ops" && user.role !== "requests")) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 text-[#B5652F] animate-spin" />
@@ -66,7 +58,12 @@ function ControlContent() {
     <div className="min-h-screen bg-[#F5F1E8]">
       <AppLayout
         role={role}
-        setRole={(newRole) => setRole(newRole as "ops" | "requests")}
+        setRole={async (newRole) => {
+          if (user) await updateUserRole(newRole as any);
+          if (newRole === "staff") router.navigate({ to: "/staff" });
+          else if (newRole === "guest") router.navigate({ to: "/concierge", search: { room: "203" } });
+          else setRole(newRole as "ops" | "requests");
+        }}
         scannerOpen={scannerOpen}
         setScannerOpen={setScannerOpen}
       >

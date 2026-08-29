@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   scoreBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#B5652F/10",
+    backgroundColor: "rgba(181, 101, 47, 0.1)",
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 8,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     color: "#B5652F",
   },
   issueBadge: {
-    backgroundColor: "#B14A3E/10",
+    backgroundColor: "rgba(177, 74, 62, 0.1)",
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 8,

@@ -1,307 +1,382 @@
-import { useEffect, useState } from "react";
-import { useAuth, isGoogleConfigured } from "./auth";
+import { useState, useRef } from "react";
+import { useAuth } from "./auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { 
-  Hotel, 
-  Sparkles, 
-  RefreshCw, 
-  User, 
-  Mail, 
-  Phone, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  ShieldCheck 
+import {
+  Hotel,
+  RefreshCw,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Crown,
+  Wrench,
+  ConciergeBell,
+  ArrowRight,
+  ChevronRight,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 
-declare global {
-  interface Window {
-    google?: any;
+// Hardcoded credential accounts for role-based login
+const ROLE_ACCOUNTS: Record<
+  string,
+  {
+    password: string;
+    role: "ops" | "staff" | "guest";
+    displayName: string;
   }
-}
+> = {
+  "supervisor@1234": {
+    password: "12345",
+    role: "ops",
+    displayName: "Supervisor",
+  },
+  "staff@1234": {
+    password: "12345",
+    role: "staff",
+    displayName: "Staff Member",
+  },
+  "guest@1234": {
+    password: "12345",
+    role: "guest",
+    displayName: "Guest",
+  },
+};
+
+const ROLE_CARDS = [
+  {
+    id: "supervisor" as const,
+    email: "supervisor@1234",
+    label: "Supervisor",
+    description: "Control Center & Operations",
+    icon: Crown,
+    gradient: "from-amber-600 to-orange-700",
+    bgLight: "bg-amber-50",
+    borderColor: "border-amber-400",
+    textColor: "text-amber-700",
+    iconBg: "bg-amber-100",
+    hoverBorder: "hover:border-amber-400",
+    shadowColor: "hover:shadow-amber-200/50",
+  },
+  {
+    id: "staff" as const,
+    email: "staff@1234",
+    label: "Staff",
+    description: "Task Management & Field Ops",
+    icon: Wrench,
+    gradient: "from-emerald-600 to-teal-700",
+    bgLight: "bg-emerald-50",
+    borderColor: "border-emerald-400",
+    textColor: "text-emerald-700",
+    iconBg: "bg-emerald-100",
+    hoverBorder: "hover:border-emerald-400",
+    shadowColor: "hover:shadow-emerald-200/50",
+  },
+  {
+    id: "guest" as const,
+    email: "guest@1234",
+    label: "Guest",
+    description: "Concierge & Room Services",
+    icon: ConciergeBell,
+    gradient: "from-violet-600 to-purple-700",
+    bgLight: "bg-violet-50",
+    borderColor: "border-violet-400",
+    textColor: "text-violet-700",
+    iconBg: "bg-violet-100",
+    hoverBorder: "hover:border-violet-400",
+    shadowColor: "hover:shadow-violet-200/50",
+  },
+];
 
 export function AuthScreen() {
-  const { loginWithGoogle, loginWithGoogleToken, loading } = useAuth();
-  
-  // Tabs: 'signin' or 'register'
-  const [tab, setTab] = useState<"signin" | "register">("signin");
-  
-  // Form states
-  const [name, setName] = useState("Aayush Jadhav");
-  const [email, setEmail] = useState("aayushjadhav05128@gmail.com");
-  const [phone, setPhone] = useState("+91 98765 43210");
-  const [passcode, setPasscode] = useState("123456");
-  const [agreeTerms, setAgreeTerms] = useState(true);
-  const [showPasscode, setShowPasscode] = useState(false);
-  
-  // Email format regex
-  const validateEmail = (emailStr: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
-  };
+  const { loginWithGoogle, loading } = useAuth();
 
-  // Custom Google SSO simulator (bypasses popups and works on all domains/ports)
-  const handleGoogleLogin = () => {
-    if (!email) {
-      toast.error("Email Required", { 
-        description: "Please enter your Gmail address in the email field above to continue with Google." 
-      });
-      return;
-    }
-    if (!validateEmail(email)) {
-      toast.error("Invalid Format", { 
-        description: "Please enter a valid Gmail address format." 
-      });
-      return;
-    }
-    loginWithGoogle(email, name || undefined);
+  // Form states
+  const [email, setEmail] = useState("");
+  const [passcode, setPasscode] = useState("");
+  const [showPasscode, setShowPasscode] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const passcodeRef = useRef<HTMLInputElement>(null);
+
+  // Fill credentials when clicking a role card (DOES NOT auto-submit)
+  const handleSelectRole = (roleEmail: string) => {
+    const account = ROLE_ACCOUNTS[roleEmail];
+    if (!account) return;
+    setSelectedRole(roleEmail);
+    setEmail(roleEmail);
+    setPasscode(account.password);
+    
+    toast.info(`Selected ${account.displayName} role`, {
+      description: `User ID populated: ${roleEmail}. Click "Sign In" to proceed.`,
+      duration: 2500,
+    });
+
+    // Focus password field so user has full control
+    setTimeout(() => {
+      passcodeRef.current?.focus();
+    }, 100);
   };
 
   // Form submission handler
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic Validations
-    if (!email) {
-      toast.error("Required Field", { description: "Please enter your email address." });
+    const emailTrimmed = email.trim().toLowerCase();
+    const passcodeTrimmed = passcode.trim();
+
+    if (!emailTrimmed) {
+      toast.error("Required Field", {
+        description: "Please enter your User ID (e.g. supervisor@1234).",
+      });
       return;
     }
-    if (!validateEmail(email)) {
-      toast.error("Invalid Format", { description: "Please enter a valid email format." });
-      return;
-    }
-    if (!passcode) {
-      toast.error("Required Field", { description: "Please enter your security passcode." });
-      return;
-    }
-    if (passcode.length < 6) {
-      toast.error("Weak Passcode", { description: "Security passcode must be at least 6 characters long." });
+    if (!passcodeTrimmed) {
+      toast.error("Required Field", {
+        description: "Please enter your passcode (12345).",
+      });
       return;
     }
 
-    if (tab === "register") {
-      if (!name) {
-        toast.error("Required Field", { description: "Please enter your staff ID or full name." });
+    // Check against hardcoded role accounts
+    const account = ROLE_ACCOUNTS[emailTrimmed];
+
+    if (account) {
+      if (passcodeTrimmed !== account.password) {
+        toast.error("Invalid Passcode", {
+          description: "Incorrect password. The demo password is: 12345",
+        });
         return;
       }
-      if (!phone) {
-        toast.error("Required Field", { description: "Please enter your phone number." });
-        return;
-      }
-      if (phone.replace(/\D/g, "").length < 10) {
-        toast.error("Invalid Phone", { description: "Please enter a valid phone number (at least 10 digits)." });
-        return;
-      }
-      if (!agreeTerms) {
-        toast.error("Agreement Required", { description: "You must agree to the Terms & Conditions and Operational Privacy Policy." });
-        return;
-      }
+
+      // Valid credentials - perform login
+      loginWithGoogle(emailTrimmed, account.displayName, account.role);
+      return;
     }
 
-    // Submit mock login payload
-    loginWithGoogle(email, name || undefined);
+    // Unknown account
+    toast.error("Account Not Found", {
+      description:
+        "Please use one of the demo credentials: supervisor@1234, staff@1234, or guest@1234.",
+    });
   };
 
   return (
-    <div className="flex min-h-[85vh] items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white border border-[#EBE3D1] shadow-xl rounded-[2rem] p-6 sm:p-8 space-y-6">
-        
-        {/* Header Section */}
-        <div className="flex flex-col items-center text-center space-y-3">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-[#B5652F] text-white shadow-md">
-            <Hotel className="size-7" />
-          </span>
-          <div className="space-y-1">
-            <h1 className="font-display text-2xl font-bold tracking-widest text-[#2A2620] uppercase">
-              ROOMFLOW
-            </h1>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#B14A3E]/30 bg-[#B14A3E]/5 text-[9px] font-bold text-[#B14A3E] tracking-wider uppercase">
-              <ShieldCheck className="size-3" />
-              🛡 SECURE ACCESS PROTOCOL V2.0
+    <div className="flex min-h-[90vh] items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-5">
+        {/* Main Login Card */}
+        <Card
+          className="bg-white border border-[#EBE3D1] rounded-[2rem] p-6 sm:p-8 space-y-6"
+          style={{
+            boxShadow:
+              "0 4px 24px -4px rgba(181,101,47,0.10), 0 12px 40px -8px rgba(0,0,0,0.06)",
+          }}
+        >
+          {/* Header */}
+          <div className="flex flex-col items-center text-center space-y-3">
+            <div className="relative">
+              <span className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#B5652F] to-[#8B4513] text-white shadow-lg">
+                <Hotel className="size-8" />
+              </span>
+              <span className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
+                <ShieldCheck className="size-3.5" />
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              <h1 className="font-display text-[1.65rem] font-extrabold tracking-[0.15em] text-[#2A2620] uppercase">
+                RoomFlow
+              </h1>
+              <p className="text-[11px] text-[#736B5E] font-medium">
+                Hotel Housekeeping & Operations Suite
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Tab Toggle */}
-        <div className="grid grid-cols-2 p-1 bg-[#F5F1E8] border border-[#EBE3D1] rounded-xl text-xs font-semibold">
-          <button
-            onClick={() => setTab("signin")}
-            className={`py-2 rounded-lg transition-all ${
-              tab === "signin"
-                ? "bg-white text-[#B5652F] shadow-xs"
-                : "text-[#736B5E] hover:text-[#2A2620]"
-            }`}
-          >
-            SIGN IN
-          </button>
-          <button
-            onClick={() => setTab("register")}
-            className={`py-2 rounded-lg transition-all ${
-              tab === "register"
-                ? "bg-white text-[#B5652F] shadow-xs"
-                : "text-[#736B5E] hover:text-[#2A2620]"
-            }`}
-          >
-            REGISTER STAFF
-          </button>
-        </div>
+          {/* Role Presets (Select to fill form) */}
+          <div className="space-y-2.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#736B5E] text-center">
+              Select Role to Populate Credentials
+            </p>
+            <div className="grid grid-cols-3 gap-2.5">
+              {ROLE_CARDS.map((role) => {
+                const Icon = role.icon;
+                const isSelected = selectedRole === role.email;
+                return (
+                  <button
+                    key={role.id}
+                    type="button"
+                    onClick={() => handleSelectRole(role.email)}
+                    disabled={loading}
+                    className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all duration-200 cursor-pointer text-center ${
+                      isSelected
+                        ? `${role.borderColor} ${role.bgLight} shadow-sm ring-1 ring-offset-1 ring-current/20`
+                        : `border-[#EBE3D1] bg-[#FAFAF7] ${role.hoverBorder} hover:bg-white`
+                    }`}
+                  >
+                    <span
+                      className={`flex size-10 items-center justify-center rounded-xl transition-all duration-200 ${
+                        isSelected
+                          ? `bg-gradient-to-br ${role.gradient} text-white shadow-sm`
+                          : `${role.iconBg} ${role.textColor} group-hover:scale-105`
+                      }`}
+                    >
+                      <Icon className="size-4.5" />
+                    </span>
+                    <div className="space-y-0.5 w-full">
+                      <span
+                        className={`text-[11px] font-bold block truncate ${
+                          isSelected ? role.textColor : "text-[#2A2620]"
+                        }`}
+                      >
+                        {role.label}
+                      </span>
+                      <span className="text-[8px] text-[#736B5E] leading-tight block truncate">
+                        {role.description}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-        {/* Interactive Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-          
-          {tab === "register" && (
-            <div className="space-y-1">
+          {/* Divider */}
+          <div className="relative flex items-center">
+            <div className="flex-grow border-t border-[#EBE3D1]"></div>
+            <span className="flex-shrink mx-4 text-[9px] font-bold text-[#736B5E]/60 tracking-wider uppercase">
+              Enter Credentials & Sign In
+            </span>
+            <div className="flex-grow border-t border-[#EBE3D1]"></div>
+          </div>
+
+          {/* Login Form (Requires Clicking "Sign In") */}
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
-                STAFF ID / FULL NAME
+                User ID / Email
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
-                  <User className="size-4" />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#736B5E]">
+                  <Mail className="size-4" />
                 </span>
                 <input
                   type="text"
-                  placeholder="Enter your full name or staff ID"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. supervisor@1234"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setSelectedRole(null);
+                  }}
                   autoComplete="off"
-                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
+                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs font-semibold text-[#2A2620] placeholder-[#736B5E]/40 focus:outline-none focus:ring-2 focus:ring-[#B5652F]/30 focus:border-[#B5652F] transition-all"
+                  required
                 />
               </div>
             </div>
-          )}
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
-              WORK EMAIL / USER ID
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
-                <Mail className="size-4" />
-              </span>
-              <input
-                type="email"
-                placeholder="Enter work email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="off"
-                className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
-              />
-            </div>
-          </div>
-
-          {tab === "register" && (
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
-                PHONE NUMBER
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
+                  Passcode
+                </label>
+                <span className="text-[9px] text-[#B5652F] font-bold">Password: 12345</span>
+              </div>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
-                  <Phone className="size-4" />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#736B5E]">
+                  <Lock className="size-4" />
                 </span>
                 <input
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  autoComplete="off"
-                  className="w-full h-11 pl-10 pr-3 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
+                  ref={passcodeRef}
+                  type={showPasscode ? "text" : "password"}
+                  placeholder="Enter passcode (12345)"
+                  value={passcode}
+                  onChange={(e) => setPasscode(e.target.value)}
+                  autoComplete="new-password"
+                  className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs font-semibold text-[#2A2620] placeholder-[#736B5E]/40 focus:outline-none focus:ring-2 focus:ring-[#B5652F]/30 focus:border-[#B5652F] transition-all"
+                  required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPasscode(!showPasscode)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#736B5E]/70 hover:text-[#B5652F] cursor-pointer transition-colors"
+                >
+                  {showPasscode ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
               </div>
             </div>
-          )}
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
-              SECURITY PASSCODE
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#736B5E]">
-                <Lock className="size-4" />
-              </span>
-              <input
-                type={showPasscode ? "text" : "password"}
-                placeholder="••••••••••••"
-                value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
-                autoComplete="new-password"
-                className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#E8E2D5] bg-[#F7F5F0] text-xs text-[#2A2620] placeholder-[#736B5E]/50 focus:outline-none focus:ring-1 focus:ring-[#B5652F] focus:border-[#B5652F] transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPasscode(!showPasscode)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#736B5E]/70 hover:text-[#B5652F] cursor-pointer"
-              >
-                {showPasscode ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-          </div>
+            {/* Explicit Sign In Button */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 bg-gradient-to-r from-[#B5652F] to-[#9C5424] hover:from-[#9C5424] hover:to-[#7D4319] text-white font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md cursor-pointer gap-2 mt-2"
+            >
+              {loading ? (
+                <RefreshCw className="size-4 animate-spin text-white" />
+              ) : (
+                <>
+                  <span>Sign In to Dashboard</span>
+                  <ArrowRight className="size-4" />
+                </>
+              )}
+            </Button>
+          </form>
+        </Card>
 
-          {tab === "register" && (
-            <label className="flex items-start gap-2.5 text-[11px] text-[#736B5E] select-none cursor-pointer leading-normal mt-2">
-              <input
-                type="checkbox"
-                checked={agreeTerms}
-                onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="mt-0.5 accent-[#B5652F] h-3.5 w-3.5 rounded border-[#E8E2D5] bg-[#F7F5F0]"
-              />
-              <span>
-                I agree to the{" "}
-                <span className="text-[#B5652F] font-semibold hover:underline">Terms & Conditions</span> and{" "}
-                <span className="text-[#B5652F] font-semibold hover:underline">Operational Privacy Policy</span>.
-              </span>
-            </label>
-          )}
-
-          {/* Primary Action Button */}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full h-11 bg-[#B5652F] hover:bg-[#9C5424] text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md mt-2 cursor-pointer"
-          >
-            {loading ? (
-              <RefreshCw className="size-4 animate-spin text-white" />
-            ) : (
-              "ACCESS ROOMFLOW PORTAL"
-            )}
-          </Button>
-        </form>
-
-        {/* Divider */}
-        <div className="relative flex py-2 items-center">
-          <div className="flex-grow border-t border-[#EBE3D1]"></div>
-          <span className="flex-shrink mx-4 text-[10px] font-bold text-[#736B5E]/60 tracking-wider">
-            OR ACCESS VIA
-          </span>
-          <div className="flex-grow border-t border-[#EBE3D1]"></div>
-        </div>
-
-        {/* OAuth Buttons */}
-        <div className="space-y-3">
-          <Button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full h-11 bg-white hover:bg-neutral-50 text-[#2A2620] border border-[#EBE3D1] shadow-xs font-semibold text-xs tracking-wider uppercase transition-all rounded-xl gap-3 cursor-pointer"
-          >
-            {loading ? (
-              <RefreshCw className="size-4 animate-spin text-[#B5652F]" />
-            ) : (
-              <svg className="size-4.5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.08H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.92l2.85-2.22.81-.6z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.08l3.66 2.84c.87-2.6 3.3-4.54 6.16-4.54z" fill="#EA4335" />
-              </svg>
-            )}
-            <span>CONTINUE WITH GOOGLE</span>
-          </Button>
-          <p className="text-[10px] text-center text-muted-foreground/80 leading-normal">
-            SSO sandbox enabled. Enter your Gmail in the form above and click the button to log in.
+        {/* Demo Credentials Reference Card */}
+        <Card
+          className="bg-[#FDFCF9] border border-[#EBE3D1] rounded-2xl p-4 space-y-3"
+          style={{
+            boxShadow: "0 2px 12px -4px rgba(0,0,0,0.04)",
+          }}
+        >
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#736B5E] text-center flex items-center justify-center gap-1.5">
+            <ShieldCheck className="size-3 text-[#B5652F]" />
+            Authorized Demo Credentials
           </p>
-        </div>
+          <div className="space-y-1.5">
+            {ROLE_CARDS.map((role) => (
+              <button
+                key={role.id}
+                type="button"
+                onClick={() => handleSelectRole(role.email)}
+                disabled={loading}
+                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-[#EBE3D1] hover:border-[#B5652F]/40 hover:bg-[#F5F1E8]/50 transition-all duration-200 cursor-pointer group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className={`flex size-6 items-center justify-center rounded-lg ${role.iconBg}`}
+                  >
+                    <role.icon className={`size-3 ${role.textColor}`} />
+                  </span>
+                  <div className="text-left">
+                    <span className="text-[11px] font-bold text-[#2A2620] block leading-tight">
+                      {role.email}
+                    </span>
+                    <span className="text-[9px] text-[#736B5E]">
+                      Passcode: 12345 · Opens {role.label}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-[#B5652F] opacity-0 group-hover:opacity-100 transition-opacity">
+                  Fill ID →
+                </span>
+              </button>
+            ))}
+          </div>
+        </Card>
 
-      </Card>
+        {/* Footer */}
+        <p className="text-[10px] text-center text-[#736B5E]/60 leading-normal">
+          By signing in, you agree to RoomFlow's security policy. Sessions are
+          encrypted locally.
+        </p>
+      </div>
     </div>
   );
 }

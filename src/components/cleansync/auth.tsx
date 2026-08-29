@@ -3,6 +3,28 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getGoogleAuthUrlFn, loginWithGoogleCodeFn, loginWithGoogleTokenFn } from "@/lib/server-functions";
 import { toast } from "sonner";
 
+// Per-role scoped session keys — allows simultaneous login across tabs
+export type SessionScope = "ops" | "staff" | "guest";
+
+const SESSION_KEY_MAP: Record<SessionScope, string> = {
+  ops: "roomflow_session_ops",
+  staff: "roomflow_session_staff",
+  guest: "roomflow_session_guest",
+};
+
+const OLD_SESSION_KEY = "roomflow_sim_user";
+
+/** Resolve the role to its session scope bucket */
+export function roleToScope(role: UserProfile["role"]): SessionScope {
+  if (role === "ops" || role === "requests") return "ops";
+  if (role === "staff") return "staff";
+  return "guest";
+}
+
+function getSessionKey(scope: SessionScope): string {
+  return SESSION_KEY_MAP[scope];
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -14,7 +36,7 @@ export interface UserProfile {
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  loginWithGoogle: (email?: string, name?: string) => Promise<void>;
+  loginWithGoogle: (email?: string, name?: string, role?: UserProfile["role"]) => Promise<void>;
   loginWithGoogleToken: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserRole: (newRole: UserProfile["role"]) => Promise<void>;
@@ -29,9 +51,10 @@ export const isGoogleConfigured = !!(
   !env["VITE_GOOGLE_CLIENT_ID"].includes("PLACEHOLDER")
 );
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children, sessionScope = "ops" }: { children: ReactNode; sessionScope?: SessionScope }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const scopedKey = getSessionKey(sessionScope);
 
   // Initialize Auth session
   useEffect(() => {
@@ -46,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const cleanUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, cleanUrl);
 
-            localStorage.setItem("roomflow_sim_user", JSON.stringify(profile));
+            const profileScope = roleToScope((profile as UserProfile).role);
+            localStorage.setItem(getSessionKey(profileScope), JSON.stringify(profile));
             setUser(profile as UserProfile);
             setLoading(false);
             toast.success(`Welcome back, ${profile.name}!`, {
@@ -83,13 +107,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return () => subscription.unsubscribe();
     } else {
-      // 3. SIMULATION SESSION FALLBACK
-      const savedUser = localStorage.getItem("roomflow_sim_user");
+      // 3. SIMULATION SESSION FALLBACK — read from scoped key
+      // Backward compat: migrate old shared key to scoped keys
+      const oldUser = localStorage.getItem(OLD_SESSION_KEY);
+      if (oldUser) {
+        try {
+          const parsed = JSON.parse(oldUser) as UserProfile;
+          const oldScope = roleToScope(parsed.role);
+          localStorage.setItem(getSessionKey(oldScope), oldUser);
+        } catch (e) { /* ignore bad data */ }
+        localStorage.removeItem(OLD_SESSION_KEY);
+      }
+
+      const savedUser = localStorage.getItem(scopedKey);
       if (savedUser) {
         try {
           setUser(JSON.parse(savedUser));
         } catch (e) {
-          localStorage.removeItem("roomflow_sim_user");
+          localStorage.removeItem(scopedKey);
         }
       }
       setLoading(false);
@@ -140,30 +175,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
-  const loginWithGoogle = async (email?: string, name?: string) => {
+  const loginWithGoogle = async (email?: string, name?: string, role?: UserProfile["role"]) => {
     setLoading(true);
     
     // If a custom email is provided, bypass real Google/Supabase OAuth redirects 
     // to allow instant mock login with any Gmail address on all environments/ports.
     if (email) {
-      setTimeout(() => {
-        const targetEmail = email;
-        const targetName = name || (targetEmail.split("@")[0] || "User").replace(/\./g, " ").replace(/\b\w/g, c => c.toUpperCase());
-        
-        const mockUser: UserProfile = {
-          id: `sim-${Math.random().toString(36).substr(2, 9)}`,
-          email: targetEmail,
-          name: targetName,
-          avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
-          role: "ops" // Default role
-        };
-        localStorage.setItem("roomflow_sim_user", JSON.stringify(mockUser));
-        setUser(mockUser);
-        setLoading(false);
-        toast.success(`Welcome back, ${targetName}!`, {
-          description: "Logged in via Simulated Google OAuth (Demo Mode)."
-        });
-      }, 1000);
+      const targetEmail = email.trim().toLowerCase();
+      let determinedRole: UserProfile["role"] = role || "ops";
+      if (targetEmail.includes("supervisor")) determinedRole = "ops";
+      else if (targetEmail.includes("staff")) determinedRole = "staff";
+      else if (targetEmail.includes("guest")) determinedRole = "guest";
+
+      const targetName = name || (targetEmail.split("@")[0] || "User").replace(/\./g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      
+      const mockUser: UserProfile = {
+        id: `sim-${Date.now()}`,
+        email: targetEmail,
+        name: targetName,
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        role: determinedRole
+      };
+      localStorage.setItem(getSessionKey(roleToScope(determinedRole)), JSON.stringify(mockUser));
+      setUser(mockUser);
+      setLoading(false);
+      toast.success(`Welcome back, ${targetName}!`, {
+        description: `Logged in as ${determinedRole === "ops" ? "Supervisor" : determinedRole === "staff" ? "Staff" : "Guest"}.`
+      });
       return;
     }
 
@@ -206,7 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
           role: "ops" // Default role
         };
-        localStorage.setItem("roomflow_sim_user", JSON.stringify(mockUser));
+        localStorage.setItem(getSessionKey(roleToScope(mockUser.role)), JSON.stringify(mockUser));
         setUser(mockUser);
         setLoading(false);
         toast.success(`Welcome back, ${targetName}!`, {
@@ -220,7 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const profile = await loginWithGoogleTokenFn({ data: { token } });
-      localStorage.setItem("roomflow_sim_user", JSON.stringify(profile));
+      localStorage.setItem(getSessionKey(roleToScope((profile as UserProfile).role)), JSON.stringify(profile));
       setUser(profile as UserProfile);
       setLoading(false);
       toast.success(`Welcome back, ${profile.name}!`, {
@@ -237,11 +275,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
-    } else {
-      localStorage.removeItem("roomflow_sim_user");
-      setUser(null);
-      setLoading(false);
-      toast.success("Signed out successfully.");
+    }
+    // Clear only the scoped session (other roles stay logged in)
+    localStorage.removeItem(scopedKey);
+    localStorage.removeItem("roomflow_chat_messages");
+    // Also clean up legacy key if present
+    localStorage.removeItem(OLD_SESSION_KEY);
+    setUser(null);
+    setLoading(false);
+    toast.success("Signed out successfully.");
+    // Force redirect to login page
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
     }
   };
 
@@ -266,10 +311,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         console.warn("Could not sync role changes to Supabase: ", e);
       }
-    } else {
-      localStorage.setItem("roomflow_sim_user", JSON.stringify(updatedUser));
     }
     
+    // Save to the NEW role's scoped key and remove from the OLD scope
+    const oldScopeKey = scopedKey;
+    const newScopeKey = getSessionKey(roleToScope(newRole));
+    localStorage.removeItem(oldScopeKey);
+    localStorage.setItem(newScopeKey, JSON.stringify(updatedUser));
     setUser(updatedUser);
     toast.success(`Role updated to ${newRole === "ops" ? "Supervisor" : newRole === "requests" ? "Front Desk" : newRole === "staff" ? "Field Staff" : "Guest"}`);
   };

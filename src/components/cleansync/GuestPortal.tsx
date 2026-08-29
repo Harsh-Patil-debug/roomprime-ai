@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRoomFlow } from "./store";
+import { analyzeGuestNeedPhoto } from "@/services/geminiService";
 import {
   Hotel,
   Wifi,
@@ -334,15 +335,31 @@ export function GuestConciergePortal() {
   };
 
   // Simulate Snap Photo AI analysis workflow
-  const handleSnapOption = (option: MockSnapItem) => {
+  const handleSnapOption = async (option: MockSnapItem) => {
     setAnalyzing(true);
     setAiResult(null);
 
-    // Simulate 2s visual laser scanning delay
-    setTimeout(() => {
-      setAnalyzing(false);
+    try {
+      const triage = await analyzeGuestNeedPhoto(option.url, option.name);
+      let targetDept: Department = "Housekeeping";
+      if (triage.category === "Maintenance") targetDept = "Maintenance";
+      else if (triage.category === "Food Service") targetDept = "Room Service";
+      else if (triage.category === "Luggage" || triage.category === "Late Checkout" || triage.category === "Inquiry") targetDept = "Front Desk";
+
+      setAiResult({
+        name: option.name,
+        category: triage.category,
+        item: triage.item,
+        details: triage.details,
+        severity: triage.urgency,
+        dept: targetDept,
+        url: option.url,
+      });
+    } catch {
       setAiResult(option);
-    }, 2000);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const handleAiConfirmSubmit = () => {
@@ -457,17 +474,33 @@ export function GuestConciergePortal() {
     toast.success("🧳 Luggage Storage Requested. Porter has been dispatched to assist.");
   };
 
+  // Compute active request for current room directly from global store
+  const activeRoomRequest = useMemo(() => {
+    const roomRequests = guestRequests.filter(
+      (r) => r.roomNumber === guestRoom && !dismissedRequestIds.includes(r.id)
+    );
+    if (!roomRequests.length) return null;
+    return roomRequests[0];
+  }, [guestRequests, guestRoom, dismissedRequestIds]);
+
+  // Compute live step stage index (0: Received, 1: Assigned, 2: On the Way, 3: Delivered)
+  const activeStep = useMemo(() => {
+    if (!activeRoomRequest) return 0;
+    if (activeRoomRequest.status === "Completed" || activeRoomRequest.stage === "delivered") return 3;
+    if (activeRoomRequest.stage === "on_the_way") return 2;
+    if (activeRoomRequest.assignedStaff || activeRoomRequest.stage === "assigned") return 1;
+    return 0;
+  }, [activeRoomRequest]);
+
   // Tracker UI messaging updates
   const trackerStatusMessage = useMemo(() => {
-    if (!trackerRequest) return "";
-    const messages = [
-      "Front Desk has received your request and is routing it.",
-      `Request assigned to ${trackerRequest.staffName}. Preparing items.`,
-      `Runner ${trackerRequest.staffName} is heading up the elevator.`,
-      "Delivered! Please contact Front Desk if you need anything else.",
-    ];
-    return messages[trackerRequest.step] || "";
-  }, [trackerRequest]);
+    if (!activeRoomRequest) return "";
+    const staffName = activeRoomRequest.assignedStaff || "Runner";
+    if (activeStep === 0) return "Front Desk has received your request and is routing it to nearest runner.";
+    if (activeStep === 1) return `Request assigned to ${staffName}. Preparing items for delivery.`;
+    if (activeStep === 2) return `Runner ${staffName} is heading to your room (ETA: ~3 mins).`;
+    return "Delivered! Request completed — enjoy your stay.";
+  }, [activeRoomRequest, activeStep]);
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6 pb-24 font-sans select-none">
@@ -605,7 +638,7 @@ export function GuestConciergePortal() {
       </div>
 
       {/* 4. Live "Uber-Style" Request Tracker (Bottom Floating Card) */}
-      {trackerRequest && (
+      {activeRoomRequest && (
         <div className="fixed bottom-4 left-4 right-4 z-40 max-w-sm mx-auto select-none">
           <Card className="bg-white border border-[#EBE3D1] p-4.5 rounded-3xl shadow-xl space-y-3.5 border-t-4 border-t-[#B5652F] tracker-floating-card">
             {/* Header info */}
@@ -615,20 +648,20 @@ export function GuestConciergePortal() {
                   <CheckCircle2 className="size-4.5" />
                 </div>
                 <div className="text-left">
-                  <span className="text-[8px] uppercase tracking-wider text-[#736B5E] font-bold block leading-none">Active Order</span>
-                  <span className="text-xs font-black text-[#2A2620]">{trackerRequest.item}</span>
+                  <span className="text-[8px] uppercase tracking-wider text-[#736B5E] font-bold block leading-none">Active Order • Suite {guestRoom}</span>
+                  <span className="text-xs font-black text-[#2A2620]">{activeRoomRequest.item}</span>
                 </div>
               </div>
               
               <div className="flex items-center gap-1.5">
                 <Badge className="bg-[#8A9A6B]/15 text-[#8A9A6B] font-extrabold text-[9px] uppercase tracking-wider py-0.5 rounded-md">
-                  {trackerRequest.step === 3 ? "Delivered" : "In Flight"}
+                  {activeStep === 3 ? "Delivered ✔" : activeStep === 2 ? "On the Way ⏱" : activeStep === 1 ? "Assigned ✔" : "Received ✔"}
                 </Badge>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDismissTracker();
+                    setDismissedRequestIds((prev) => [...prev, activeRoomRequest.id]);
                   }}
                   className="p-1 hover:bg-[#F5F1E8] rounded-full text-[#736B5E] hover:text-[#2A2620] transition-colors cursor-pointer"
                   title="Dismiss Tracker"
@@ -641,24 +674,24 @@ export function GuestConciergePortal() {
             {/* Tracker Step Progress bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-[8px] uppercase tracking-wider text-[#736B5E] font-bold">
-                <span className={trackerRequest.step >= 0 ? "text-[#8A9A6B]" : ""}>Received</span>
-                <span className={trackerRequest.step >= 1 ? "text-[#8A9A6B]" : ""}>Assigned</span>
-                <span className={trackerRequest.step >= 2 ? "text-[#8A9A6B]" : ""}>On The Way</span>
-                <span className={trackerRequest.step >= 3 ? "text-[#8A9A6B]" : ""}>Delivered</span>
+                <span className={activeStep >= 0 ? "text-[#8A9A6B] font-black" : ""}>1. Received</span>
+                <span className={activeStep >= 1 ? "text-[#8A9A6B] font-black" : ""}>2. Assigned</span>
+                <span className={activeStep >= 2 ? "text-[#8A9A6B] font-black" : ""}>3. On The Way</span>
+                <span className={activeStep >= 3 ? "text-[#8A9A6B] font-black" : ""}>4. Delivered</span>
               </div>
 
               {/* Ticking indicator bar */}
               <div className="grid grid-cols-4 gap-1.5 h-1.5 bg-[#F5F1E8] rounded-full overflow-hidden border border-[#EBE3D1]/40">
-                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 0 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
-                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 1 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
-                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 2 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
-                <div className={`h-full rounded-full transition-all duration-300 ${trackerRequest.step >= 3 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-500 ${activeStep >= 0 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-500 ${activeStep >= 1 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-500 ${activeStep >= 2 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
+                <div className={`h-full rounded-full transition-all duration-500 ${activeStep >= 3 ? "bg-[#8A9A6B]" : "bg-transparent"}`} />
               </div>
             </div>
 
             {/* Live details text */}
             <p className="text-[11px] text-[#736B5E] italic text-left font-medium leading-relaxed bg-[#F5F1E8]/50 p-2 border border-[#EBE3D1] rounded-xl flex items-center gap-1.5">
-              {trackerRequest.step < 3 && <Loader2 className="size-3 text-[#B5652F] animate-spin shrink-0" />}
+              {activeStep < 3 && <Loader2 className="size-3 text-[#B5652F] animate-spin shrink-0" />}
               <span>{trackerStatusMessage}</span>
             </p>
           </Card>
@@ -728,22 +761,73 @@ export function GuestConciergePortal() {
 
             <div className="p-4 space-y-4">
               
-              {/* Photo Options grid */}
+              {/* Photo Options grid & Custom Upload */}
               {!analyzing && !aiResult && (
-                <div className="grid grid-cols-3 gap-2">
-                  {MOCK_SNAP_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.name}
-                      type="button"
-                      onClick={() => handleSnapOption(opt)}
-                      className="group flex flex-col items-center gap-2 border border-[#EBE3D1] hover:border-[#B5652F] p-2 rounded-2xl bg-white transition-all text-center cursor-pointer"
-                    >
-                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#F5F1E8] border border-[#EBE3D1]">
-                        <img src={opt.url} alt={opt.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                      </div>
-                      <span className="text-[10px] font-bold text-[#2A2620] leading-tight block truncate w-full">{opt.name}</span>
-                    </button>
-                  ))}
+                <div className="space-y-3">
+                  {/* Real Camera / File Upload */}
+                  <label className="border-2 border-dashed border-[#B5652F]/40 hover:border-[#B5652F] bg-[#B5652F]/5 p-3 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-98">
+                    <Camera className="size-5 text-[#B5652F]" />
+                    <span className="text-[11px] font-bold text-[#B5652F]">Snap / Upload Photo of Room Issue</span>
+                    <span className="text-[9px] text-[#736B5E]">Camera or Gallery</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setAnalyzing(true);
+                        setAiResult(null);
+                        try {
+                          const triage = await analyzeGuestNeedPhoto(file);
+                          let targetDept: Department = "Housekeeping";
+                          if (triage.category === "Maintenance") targetDept = "Maintenance";
+                          else if (triage.category === "Food Service") targetDept = "Room Service";
+                          else if (triage.category === "Luggage" || triage.category === "Late Checkout" || triage.category === "Inquiry") targetDept = "Front Desk";
+
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setAiResult({
+                              name: triage.item,
+                              category: triage.category,
+                              item: triage.item,
+                              details: triage.details,
+                              severity: triage.urgency,
+                              dept: targetDept,
+                              url: reader.result as string,
+                            });
+                          };
+                          reader.readAsDataURL(file);
+                        } catch {
+                          handleSnapOption(MOCK_SNAP_OPTIONS[0]!);
+                        } finally {
+                          setAnalyzing(false);
+                        }
+                      }}
+                    />
+                  </label>
+
+                  <div className="flex items-center gap-2 my-1">
+                    <div className="flex-1 h-px bg-[#EBE3D1]" />
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-[#736B5E]">or select simulated defect</span>
+                    <div className="flex-1 h-px bg-[#EBE3D1]" />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {MOCK_SNAP_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.name}
+                        type="button"
+                        onClick={() => handleSnapOption(opt)}
+                        className="group flex flex-col items-center gap-2 border border-[#EBE3D1] hover:border-[#B5652F] p-2 rounded-2xl bg-white transition-all text-center cursor-pointer"
+                      >
+                        <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#F5F1E8] border border-[#EBE3D1]">
+                          <img src={opt.url} alt={opt.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        </div>
+                        <span className="text-[10px] font-bold text-[#2A2620] leading-tight block truncate w-full">{opt.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 

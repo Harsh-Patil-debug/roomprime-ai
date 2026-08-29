@@ -17,22 +17,46 @@ import { Input } from "@/components/ui/input";
 import { useRoomFlow, STAFF_PHONES } from "./store";
 import { calculatePriorityScore, evaluateAiScore, transitionRoomState } from "@/lib/dispatchEngine";
 import { type Room, type RoomStatus, type GuestRequest } from "@/lib/cleansync-data";
+import { useAuth } from "@/components/cleansync/auth";
 
 export function StaffPortal() {
   const {
     rooms,
     staff,
+    guestRequests,
     setRoomStatus,
     setRoomPhotoAndRunAi,
     blockRoom,
     simulateIncomingWhatsApp,
+    acknowledgeStaffTask,
+    completeStaffTask,
+    lastAssignedStaff,
   } = useRoomFlow();
+
+  const { user } = useAuth();
 
   // Selector for simulation: who is the active housekeeper using the mobile app
   const [selectedStaffName, setSelectedStaffName] = useState<string>("Ana Duarte");
+
+  // Auto-sync with supervisor assignment or logged in auth user
+  useEffect(() => {
+    if (lastAssignedStaff && staff.some((s) => s.name === lastAssignedStaff)) {
+      setSelectedStaffName(lastAssignedStaff);
+    } else if (user?.name && staff.some((s) => s.name === user.name)) {
+      setSelectedStaffName(user.name);
+    }
+  }, [lastAssignedStaff, user?.name, staff]);
+
   const activeWorker = useMemo(() => {
     return staff.find((s) => s.name === selectedStaffName) || staff[0]!;
   }, [staff, selectedStaffName]);
+
+  // Active assigned guest requests/service tasks
+  const assignedTasks = useMemo(() => {
+    return guestRequests.filter(
+      (req) => req.assignedStaff === activeWorker.name && (req.status === "In Progress" || req.status === "Open")
+    );
+  }, [guestRequests, activeWorker.name]);
 
   // Offline capability state
   const [isOffline, setIsOffline] = useState<boolean>(false);
@@ -385,12 +409,61 @@ export function StaffPortal() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-white border-[#EBE3D1] text-xs">
-            {staff.filter(s => ["Ana Duarte", "Priya Raman", "Lucia Moreno"].includes(s.name)).map(s => (
-              <SelectItem key={s.name} value={s.name} className="text-xs">{s.name}</SelectItem>
+            {staff.filter((s) => s.active).map((s) => (
+              <SelectItem key={s.name} value={s.name} className="text-xs">
+                {s.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
+
+      {/* Real-time Incoming Task Banner */}
+      {assignedTasks.map((task) => (
+        <Card key={task.id} className="bg-gradient-to-r from-[#B5652F]/10 via-white to-white border-2 border-[#B5652F] p-4 rounded-2xl shadow-md space-y-3 relative overflow-hidden animate-scaleIn">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[#B5652F]" />
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2 w-2 rounded-full bg-[#B5652F] animate-ping" />
+              <Badge className="bg-[#B5652F] text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 border-0">
+                ⚡ High Priority Task
+              </Badge>
+              <span className="text-[10px] font-mono text-[#736B5E] font-bold">Target: {task.slaMinutes}m</span>
+            </div>
+            <Badge variant="outline" className="text-[9px] font-mono border-[#EBE3D1] text-[#736B5E]">
+              {task.category}
+            </Badge>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-extrabold text-[#2A2620]">
+              ⚡ Supervisor assigned you: Room {task.roomNumber} {task.item}
+            </h4>
+            {task.details && (
+              <p className="text-xs text-[#736B5E] mt-0.5 leading-relaxed">{task.details}</p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => acknowledgeStaffTask(task.id)}
+              className="flex-1 h-9 border-[#B5652F] text-[#B5652F] hover:bg-[#B5652F]/10 font-bold text-xs rounded-xl cursor-pointer"
+            >
+              📍 Start Delivery / Acknowledge
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={() => completeStaffTask(task.id)}
+              className="flex-1 h-9 bg-[#8A9A6B] hover:bg-[#8A9A6B]/90 text-white font-bold text-xs rounded-xl cursor-pointer shadow-sm"
+            >
+              ✔ Mark Delivered & Complete
+            </Button>
+          </div>
+        </Card>
+      ))}
 
       {/* 1. MOBILE STAFF HEADER BAR */}
       <Card className="bg-white border-[#EBE3D1] p-4 rounded-2xl shadow-sm flex items-center justify-between">

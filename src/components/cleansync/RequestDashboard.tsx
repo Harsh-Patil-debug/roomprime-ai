@@ -35,24 +35,16 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { type GuestRequest, type Department, type RequestStatus, type RequestPriority, type RequestCategory } from "@/lib/cleansync-data";
-
-// ----------------------------------------------------------------------
-// Constants & Helper Mappings
-// ----------------------------------------------------------------------
-
-const STAFF_FLOORS: Record<string, number> = {
-  "Ana Duarte": 2,
-  "Priya Raman": 1,
-  "Lucia Moreno": 3,
-  "Marco Silva": 4,
-  "Jonas Weber": 5,
-};
-
-// Check for high-urgency keywords to flag sentiment
-export function checkUrgentSentiment(text: string): boolean {
-  return /(ac|cold|hot|leak|leakage|broken|noise|loud|urgent|immediate|emergency|angry|terrible|dirty|water)/i.test(text);
-}
+import { 
+  type GuestRequest, 
+  type Department, 
+  type RequestStatus, 
+  type RequestPriority, 
+  type RequestCategory,
+  STAFF_FLOORS,
+  checkUrgentSentiment
+} from "@/lib/cleansync-data";
+import { rankStaffForRequest, type StaffRecommendation } from "@/lib/dispatchEngine";
 
 // ----------------------------------------------------------------------
 // Types & Interfaces for Subcomponents
@@ -78,7 +70,9 @@ interface RequestToolbarProps {
 
 interface RequestCardListProps {
   requests: (GuestRequest & { priorityScore: number; isUrgentNeed: boolean })[];
+  allRequests: GuestRequest[];
   staff: any[];
+  assignTaskToStaff: (requestId: string, staffId: string, staffName: string) => void;
   assignGuestRequest: (id: string, staffName: string | null) => void;
   escalateGuestRequest: (id: string) => void;
   updateGuestRequestStatus: (id: string, status: RequestStatus) => void;
@@ -266,7 +260,9 @@ export function RequestToolbar({
 
 export function RequestCardList({
   requests,
+  allRequests,
   staff,
+  assignTaskToStaff,
   assignGuestRequest,
   escalateGuestRequest,
   updateGuestRequestStatus,
@@ -288,27 +284,6 @@ export function RequestCardList({
     "In Progress": "bg-[#B5652F]/10 border-[#B5652F]/20 text-[#B5652F]",
     Completed: "bg-[#8A9A6B]/15 border-[#8A9A6B]/30 text-[#8A9A6B]",
     Escalated: "bg-[#B14A3E]/10 border-[#B14A3E]/25 text-[#B14A3E] font-bold animate-pulse",
-  };
-
-  // Helper logic to find nearest runner for proximity routing
-  const findNearestRunner = (roomNum: string) => {
-    const roomFloor = Number(roomNum[0]) || 1;
-    const activeStaff = staff.filter((s) => s.active);
-    if (!activeStaff.length) return null;
-
-    let nearest = activeStaff[0];
-    let minDistance = Infinity;
-
-    activeStaff.forEach((s) => {
-      const staffFloor = STAFF_FLOORS[s.name] || 1;
-      const distance = Math.abs(roomFloor - staffFloor);
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearest = s;
-      }
-    });
-
-    return nearest;
   };
 
   return (
@@ -336,7 +311,14 @@ export function RequestCardList({
           const progressColor = getSlaColor(req);
           const isEscalated = req.status === "Escalated";
           const isCompleted = req.status === "Completed";
-          const nearestRunner = findNearestRunner(req.roomNumber);
+          const isAssigned = !!req.assignedStaff;
+
+          // AI-powered staff ranking for unassigned requests
+          const rankedStaff: StaffRecommendation[] =
+            !isCompleted && !isAssigned
+              ? rankStaffForRequest(req, staff, allRequests)
+              : [];
+          const topMatch = rankedStaff[0] || null;
 
           return (
             <div
@@ -405,23 +387,61 @@ export function RequestCardList({
                   )}
                 </div>
 
-                {/* Proximity Auto-Routing Recommendation Pill */}
-                {!isCompleted && !req.assignedStaff && nearestRunner && (
-                  <div className="mt-2.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-[9px] font-bold text-[#736B5E] bg-[#F5F1E8] border border-[#EBE3D1] px-2 py-0.5 rounded-md flex items-center gap-1 select-none">
-                      <span className="inline-block size-1.5 rounded-full bg-[#8A9A6B] animate-ping" />
-                      {nearestRunner.name} is on Floor {STAFF_FLOORS[nearestRunner.name]} • Nearest
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        assignGuestRequest(req.id, nearestRunner.name);
-                        toast.success(`Smart Auto-Routed: Assigned to ${nearestRunner.name}!`);
-                      }}
-                      className="text-[9px] font-extrabold text-[#B5652F] hover:text-[#B5652F]/90 bg-[#B5652F]/10 border border-[#B5652F]/35 px-2 py-0.5 rounded-md transition-all active:scale-95 cursor-pointer"
-                    >
-                      ⚡ Auto-Assign Nearest Runner
-                    </button>
+                {/* AI Proximity Dispatch Recommendation Pill */}
+                {!isCompleted && !isAssigned && topMatch && (
+                  <div className="mt-2.5 space-y-2" onClick={(e) => e.stopPropagation()}>
+                    {/* AI Match Badge */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[9px] font-extrabold text-[#8A9A6B] bg-[#8A9A6B]/10 border border-[#8A9A6B]/25 px-2.5 py-1 rounded-lg flex items-center gap-1.5 select-none">
+                        <Sparkles className="size-3 text-[#B5652F]" />
+                        <span className="inline-block size-1.5 rounded-full bg-[#8A9A6B] animate-ping" />
+                        ⚡ AI Match: {topMatch.staffName} (Floor {topMatch.currentFloor} • {topMatch.activeTasks} task{topMatch.activeTasks !== 1 ? "s" : ""} • ETA {topMatch.etaMinutes}m)
+                      </span>
+                    </div>
+
+                    {/* 1-Tap Auto-Assign + Dropdown Row */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          assignTaskToStaff(req.id, topMatch.staffId, topMatch.staffName);
+                        }}
+                        className="text-[10px] font-extrabold text-white bg-[#B5652F] hover:bg-[#B5652F]/90 px-3 py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm flex items-center gap-1.5"
+                      >
+                        <Sparkle className="size-3" />
+                        ⚡ 1-Tap Auto-Assign Nearest
+                      </button>
+
+                      {/* Ranked staff dropdown */}
+                      {rankedStaff.length > 1 && (
+                        <Select
+                          value="_pick"
+                          onValueChange={(v) => {
+                            if (v === "_pick") return;
+                            const match = rankedStaff.find((s) => s.staffId === v);
+                            if (match) {
+                              assignTaskToStaff(req.id, match.staffId, match.staffName);
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-[165px] h-7 text-[10px] border-[#EBE3D1] bg-white text-[#736B5E]">
+                            <SelectValue placeholder="Other staff..." />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-[#EBE3D1]">
+                            <SelectItem value="_pick" className="text-[10px] text-[#736B5E]" disabled>Pick ranked staff...</SelectItem>
+                            {rankedStaff.map((s, idx) => (
+                              <SelectItem key={s.staffId} value={s.staffId} className="text-[10px]">
+                                <span className="flex items-center gap-1">
+                                  <span className="font-extrabold">{idx === 0 ? "⚡" : `#${idx + 1}`}</span>
+                                  {s.staffName}
+                                  <span className="text-[#736B5E] font-mono">• F{s.currentFloor} • ETA {s.etaMinutes}m</span>
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -767,6 +787,7 @@ export function RequestDashboard() {
     addGuestRequest,
     updateGuestRequestStatus,
     assignGuestRequest,
+    assignTaskToStaff,
     escalateGuestRequest,
     simulateIncomingWhatsApp,
   } = useRoomFlow();
@@ -1041,7 +1062,9 @@ export function RequestDashboard() {
       {/* 3. Active Requests Priority Queue */}
       <RequestCardList
         requests={scoredRequests}
+        allRequests={guestRequests}
         staff={staff}
+        assignTaskToStaff={assignTaskToStaff}
         assignGuestRequest={assignGuestRequest}
         escalateGuestRequest={escalateGuestRequest}
         updateGuestRequestStatus={updateGuestRequestStatus}

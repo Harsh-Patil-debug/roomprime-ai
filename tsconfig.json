@@ -2,6 +2,8 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "mobile/**/*.ts",
+    "mobile/**/*.tsx",
     "vite.config.ts",
     "eslint.config.js"
   ],
