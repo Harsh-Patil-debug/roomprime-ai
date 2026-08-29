@@ -473,25 +473,17 @@ export function RequestCardList({
                   {!isCompleted ? (
                     <>
                       {/* AI Recommended 1-Click Auto-Assign */}
-                      {!req.assignedStaff && (() => {
-                        const reqFloor = Number(req.roomNumber[0]) || 1;
-                        const isVip = req.priority === "Critical" || req.priority === "High";
-                        const bestMatch = findBestStaffMatch(req.roomNumber, reqFloor, isVip, staff, rooms, guestRequests);
-
-                        if (!bestMatch) return null;
-
-                        return (
-                          <Button
-                            size="sm"
-                            onClick={() => assignTaskToStaff(req.id, bestMatch.staffId, bestMatch.staffName)}
-                            className="h-8 text-[10px] font-black bg-[#B5652F] hover:bg-[#B5652F]/90 text-white rounded-lg px-2.5 cursor-pointer flex items-center gap-1 shadow-xs shrink-0"
-                            title={bestMatch.aiReasoning}
-                          >
-                            <Sparkles className="size-3 text-amber-300" />
-                            <span>⚡ Auto-Assign ({bestMatch.staffName})</span>
-                          </Button>
-                        );
-                      })()}
+                      {!req.assignedStaff && topMatch && (
+                        <Button
+                          size="sm"
+                          onClick={() => assignTaskToStaff(req.id, topMatch.staffId, topMatch.staffName)}
+                          className="h-8 text-[10px] font-black bg-[#B5652F] hover:bg-[#B5652F]/90 text-white rounded-lg px-2.5 cursor-pointer flex items-center gap-1 shadow-xs shrink-0"
+                          title={topMatch.matchReason}
+                        >
+                          <Sparkles className="size-3 text-amber-300" />
+                          <span>⚡ Auto-Assign ({topMatch.staffName})</span>
+                        </Button>
+                      )}
 
                       {/* Quick Staff Assignee Dropdown */}
                       <Select
