@@ -23,23 +23,23 @@ import { AiInspectorModal } from "@/components/cleansync/AiInspectorModal";
 import { useAuth } from "@/components/cleansync/auth";
 
 // Robust staff name fuzzy matching helper
-function isStaffMatch(assignedStaff: string | null | undefined, activeWorkerName: string): boolean {
+function isStaffMatch(assignedStaff: string | null | undefined, activeWorkerName: string | null | undefined): boolean {
   if (!assignedStaff || !activeWorkerName) return false;
   const assigned = assignedStaff.trim().toLowerCase();
   const worker = activeWorkerName.trim().toLowerCase();
+  if (!assigned || !worker) return false;
   if (assigned === worker) return true;
 
-  const assignedParts = assigned.split(" ");
-  const workerParts = worker.split(" ");
+  const assignedFirst = assigned.split(" ")[0] || "";
+  const workerFirst = worker.split(" ")[0] || "";
 
-  const assignedFirst = assignedParts[0];
-  const workerFirst = workerParts[0];
+  if (!assignedFirst || !workerFirst) return false;
 
   return (
     assigned.includes(worker) ||
     worker.includes(assigned) ||
-    assigned.includes(workerFirst) ||
-    worker.includes(assignedFirst) ||
+    (assignedFirst.length >= 2 && worker.includes(assignedFirst)) ||
+    (workerFirst.length >= 2 && assigned.includes(workerFirst)) ||
     (assignedFirst.length >= 3 && workerFirst.length >= 3 && assignedFirst === workerFirst)
   );
 }
