@@ -433,36 +433,7 @@ export function GuestConciergePortal() {
       "Low",
       "Front Desk"
     );
-    toast.success("🧳 Luggage Storage Requested. Porter has been dispatched to assist.");
   };
-
-  // Compute active request for current room directly from global store
-  const activeRoomRequest = useMemo(() => {
-    const roomRequests = guestRequests.filter(
-      (r) => r.roomNumber === guestRoom && !dismissedRequestIds.includes(r.id)
-    );
-    if (!roomRequests.length) return null;
-    return roomRequests[0];
-  }, [guestRequests, guestRoom, dismissedRequestIds]);
-
-  // Compute live step stage index (0: Received, 1: Assigned, 2: On the Way, 3: Delivered)
-  const activeStep = useMemo(() => {
-    if (!activeRoomRequest) return 0;
-    if (activeRoomRequest.status === "Completed" || activeRoomRequest.stage === "delivered") return 3;
-    if (activeRoomRequest.stage === "on_the_way") return 2;
-    if (activeRoomRequest.assignedStaff || activeRoomRequest.stage === "assigned") return 1;
-    return 0;
-  }, [activeRoomRequest]);
-
-  // Tracker UI messaging updates
-  const trackerStatusMessage = useMemo(() => {
-    if (!activeRoomRequest) return "";
-    const staffName = activeRoomRequest.assignedStaff || "Runner";
-    if (activeStep === 0) return "Front Desk has received your request and is routing it to nearest runner.";
-    if (activeStep === 1) return `Request assigned to ${staffName}. Preparing items for delivery.`;
-    if (activeStep === 2) return `Runner ${staffName} is heading to your room (ETA: ~3 mins).`;
-    return "Delivered! Request completed — enjoy your stay.";
-  }, [activeRoomRequest, activeStep]);
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6 pb-24 font-sans select-none">
