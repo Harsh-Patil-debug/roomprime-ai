@@ -67,22 +67,22 @@ function StaffCheckinContent() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#B5652F] animate-spin" />
-        <span className="text-sm font-semibold text-[#736B5E]">Authenticating cleaner check-in...</span>
+      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Authenticating cleaner check-in...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] p-4 text-[#2A2620]">
+    <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] p-4 text-[#09332C] dark:text-[#ECECDC]">
       {/* Small Header Banner */}
-      <header className="mb-4 max-w-[1600px] mx-auto flex items-center justify-between border-b border-[#EBE3D1] pb-3">
+      <header className="mb-4 max-w-[1600px] mx-auto flex items-center justify-between border-b border-[#D2D2BC] dark:border-[#185E52] pb-3">
         <div className="flex items-center gap-2">
-          <Shield className="size-5 text-[#B5652F]" />
+          <Shield className="size-5 text-[#FF6037] dark:text-[#A0C9CB]" />
           <div>
-            <h1 className="text-base font-bold text-[#2A2620]">Staff Portal</h1>
-            <p className="text-[10px] text-[#736B5E]">Secure Check-in Workspace</p>
+            <h1 className="text-base font-bold text-[#09332C] dark:text-[#ECECDC]">Staff Portal</h1>
+            <p className="text-[10px] text-[#5C6E6A] dark:text-[#A0C9CB]">Secure Check-in Workspace</p>
           </div>
         </div>
       </header>

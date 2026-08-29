@@ -51,15 +51,15 @@ function ConciergeGuardContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#B5652F] animate-spin" />
-        <span className="text-sm font-semibold text-[#736B5E]">Verifying guest access...</span>
+      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying guest access...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] text-[#2A2620]">
+    <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] text-[#09332C] dark:text-[#ECECDC]">
       <ConciergeHeader />
 
       <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
@@ -119,7 +119,7 @@ function ConciergeHeader() {
               <DropdownMenuContent align="end" className="w-80 bg-white border-[#EBE3D1] p-3.5 space-y-3 shadow-md rounded-2xl">
                 <div className="flex items-center justify-between border-b border-[#F5F1E8] pb-2 select-none">
                   <span className="font-extrabold text-xs text-[#2A2620] uppercase tracking-wider">
-                    Guest Alerts ({notifications.length})
+                    Notification Center ({notifications.length})
                   </span>
                   {notifications.length > 0 && (
                     <button

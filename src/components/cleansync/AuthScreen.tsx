@@ -14,8 +14,6 @@ import {
   Wrench,
   ConciergeBell,
   ArrowRight,
-  ChevronRight,
-  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -210,29 +208,18 @@ export function AuthScreen() {
                     disabled={loading}
                     className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all duration-200 cursor-pointer text-center ${
                       isSelected
-                        ? `${role.borderColor} ${role.bgLight} shadow-sm ring-1 ring-offset-1 ring-current/20`
-                        : `border-[#EBE3D1] bg-[#FAFAF7] ${role.hoverBorder} hover:bg-white`
+                        ? "border-[#B5652F] bg-[#B5652F]/10 shadow-sm"
+                        : "border-[#EBE3D1] bg-[#F5F1E8]/40 hover:border-[#B5652F]/50 hover:bg-[#F5F1E8]"
                     }`}
                   >
                     <span
-                      className={`flex size-10 items-center justify-center rounded-xl transition-all duration-200 ${
-                        isSelected
-                          ? `bg-gradient-to-br ${role.gradient} text-white shadow-sm`
-                          : `${role.iconBg} ${role.textColor} group-hover:scale-105`
-                      }`}
+                      className={`flex size-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${role.iconBg}`}
                     >
-                      <Icon className="size-4.5" />
+                      <Icon className={`size-4.5 ${role.textColor}`} />
                     </span>
-                    <div className="space-y-0.5 w-full">
-                      <span
-                        className={`text-[11px] font-bold block truncate ${
-                          isSelected ? role.textColor : "text-[#2A2620]"
-                        }`}
-                      >
+                    <div>
+                      <span className="text-xs font-extrabold text-[#2A2620] block">
                         {role.label}
-                      </span>
-                      <span className="text-[8px] text-[#736B5E] leading-tight block truncate">
-                        {role.description}
                       </span>
                     </div>
                   </button>
@@ -241,20 +228,11 @@ export function AuthScreen() {
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="relative flex items-center">
-            <div className="flex-grow border-t border-[#EBE3D1]"></div>
-            <span className="flex-shrink mx-4 text-[9px] font-bold text-[#736B5E]/60 tracking-wider uppercase">
-              Enter Credentials & Sign In
-            </span>
-            <div className="flex-grow border-t border-[#EBE3D1]"></div>
-          </div>
-
-          {/* Login Form (Requires Clicking "Sign In") */}
+          {/* Interactive Form */}
           <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider text-[#736B5E] block">
-                User ID / Email
+                User ID / Demo Email
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#736B5E]">
