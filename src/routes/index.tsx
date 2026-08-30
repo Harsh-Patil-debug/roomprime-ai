@@ -5,11 +5,11 @@ import { useQrRedirect } from "@/hooks/useQrRedirect";
 import { RoomFlowProvider } from "@/components/cleansync/store";
 import { AuthProvider, useAuth, type SessionScope } from "@/components/cleansync/auth";
 import { AuthScreen } from "@/components/cleansync/AuthScreen";
-import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
+import { AtithiSetuLoadingSpinner } from "@/components/cleansync/AtithiSetuLoadingSpinner";
 
-const title = "NIVASA — Smart Hotel Turnaround & Operations Suite";
+const title = "ATITHISETU — Smart Hotel Turnaround & Operations Suite";
 const description =
-  "NIVASA Smart Hotel Turnaround — Luxury hotel housekeeping, AI computer vision staging audits, and guest service auto-dispatch system.";
+  "ATITHISETU Smart Hotel Turnaround — Luxury hotel housekeeping, AI computer vision staging audits, and guest service auto-dispatch system.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,7 +67,7 @@ function DashboardLayout() {
   }, [user, loading]);
 
   if (loading) {
-    return <NivasaLoadingSpinner fullScreen text="Loading NIVASA..." subtext="Smart Hotel Turnaround" />;
+    return <AtithiSetuLoadingSpinner fullScreen text="Loading ATITHISETU..." subtext="Smart Hotel Turnaround" />;
   }
 
   // If not logged in and no room query param, show Auth Screen to authenticate

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "@/components/cleansync/auth";
 import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { GuestPortal } from "@/components/cleansync/GuestPortal";
-import { NivasaLogo } from "@/components/cleansync/NivasaLogo";
-import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
+import { AtithiSetuLogo } from "@/components/cleansync/AtithiSetuLogo";
+import { AtithiSetuLoadingSpinner } from "@/components/cleansync/AtithiSetuLoadingSpinner";
 import { Loader2, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatPanel, ChatButton } from "@/components/cleansync/ChatPanel";
@@ -43,7 +43,7 @@ function ConciergeGuardContent() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <NivasaLoadingSpinner fullScreen text="Verifying NIVASA Guest Access..." subtext="Smart Hotel Turnaround" />;
+    return <AtithiSetuLoadingSpinner fullScreen text="Verifying ATITHISETU Guest Access..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (
@@ -68,7 +68,7 @@ function ConciergeHeader() {
     <>
       <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/90 backdrop-blur py-3.5 px-4 shadow-sm">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between">
-          <NivasaLogo size="md" />
+          <AtithiSetuLogo size="md" />
 
           <div className="flex items-center gap-2.5">
             {/* Live Notification Bell */}

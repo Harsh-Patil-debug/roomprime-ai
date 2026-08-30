@@ -1,27 +1,27 @@
-import { NivasaEmblemSvg } from "./NivasaLogo";
+import { AtithiSetuEmblemSvg } from "./AtithiSetuLogo";
 
-interface NivasaLoadingSpinnerProps {
+interface AtithiSetuLoadingSpinnerProps {
   text?: string;
   subtext?: string;
   size?: "sm" | "md" | "lg";
   fullScreen?: boolean;
 }
 
-export function NivasaLoadingSpinner({
-  text = "Loading NIVASA...",
+export function AtithiSetuLoadingSpinner({
+  text = "Loading ATITHISETU...",
   subtext = "Smart Hotel Turnaround",
   size = "md",
   fullScreen = false,
-}: NivasaLoadingSpinnerProps) {
+}: AtithiSetuLoadingSpinnerProps) {
   const emblemSize = size === "sm" ? "size-10" : size === "lg" ? "size-20" : "size-14";
 
   const content = (
     <div className="flex flex-col items-center justify-center gap-3 select-none text-center p-6">
       <div className="relative flex items-center justify-center">
-        {/* Pulsing glow ring around NIVASA Emblem */}
+        {/* Pulsing glow ring around ATITHISETU Emblem */}
         <div className="absolute inset-0 rounded-full bg-[#B5652F]/20 animate-ping" />
         <div className="relative z-10 animate-bounce duration-1000">
-          <NivasaEmblemSvg className={emblemSize} />
+          <AtithiSetuEmblemSvg className={emblemSize} />
         </div>
       </div>
 

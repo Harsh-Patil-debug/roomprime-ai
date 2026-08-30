@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AuthProvider, useAuth, type SessionScope } from "@/components/cleansync/auth";
 import { RoomFlowProvider } from "@/components/cleansync/store";
 import { StaffPortalInteractive } from "@/components/cleansync/StaffPortalInteractive";
-import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
+import { AtithiSetuLoadingSpinner } from "@/components/cleansync/AtithiSetuLoadingSpinner";
 import { AppLayout } from "@/components/cleansync/AppLayout";
 import { QrScannerModal } from "@/components/cleansync/QrScannerModal";
 import { Toaster } from "@/components/ui/sonner";
@@ -40,7 +40,7 @@ function StaffContent() {
   }, [user, loading]);
 
   if (loading || !user) {
-    return <NivasaLoadingSpinner fullScreen text="Verifying NIVASA Staff Access..." subtext="Smart Hotel Turnaround" />;
+    return <AtithiSetuLoadingSpinner fullScreen text="Verifying ATITHISETU Staff Access..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (

@@ -14,7 +14,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, D
 import { useAuth } from "@/components/cleansync/auth";
 import { useRoomFlow } from "@/components/cleansync/store";
 import { ChatPanel, ChatButton } from "@/components/cleansync/ChatPanel";
-import { NivasaLogo } from "@/components/cleansync/NivasaLogo";
+import { AtithiSetuLogo } from "@/components/cleansync/AtithiSetuLogo";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
 
@@ -92,7 +92,7 @@ export function AppLayout({ children, role, setRole, scannerOpen, setScannerOpen
         <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/90 backdrop-blur py-3 px-4 shadow-sm shrink-0">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between">
             {/* Logo Brand */}
-            <NivasaLogo size="md" />
+            <AtithiSetuLogo size="md" />
 
             {/* QUICK HEADER ACTIONS */}
             <div className="flex items-center gap-3">

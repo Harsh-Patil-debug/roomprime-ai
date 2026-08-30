@@ -5,7 +5,7 @@ import { RoomFlowProvider } from "@/components/cleansync/store";
 import { SupervisorDashboard } from "@/components/cleansync/SupervisorDashboard";
 import { RequestDashboard } from "@/components/cleansync/RequestDashboard";
 import { AppLayout } from "@/components/cleansync/AppLayout";
-import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
+import { AtithiSetuLoadingSpinner } from "@/components/cleansync/AtithiSetuLoadingSpinner";
 import { QrScannerModal } from "@/components/cleansync/QrScannerModal";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
@@ -47,7 +47,7 @@ function ControlContent() {
   }, [user, loading]);
 
   if (loading || !user) {
-    return <NivasaLoadingSpinner fullScreen text="Verifying NIVASA Supervisor Access..." subtext="Smart Hotel Turnaround" />;
+    return <AtithiSetuLoadingSpinner fullScreen text="Verifying ATITHISETU Supervisor Access..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (

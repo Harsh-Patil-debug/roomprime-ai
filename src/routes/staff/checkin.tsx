@@ -5,7 +5,7 @@ import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { StaffDashboard } from "@/components/cleansync/StaffDashboard";
 import { toast } from "sonner";
 import { Loader2, Shield } from "lucide-react";
-import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
+import { AtithiSetuLoadingSpinner } from "@/components/cleansync/AtithiSetuLoadingSpinner";
 
 type CheckinSearch = {
   room?: string | undefined;
@@ -67,7 +67,7 @@ function StaffCheckinContent() {
   }, [user, loading, roomNum, rooms]);
 
   if (loading || !user) {
-    return <NivasaLoadingSpinner fullScreen text="Authenticating NIVASA Check-in..." subtext="Smart Hotel Turnaround" />;
+    return <AtithiSetuLoadingSpinner fullScreen text="Authenticating ATITHISETU Check-in..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (
