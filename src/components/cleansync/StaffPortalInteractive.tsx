@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { 
   Camera, CheckCircle2, Crown, Timer, ClipboardCheck, Sparkles, 
   AlertTriangle, User, ChevronRight, Clock, Power, ShieldAlert,
   Wifi, WifiOff, RefreshCw, Check, CheckCircle, HelpCircle, Ban, Wrench,
-  ChevronDown, ChevronUp, AlertCircle
+  ChevronDown, ChevronUp, AlertCircle, Volume2, Bell
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import { inspectRoomPhotoWithGemini } from "@/services/geminiService";
 import { type Room, type RoomStatus, type RoomType, type PriorityTag } from "@/lib/cleansync-data";
 import { AiInspectorModal } from "@/components/cleansync/AiInspectorModal";
 import { useAuth } from "@/components/cleansync/auth";
+import { playStaffRingerSound } from "@/services/audioRinger";
 
 // Robust staff name fuzzy matching helper
 function isStaffMatch(assignedStaff: string | null | undefined, activeWorkerName: string | null | undefined): boolean {
@@ -89,6 +90,42 @@ export function StaffPortalInteractive() {
         (req.status === "In Progress" || req.status === "Open")
     );
   }, [guestRequests, activeWorker.name]);
+
+  // Staff audio ringer alert state & count reference
+  const [staffRingerAlert, setStaffRingerAlert] = useState<{ title: string; roomNumber?: string } | null>(null);
+  const prevAssignedCountRef = useRef(0);
+
+  // 1. Listen for cross-tab staff ringer storage event
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "roomflow_ring_staff_alert" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && isStaffMatch(parsed.staffName, activeWorker.name)) {
+            playStaffRingerSound();
+            setStaffRingerAlert({ title: `⚡ New Task Assigned to you!` });
+            toast.info(`🔔 TASK ALERT: You've been assigned work by the Supervisor!`);
+            setTimeout(() => setStaffRingerAlert(null), 5000);
+          }
+        } catch { /* ignore error */ }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [activeWorker.name]);
+
+  // 2. Listen for count increases in assignedTasks
+  const currentTotalAssigned = assignedTasks.length;
+  useEffect(() => {
+    if (currentTotalAssigned > prevAssignedCountRef.current) {
+      playStaffRingerSound();
+      setStaffRingerAlert({ title: `⚡ ${currentTotalAssigned} Active Task(s) Assigned` });
+      toast.info(`🔔 3s TASK RINGER: Work assigned to your staff profile (${activeWorker.name})!`);
+      setTimeout(() => setStaffRingerAlert(null), 5000);
+    }
+    prevAssignedCountRef.current = currentTotalAssigned;
+  }, [currentTotalAssigned, activeWorker.name]);
 
   // Offline capability states
   const [isOffline, setIsOffline] = useState<boolean>(false);
@@ -528,30 +565,65 @@ export function StaffPortalInteractive() {
         }
       `}</style>
 
-      {/* Housekeeper Selector */}
-      <div className="flex items-center justify-between p-3 bg-white border border-[#EBE3D1] rounded-2xl shadow-sm text-xs">
+      {/* Housekeeper Selector & Ringer Test */}
+      <div className="flex items-center justify-between p-3 bg-white border border-[#EBE3D1] rounded-2xl shadow-sm text-xs gap-2">
         <div className="flex items-center gap-1.5 text-[#736B5E]">
           <User className="size-4 text-[#B5652F]" />
-          <span className="font-extrabold text-[#2A2620]">Staff Member View:</span>
+          <span className="font-extrabold text-[#2A2620]">Staff View:</span>
         </div>
-        <Select value={selectedStaffName} onValueChange={setSelectedStaffName}>
-          <SelectTrigger className="w-[195px] h-8 text-xs border-[#EBE3D1] rounded-xl font-extrabold bg-[#F5F1E8]/60 text-[#2A2620]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-white border-[#EBE3D1] text-xs">
-            {staff.filter((s) => s.active).map((s) => {
-              const rCount = rooms.filter((r) => isStaffMatch(r.assignedStaff, s.name) && r.status !== "Ready for Guest").length;
-              const gCount = guestRequests.filter((req) => isStaffMatch(req.assignedStaff, s.name) && req.status !== "Completed").length;
-              const tot = rCount + gCount;
-              return (
-                <SelectItem key={s.name} value={s.name} className="text-xs font-bold cursor-pointer">
-                  {s.name} {tot > 0 ? `(${tot} active tasks)` : "(0 tasks)"}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              playStaffRingerSound();
+              toast.info(`🔊 Playing 3s Staff Dispatch Ringer for ${activeWorker.name}...`);
+            }}
+            className="h-8 border-[#B5652F] text-[#B5652F] hover:bg-[#B5652F]/10 font-bold text-xs rounded-xl px-2 flex items-center gap-1 cursor-pointer"
+            title="Test Staff Alert Sound"
+          >
+            <Volume2 className="size-3.5 animate-bounce" />
+            <span>🔊 Test 3s Ringer</span>
+          </Button>
+
+          <Select value={selectedStaffName} onValueChange={setSelectedStaffName}>
+            <SelectTrigger className="w-[165px] h-8 text-xs border-[#EBE3D1] rounded-xl font-extrabold bg-[#F5F1E8]/60 text-[#2A2620]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-[#EBE3D1] text-xs">
+              {staff.filter((s) => s.active).map((s) => {
+                const rCount = rooms.filter((r) => isStaffMatch(r.assignedStaff, s.name) && r.status !== "Ready for Guest").length;
+                const gCount = guestRequests.filter((req) => isStaffMatch(req.assignedStaff, s.name) && req.status !== "Completed").length;
+                const tot = rCount + gCount;
+                return (
+                  <SelectItem key={s.name} value={s.name} className="text-xs font-bold cursor-pointer">
+                    {s.name} {tot > 0 ? `(${tot} active tasks)` : "(0 tasks)"}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+
+      {/* Pulsing Staff Task Ringer Sound Alert Banner */}
+      {staffRingerAlert && (
+        <div className="p-3 bg-gradient-to-r from-[#B5652F] via-[#B14A3E] to-[#B5652F] text-white rounded-2xl shadow-lg flex items-center justify-between animate-pulse">
+          <div className="flex items-center gap-2">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-white/20 text-white font-bold text-sm">
+              🔔
+            </span>
+            <div>
+              <strong className="text-xs font-black uppercase tracking-wider block">
+                3s TASK RINGER: Work Assigned!
+              </strong>
+              <span className="text-[11px] font-medium opacity-90">
+                Supervisor assigned new work to {activeWorker.name}. Check your queue below!
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 1. DYNAMIC SHIFT HEADER WITH GAMIFIED PROGRESS */}
       <Card className="bg-white border-[#EBE3D1] p-4 rounded-2xl shadow-md flex items-center justify-between relative overflow-hidden select-none">

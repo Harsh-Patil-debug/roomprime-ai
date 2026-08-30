@@ -18,8 +18,12 @@ import {
   type RequestCategory,
 } from "@/lib/cleansync-data";
 import { getRoomsFn, updateRoomFn, getRequestsFn, insertRequestFn, updateRequestFn } from "@/lib/server-functions";
-import { toast } from "sonner";
-import { triggerSupervisorRingerBroadcast, playSupervisorRingerSound } from "@/services/audioRinger";
+import { 
+  triggerSupervisorRingerBroadcast, 
+  playSupervisorRingerSound,
+  triggerStaffRingerBroadcast,
+  playStaffRingerSound
+} from "@/services/audioRinger";
 
 export interface WhatsAppLog {
   id: string;
@@ -917,6 +921,7 @@ export function RoomFlowProvider({ children }: { children: ReactNode }) {
 
       if (staffName) {
         broadcastLastAssignedStaff(staffName);
+        triggerStaffRingerBroadcast(staffName);
       }
 
       // Fire notification for assignment
@@ -949,6 +954,7 @@ export function RoomFlowProvider({ children }: { children: ReactNode }) {
 
       if (staffName) {
         broadcastLastAssignedStaff(staffName);
+        triggerStaffRingerBroadcast(staffName);
       }
 
       // Fire notification visible on staff portal
