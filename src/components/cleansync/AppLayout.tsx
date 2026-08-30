@@ -216,7 +216,7 @@ export function AppLayout({ children, role, setRole, scannerOpen, setScannerOpen
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-9 text-[11px] font-bold border-[#EBE3D1] text-[#B14A3E] hover:bg-[#B14A3E]/10 hover:border-[#B14A3E]/30 rounded-xl px-3 cursor-pointer flex items-center gap-1.5 transition-all shadow-xs"
+                    className="hidden sm:flex h-9 text-[11px] font-bold border-[#EBE3D1] text-[#B14A3E] hover:bg-[#B14A3E]/10 hover:border-[#B14A3E]/30 rounded-xl px-3 cursor-pointer items-center gap-1.5 transition-all shadow-xs"
                     onClick={logout}
                     title="Sign Out"
                   >

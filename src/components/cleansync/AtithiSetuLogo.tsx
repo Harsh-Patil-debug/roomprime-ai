@@ -26,7 +26,7 @@ export function AtithiSetuLogo({ className = "", showText = true, size = "md" }:
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
       <AtithiSetuEmblemSvg className={iconSizeClass} />
       {showText && (
-        <div className="flex flex-col text-left">
+        <div className="hidden min-[400px]:flex flex-col text-left">
           <span className="font-black text-sm tracking-widest text-[#2A2620] uppercase font-sans leading-none">
             ATITHISETU
           </span>

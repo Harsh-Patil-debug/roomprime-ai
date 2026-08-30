@@ -153,12 +153,12 @@ function ConciergeHeader() {
             <Button
               size="sm"
               variant="outline"
-              className="h-9 text-[11px] font-bold border-[#EBE3D1] text-[#B14A3E] hover:bg-[#B14A3E]/10 hover:border-[#B14A3E]/30 rounded-xl px-3 cursor-pointer flex items-center gap-1.5 transition-all shadow-xs"
+              className="h-9 text-[11px] font-bold border-[#EBE3D1] text-[#B14A3E] hover:bg-[#B14A3E]/10 hover:border-[#B14A3E]/30 rounded-xl px-2.5 sm:px-3 cursor-pointer flex items-center gap-1.5 transition-all shadow-xs"
               onClick={logout}
               title="Sign Out"
             >
               <LogOut className="size-3.5" />
-              <span>Sign Out</span>
+              <span className="hidden sm:inline">Sign Out</span>
             </Button>
           </div>
         </div>
