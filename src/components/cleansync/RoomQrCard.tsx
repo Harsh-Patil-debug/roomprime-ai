@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { NirvasaEmblemSvg } from "./NirvasaLogo";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Copy, Check, ExternalLink, QrCode, Hotel, Shield, User } from "lucide-react";
@@ -60,7 +61,7 @@ export function RoomQrCard({ roomNumber, roomType }: RoomQrCardProps) {
 
       {/* Placard Header */}
       <div className="flex items-center gap-3 border-b border-[#EBE3D1]/80 pb-4">
-        <img src="/nirvasa-logo.png" alt="NIRVASA" className="size-11 rounded-full object-contain border border-[#B5652F]/30 shadow-xs" />
+        <NirvasaEmblemSvg className="size-11" />
         <div>
           <h3 className="text-xl font-black font-sans tracking-wide text-[#2A2620]">NIRVASA • Room {roomNumber}</h3>
           <p className="text-xs text-[#B5652F] font-bold uppercase tracking-wider">{roomType} Operational Placement Card</p>

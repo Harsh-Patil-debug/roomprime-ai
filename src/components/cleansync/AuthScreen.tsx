@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useAuth } from "./auth";
+import { NirvasaEmblemSvg } from "./NirvasaLogo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -174,11 +175,7 @@ export function AuthScreen() {
           {/* Header */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="relative">
-              <img
-                src="/nirvasa-logo.png"
-                alt="NIRVASA Smart Hotel Turnaround"
-                className="size-20 rounded-full object-contain border-2 border-[#B5652F]/40 shadow-md p-1 bg-white"
-              />
+              <NirvasaEmblemSvg className="size-20" />
               <span className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white shadow-xs">
                 <ShieldCheck className="size-3.5" />
               </span>
