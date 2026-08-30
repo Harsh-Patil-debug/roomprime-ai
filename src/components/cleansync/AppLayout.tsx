@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { 
   Hotel, ClipboardList, UserCheck, Smartphone, Settings,
   LogOut, User, Moon, Sun, LayoutGrid,
-  Bell, Shield, ChevronRight
+  Bell, Shield, ChevronRight, Crown, Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -99,24 +99,26 @@ export function AppLayout({ children, role, setRole, scannerOpen, setScannerOpen
               <button
                 type="button"
                 onClick={() => handleRoleSwitch("ops")}
-                className={`px-3 py-1 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
+                className={`px-3.5 py-1.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
                   role === "ops" || role === "requests"
                     ? "bg-[#B5652F] text-white shadow-sm"
                     : "text-[#736B5E] hover:text-[#2A2620]"
                 }`}
               >
-                👑 Supervisor View
+                <Crown className="size-3.5" />
+                <span>Supervisor View</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleRoleSwitch("staff")}
-                className={`px-3 py-1 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
+                className={`px-3.5 py-1.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
                   role === "staff"
                     ? "bg-[#B5652F] text-white shadow-sm"
                     : "text-[#736B5E] hover:text-[#2A2620]"
                 }`}
               >
-                🧹 Staff View
+                <Wrench className="size-3.5" />
+                <span>Staff View</span>
               </button>
             </div>
 

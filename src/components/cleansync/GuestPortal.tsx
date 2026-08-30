@@ -529,7 +529,7 @@ export function GuestConciergePortal() {
       {/* 3. 1-Tap Quick Service Catalog */}
       <div className="space-y-3.5">
         <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#736B5E] text-left">
-          🛎 1-Tap Quick Service Catalog
+          1-Tap Quick Service Catalog
         </h3>
 
         <div className="grid grid-cols-2 gap-3">
