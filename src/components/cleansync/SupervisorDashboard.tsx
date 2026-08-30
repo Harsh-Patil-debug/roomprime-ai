@@ -169,9 +169,6 @@ export function SupervisorDashboard() {
     return () => clearInterval(timer);
   }, [rooms]);
 
-  // Selected room in sidebar inspection review queue
-  const [selectedInspectRoomId, setSelectedInspectRoomId] = useState<string | null>(null);
-
   // Calculate dynamic countdown for the metric row
   const nextVipCountdown = useMemo(() => {
     const pendingVips = rooms
