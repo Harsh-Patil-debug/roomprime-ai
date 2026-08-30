@@ -5,14 +5,14 @@ interface NirvasaLogoProps {
 }
 
 export function NirvasaLogo({ className = "", showText = true, size = "md" }: NirvasaLogoProps) {
-  const iconSizeClass = size === "sm" ? "h-7" : size === "lg" ? "h-14" : "h-10";
+  const iconSizeClass = size === "sm" ? "h-7 w-7" : size === "lg" ? "h-12 w-12" : "h-9 w-9";
 
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
       <img
         src="/nirvasa-logo.png"
-        alt="NIRVASA Smart Hotel Turnaround"
-        className={`${iconSizeClass} w-auto object-contain rounded-full border border-[#B5652F]/30 shadow-sm`}
+        alt="NIRVASA Emblem"
+        className={`${iconSizeClass} object-contain rounded-full shadow-xs hover:scale-105 transition-transform duration-200`}
       />
       {showText && (
         <div className="flex flex-col text-left">
