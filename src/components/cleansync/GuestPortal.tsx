@@ -141,6 +141,9 @@ export function GuestConciergePortal() {
   // Custom user typed request text
   const [customRequestText, setCustomRequestText] = useState("");
 
+  // Guest rating state
+  const [guestRating, setGuestRating] = useState<number | null>(null);
+
   // Helper function to dismiss tracker and add it to dismissed IDs
   const handleDismissTracker = () => {
     const myRequests = guestRequests.filter((r) => r.roomNumber === guestRoom);
@@ -627,6 +630,35 @@ export function GuestConciergePortal() {
               {activeStep < 3 && <Loader2 className="size-3 text-[#B5652F] animate-spin shrink-0" />}
               <span>{trackerStatusMessage}</span>
             </p>
+
+            {/* 5-Star Delivery Rating Pill on completion */}
+            {activeStep === 3 && (
+              <div className="pt-2 border-t border-[#EBE3D1] space-y-1.5 animate-in fade-in duration-300">
+                <span className="text-[10px] font-bold text-[#736B5E] block text-center uppercase tracking-wider">
+                  Rate your service experience:
+                </span>
+                <div className="flex items-center justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => {
+                        setGuestRating(star);
+                        toast.success(`⭐ Thank you! Rated ${star} stars. Staff QA score updated.`);
+                        setTimeout(() => {
+                          setDismissedRequestIds((prev) => [...prev, activeRoomRequest.id]);
+                          setGuestRating(null);
+                        }, 2500);
+                      }}
+                      className="text-lg hover:scale-125 transition-transform cursor-pointer"
+                      title={`${star} Star Rating`}
+                    >
+                      {guestRating && guestRating >= star ? "⭐" : "☆"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </Card>
         </div>
       )}
