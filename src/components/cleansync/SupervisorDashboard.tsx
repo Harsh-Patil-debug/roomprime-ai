@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { 
   Gauge, Clock, Crown, Users, Search, QrCode, FileSpreadsheet, 
   Sparkles, CheckCircle2, XCircle, AlertTriangle, Plus, MoreVertical, 
-  Wrench, Printer, Check, Filter, RefreshCw, Camera, Bell
+  Wrench, Printer, Check, Filter, RefreshCw, Camera, Bell, Volume2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -38,6 +38,7 @@ import { calculatePriorityScore, transitionRoomState } from "@/lib/dispatchEngin
 import { type Room, type RoomStatus, type RoomType, type PriorityTag } from "@/lib/cleansync-data";
 import { rankStaffForRequest } from "@/lib/dispatchEngine";
 import { findBestStaffMatch, runBatchAutoDispatch, type BatchDispatchItem } from "@/services/aiDispatchEngine";
+import { playSupervisorRingerSound } from "@/services/audioRinger";
 
 export function SupervisorDashboard() {
   const {
@@ -116,6 +117,41 @@ export function SupervisorDashboard() {
     "203": 22 * 60, // Suite, 22m elapsed (target 45m)
     "302": 8 * 60,  // Deluxe, 8m elapsed (target 35m)
   });
+
+  // Audio ringer alert state & listener
+  const [ringerAlert, setRingerAlert] = useState<{ roomNumber: string; item: string } | null>(null);
+  const prevReqCountRef = useRef(guestRequests.length);
+
+  // 1. Cross-tab storage event ringer listener
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "roomflow_ring_supervisor_alert" && e.newValue) {
+        playSupervisorRingerSound();
+        const latest = guestRequests[0];
+        if (latest) {
+          setRingerAlert({ roomNumber: latest.roomNumber, item: latest.item });
+          setTimeout(() => setRingerAlert(null), 5000);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [guestRequests]);
+
+  // 2. React state count listener
+  useEffect(() => {
+    if (guestRequests.length > prevReqCountRef.current) {
+      const latest = guestRequests[0];
+      if (latest) {
+        playSupervisorRingerSound();
+        setRingerAlert({ roomNumber: latest.roomNumber, item: latest.item });
+        toast.info(`🔔 3s Ringer Alert: New request for Room ${latest.roomNumber} (${latest.item})`);
+        setTimeout(() => setRingerAlert(null), 5000);
+      }
+    }
+    prevReqCountRef.current = guestRequests.length;
+  }, [guestRequests]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -422,6 +458,19 @@ export function SupervisorDashboard() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                playSupervisorRingerSound();
+                toast.info("🔊 Playing 3.5s Supervisor Hotel Chime Ringer...");
+              }}
+              className="h-8 border-[#B5652F] text-[#B5652F] hover:bg-[#B5652F]/10 font-bold text-xs rounded-xl px-2.5 flex items-center gap-1 cursor-pointer"
+              title="Test Supervisor Alert Sound"
+            >
+              <Volume2 className="size-3.5 animate-bounce" />
+              <span>🔊 Test 3s Ringer</span>
+            </Button>
             <Badge className="bg-[#B5652F] text-white font-mono text-[10px]">
               {guestRequests.filter((r) => r.status === "Open").length} Open for Dispatch
             </Badge>
@@ -435,6 +484,32 @@ export function SupervisorDashboard() {
             </Button>
           </div>
         </div>
+
+        {/* Pulsing Active Ringer Sound Alert Banner */}
+        {ringerAlert && (
+          <div className="p-3 bg-gradient-to-r from-[#B5652F] via-[#B14A3E] to-[#B5652F] text-white rounded-xl shadow-lg flex items-center justify-between animate-pulse">
+            <div className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-white/20 text-white font-bold text-sm">
+                🔔
+              </span>
+              <div>
+                <strong className="text-xs font-black uppercase tracking-wider block">
+                  3s RINGER ALERT: New Request Submitted!
+                </strong>
+                <span className="text-[11px] font-medium opacity-90">
+                  Suite {ringerAlert.roomNumber} requested "{ringerAlert.item}"
+                </span>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => handleRunBatchEngine()}
+              className="h-7 text-xs font-extrabold bg-white text-[#B5652F] hover:bg-white/90 rounded-lg px-2.5 cursor-pointer shadow-xs"
+            >
+              ⚡ Auto-Dispatch Now
+            </Button>
+          </div>
+        )}
 
         {guestRequests.filter((r) => r.status !== "Completed").length === 0 ? (
           <div className="p-6 bg-[#F5F1E8]/30 border border-dashed border-[#EBE3D1] rounded-xl text-center">

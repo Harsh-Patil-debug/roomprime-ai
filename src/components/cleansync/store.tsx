@@ -17,14 +17,9 @@ import {
   type RequestPriority,
   type RequestCategory,
 } from "@/lib/cleansync-data";
-import {
-  getRoomsFn,
-  updateRoomFn,
-  getRequestsFn,
-  insertRequestFn,
-  updateRequestFn,
-} from "@/lib/server-functions";
+import { getRoomsFn, updateRoomFn, getRequestsFn, insertRequestFn, updateRequestFn } from "@/lib/server-functions";
 import { toast } from "sonner";
+import { triggerSupervisorRingerBroadcast, playSupervisorRingerSound } from "@/services/audioRinger";
 
 export interface WhatsAppLog {
   id: string;
@@ -865,6 +860,9 @@ export function RoomFlowProvider({ children }: { children: ReactNode }) {
         return updated;
       });
       insertRequestFn({ data: newReq });
+
+      // Trigger 3.5 second audio chime alert on supervisor board
+      triggerSupervisorRingerBroadcast();
 
       addNotification({
         title: `🔔 New Guest Request: Room ${roomNumber}`,
