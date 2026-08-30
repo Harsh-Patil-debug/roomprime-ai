@@ -1320,7 +1320,7 @@ export function SupervisorDashboard() {
 
       {/* Modal C: Room QRs Cards dialog */}
       <Dialog open={!!qrRoom} onOpenChange={() => setQrRoom(null)}>
-        <DialogContent className="bg-white border-[#EBE3D1] max-w-sm rounded-2xl flex flex-col items-center">
+        <DialogContent className="bg-white border-[#EBE3D1] max-w-2xl w-[95vw] rounded-2xl flex flex-col items-center max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           {qrRoom && (
             <div className="w-full flex flex-col items-center gap-4">
               <DialogHeader className="text-center w-full">

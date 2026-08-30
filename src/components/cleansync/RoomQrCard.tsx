@@ -69,36 +69,36 @@ export function RoomQrCard({ roomNumber, roomType }: RoomQrCardProps) {
       </div>
 
       {/* Dual Column QR Codes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         
         {/* Guest QR Placard Column */}
-        <div className="flex flex-col items-center p-4 rounded-xl bg-[#F5F1E8] border border-[#EBE3D1]/40 text-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#B5652F] uppercase tracking-wider">
+        <div className="flex flex-col items-center p-3.5 rounded-xl bg-[#F5F1E8] border border-[#EBE3D1]/60 text-center gap-2.5 w-full">
+          <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#B5652F] uppercase tracking-wider">
             <User className="size-4" /> Guest Concierge
           </div>
-          <div className="size-36 bg-white p-2 rounded-xl border border-[#EBE3D1] flex items-center justify-center shadow-inner">
+          <div className="size-32 bg-white p-2 rounded-xl border border-[#EBE3D1] flex items-center justify-center shadow-xs">
             <img
               src={getQrImgUrl(guestUrl)}
               alt={`Room ${roomNumber} Guest QR`}
               className="size-full object-contain"
             />
           </div>
-          <p className="text-[10px] text-[#736B5E] leading-normal font-sans px-2">
+          <p className="text-[10px] text-[#736B5E] leading-relaxed font-sans px-1 min-h-[2.5rem] flex items-center justify-center">
             Scan to order amenities, submit maintenance tickets, or check status.
           </p>
-          <div className="flex gap-1.5 w-full mt-1.5 border-t border-[#EBE3D1]/60 pt-3">
+          <div className="flex gap-1.5 w-full mt-1 border-t border-[#EBE3D1]/60 pt-2.5">
             <Button
-              size="xs"
+              size="sm"
               variant="outline"
-              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/5"
+              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/10 cursor-pointer font-bold"
               onClick={() => handleCopy(guestUrl)}
             >
               <Copy className="size-3 mr-1" /> Copy Link
             </Button>
             <Button
-              size="xs"
+              size="sm"
               variant="outline"
-              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/5"
+              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/10 cursor-pointer font-bold"
               onClick={() => handleDownload(guestUrl, `Room_${roomNumber}_guest_qr.png`)}
             >
               <Download className="size-3 mr-1" /> Save PNG
@@ -107,33 +107,33 @@ export function RoomQrCard({ roomNumber, roomType }: RoomQrCardProps) {
         </div>
 
         {/* Staff QR Placard Column */}
-        <div className="flex flex-col items-center p-4 rounded-xl bg-[#F5F1E8] border border-[#EBE3D1]/40 text-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#B5652F] uppercase tracking-wider">
+        <div className="flex flex-col items-center p-3.5 rounded-xl bg-[#F5F1E8] border border-[#EBE3D1]/60 text-center gap-2.5 w-full">
+          <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#B5652F] uppercase tracking-wider">
             <Shield className="size-4" /> Staff Check-in
           </div>
-          <div className="size-36 bg-white p-2 rounded-xl border border-[#EBE3D1] flex items-center justify-center shadow-inner">
+          <div className="size-32 bg-white p-2 rounded-xl border border-[#EBE3D1] flex items-center justify-center shadow-xs">
             <img
               src={getQrImgUrl(staffUrl)}
               alt={`Room ${roomNumber} Staff QR`}
               className="size-full object-contain"
             />
           </div>
-          <p className="text-[10px] text-[#736B5E] leading-normal font-sans px-2">
+          <p className="text-[10px] text-[#736B5E] leading-relaxed font-sans px-1 min-h-[2.5rem] flex items-center justify-center">
             Scan to assign this room, check in to shifts, and launch cleaner checklist.
           </p>
-          <div className="flex gap-1.5 w-full mt-1.5 border-t border-[#EBE3D1]/60 pt-3">
+          <div className="flex gap-1.5 w-full mt-1 border-t border-[#EBE3D1]/60 pt-2.5">
             <Button
-              size="xs"
+              size="sm"
               variant="outline"
-              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/5"
+              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/10 cursor-pointer font-bold"
               onClick={() => handleCopy(staffUrl)}
             >
               <Copy className="size-3 mr-1" /> Copy Link
             </Button>
             <Button
-              size="xs"
+              size="sm"
               variant="outline"
-              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/5"
+              className="flex-1 h-7 text-[10px] border-[#EBE3D1] hover:bg-[#B5652F]/10 cursor-pointer font-bold"
               onClick={() => handleDownload(staffUrl, `Room_${roomNumber}_staff_qr.png`)}
             >
               <Download className="size-3 mr-1" /> Save PNG

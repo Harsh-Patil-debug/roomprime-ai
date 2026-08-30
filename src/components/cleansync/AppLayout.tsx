@@ -94,34 +94,6 @@ export function AppLayout({ children, role, setRole, scannerOpen, setScannerOpen
             {/* Logo Brand */}
             <NivasaLogo size="md" />
 
-            {/* Active Persona Switcher Pill (Fast Judge Demo) */}
-            <div className="flex items-center bg-[#F5F1E8] border border-[#EBE3D1] p-1 rounded-full shadow-xs select-none">
-              <button
-                type="button"
-                onClick={() => handleRoleSwitch("ops")}
-                className={`px-3.5 py-1.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  role === "ops" || role === "requests"
-                    ? "bg-[#B5652F] text-white shadow-sm"
-                    : "text-[#736B5E] hover:text-[#2A2620]"
-                }`}
-              >
-                <Crown className="size-3.5" />
-                <span>Supervisor View</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleRoleSwitch("staff")}
-                className={`px-3.5 py-1.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  role === "staff"
-                    ? "bg-[#B5652F] text-white shadow-sm"
-                    : "text-[#736B5E] hover:text-[#2A2620]"
-                }`}
-              >
-                <Wrench className="size-3.5" />
-                <span>Staff View</span>
-              </button>
-            </div>
-
             {/* QUICK HEADER ACTIONS */}
             <div className="flex items-center gap-3">
 
