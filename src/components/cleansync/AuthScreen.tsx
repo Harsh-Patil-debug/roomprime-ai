@@ -174,19 +174,21 @@ export function AuthScreen() {
           {/* Header */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="relative">
-              <span className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#B5652F] to-[#8B4513] text-white shadow-lg">
-                <Hotel className="size-8" />
-              </span>
-              <span className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
+              <img
+                src="/nirvasa-logo.png"
+                alt="NIRVASA Smart Hotel Turnaround"
+                className="size-20 rounded-full object-contain border-2 border-[#B5652F]/40 shadow-md p-1 bg-white"
+              />
+              <span className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white shadow-xs">
                 <ShieldCheck className="size-3.5" />
               </span>
             </div>
-            <div className="space-y-1.5">
-              <h1 className="font-display text-[1.65rem] font-extrabold tracking-[0.15em] text-[#2A2620] uppercase">
-                RoomFlow
+            <div className="space-y-1">
+              <h1 className="font-sans text-[1.75rem] font-black tracking-[0.2em] text-[#2A2620] uppercase">
+                NIRVASA
               </h1>
-              <p className="text-[11px] text-[#736B5E] font-medium">
-                Hotel Housekeeping & Operations Suite
+              <p className="text-[11px] text-[#B5652F] font-extrabold uppercase tracking-widest">
+                Smart Hotel Turnaround
               </p>
             </div>
           </div>

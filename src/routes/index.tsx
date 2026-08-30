@@ -7,9 +7,9 @@ import { AuthProvider, useAuth, type SessionScope } from "@/components/cleansync
 import { AuthScreen } from "@/components/cleansync/AuthScreen";
 import { Loader2 } from "lucide-react";
 
-const title = "RoomFlow — Accessible Hotel Housekeeping & Operations Suite";
+const title = "NIRVASA — Smart Hotel Turnaround & Operations Suite";
 const description =
-  "Lightweight, accessible hotel housekeeping and operations management system for independent and boutique hotels, featuring explainable prioritization, AI room photo verification, and WhatsApp integration.";
+  "NIRVASA Smart Hotel Turnaround — Luxury hotel housekeeping, AI computer vision staging audits, and guest service auto-dispatch system.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -70,7 +70,7 @@ function DashboardLayout() {
     return (
       <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
-        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Loading RoomFlow...</span>
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Loading NIRVASA...</span>
       </div>
     );
   }

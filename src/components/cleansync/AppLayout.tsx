@@ -14,6 +14,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, D
 import { useAuth } from "@/components/cleansync/auth";
 import { useRoomFlow } from "@/components/cleansync/store";
 import { ChatPanel, ChatButton } from "@/components/cleansync/ChatPanel";
+import { NirvasaLogo } from "@/components/cleansync/NirvasaLogo";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
 
@@ -91,15 +92,7 @@ export function AppLayout({ children, role, setRole, scannerOpen, setScannerOpen
         <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/90 backdrop-blur py-3 px-4 shadow-sm shrink-0">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between">
             {/* Logo Brand */}
-            <div className="flex items-center gap-2.5">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-[#B5652F] text-white">
-                <Hotel className="size-5" />
-              </span>
-              <div>
-                <h1 className="text-base font-bold leading-none text-[#2A2620] tracking-tight">RoomFlow</h1>
-                <p className="text-[10px] text-[#736B5E] font-medium uppercase tracking-wider mt-0.5">Hotel Operations</p>
-              </div>
-            </div>
+            <NirvasaLogo size="md" />
 
             {/* Active Persona Switcher Pill (Fast Judge Demo) */}
             <div className="flex items-center bg-[#F5F1E8] border border-[#EBE3D1] p-1 rounded-full shadow-xs select-none">

@@ -1,13 +1,12 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AuthProvider, useAuth, type SessionScope } from "@/components/cleansync/auth";
-import { RoomFlowProvider } from "@/components/cleansync/store";
+import { AuthProvider, useAuth } from "@/components/cleansync/auth";
+import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { GuestPortal } from "@/components/cleansync/GuestPortal";
-import { Hotel, Loader2, LogOut, Bell } from "lucide-react";
-import { toast } from "sonner";
+import { NirvasaLogo } from "@/components/cleansync/NirvasaLogo";
+import { Loader2, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatPanel, ChatButton } from "@/components/cleansync/ChatPanel";
-import { useRoomFlow } from "@/components/cleansync/store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,19 +40,12 @@ function ConciergePageRoute() {
 
 function ConciergeGuardContent() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-    // No user in guest scope — redirect to login
-    // (no cross-role guards needed since each page has its own session scope)
-  }, [user, loading]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
-        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying guest access...</span>
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying NIRVASA guest access...</span>
       </div>
     );
   }
@@ -70,33 +62,17 @@ function ConciergeGuardContent() {
 }
 
 function ConciergeHeader() {
-  const { user, logout, updateUserRole } = useAuth();
+  const { logout } = useAuth();
   const { notifications, clearNotifications, markNotificationRead } = useRoomFlow();
-  const router = useRouter();
   const [chatOpen, setChatOpen] = useState(false);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/80 backdrop-blur py-3.5 px-4 shadow-sm">
+      <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/90 backdrop-blur py-3.5 px-4 shadow-sm">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-[#B5652F]/10">
-              <Hotel className="size-5 text-[#B5652F]" />
-            </span>
-            <div>
-              <h1 className="text-base font-bold leading-none text-[#2A2620]">RoomFlow Guest Portal</h1>
-              <p className="text-[10px] text-[#736B5E] mt-0.5 uppercase tracking-wider font-bold">Concierge Service Desk</p>
-            </div>
-          </div>
-
-          {/* Static Role Badge (Strict Role Isolation) */}
-          <div className="flex items-center bg-violet-50 border border-violet-200 px-3.5 py-1.5 rounded-full shadow-xs select-none">
-            <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider">
-              🛎 Guest Portal
-            </span>
-          </div>
+          <NirvasaLogo size="md" />
 
           <div className="flex items-center gap-2.5">
             {/* Live Notification Bell */}

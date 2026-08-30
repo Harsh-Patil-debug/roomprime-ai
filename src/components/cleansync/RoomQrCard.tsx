@@ -55,17 +55,15 @@ export function RoomQrCard({ roomNumber, roomType }: RoomQrCardProps) {
     <Card className="bg-white border-[#EBE3D1] border-2 shadow-md rounded-2xl overflow-hidden max-w-xl mx-auto p-6 flex flex-col gap-6 text-[#2A2620] relative">
       {/* Accent corner tag */}
       <div className="absolute top-0 right-0 bg-[#B5652F] text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-        RoomFlow Placard
+        NIRVASA Placard
       </div>
 
       {/* Placard Header */}
       <div className="flex items-center gap-3 border-b border-[#EBE3D1]/80 pb-4">
-        <div className="flex size-11 items-center justify-center rounded-xl bg-[#B5652F]/10">
-          <Hotel className="size-6 text-[#B5652F]" />
-        </div>
+        <img src="/nirvasa-logo.png" alt="NIRVASA" className="size-11 rounded-full object-contain border border-[#B5652F]/30 shadow-xs" />
         <div>
-          <h3 className="text-xl font-bold font-display text-[#2A2620]">Room {roomNumber}</h3>
-          <p className="text-xs text-[#736B5E] font-medium uppercase tracking-wider">{roomType} Placement Card</p>
+          <h3 className="text-xl font-black font-sans tracking-wide text-[#2A2620]">NIRVASA • Room {roomNumber}</h3>
+          <p className="text-xs text-[#B5652F] font-bold uppercase tracking-wider">{roomType} Operational Placement Card</p>
         </div>
       </div>
 
