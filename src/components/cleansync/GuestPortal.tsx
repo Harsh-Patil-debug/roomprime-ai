@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRoomFlow } from "./store";
 import { analyzeGuestNeedPhoto } from "@/services/geminiService";
-import { NivasaLogo } from "./NivasaLogo";
+import { NivasaLogo, NivasaEmblemSvg } from "./NivasaLogo";
 import {
   Hotel,
   Wifi,
@@ -628,7 +628,7 @@ export function GuestConciergePortal() {
 
             {/* Live details text */}
             <p className="text-[11px] text-[#736B5E] italic text-left font-medium leading-relaxed bg-[#F5F1E8]/50 p-2 border border-[#EBE3D1] rounded-xl flex items-center gap-1.5">
-              {activeStep < 3 && <Loader2 className="size-3 text-[#B5652F] animate-spin shrink-0" />}
+              {activeStep < 3 && <NivasaEmblemSvg className="size-4 animate-pulse shrink-0" />}
               <span>{trackerStatusMessage}</span>
             </p>
 

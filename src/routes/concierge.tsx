@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/components/cleansync/auth";
 import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { GuestPortal } from "@/components/cleansync/GuestPortal";
 import { NivasaLogo } from "@/components/cleansync/NivasaLogo";
+import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
 import { Loader2, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatPanel, ChatButton } from "@/components/cleansync/ChatPanel";
@@ -42,12 +43,7 @@ function ConciergeGuardContent() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
-        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying NIVASA guest access...</span>
-      </div>
-    );
+    return <NivasaLoadingSpinner fullScreen text="Verifying NIVASA Guest Access..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (

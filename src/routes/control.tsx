@@ -5,6 +5,7 @@ import { RoomFlowProvider } from "@/components/cleansync/store";
 import { SupervisorDashboard } from "@/components/cleansync/SupervisorDashboard";
 import { RequestDashboard } from "@/components/cleansync/RequestDashboard";
 import { AppLayout } from "@/components/cleansync/AppLayout";
+import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
 import { QrScannerModal } from "@/components/cleansync/QrScannerModal";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
@@ -46,12 +47,7 @@ function ControlContent() {
   }, [user, loading]);
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
-        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying supervisor access...</span>
-      </div>
-    );
+    return <NivasaLoadingSpinner fullScreen text="Verifying NIVASA Supervisor Access..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (

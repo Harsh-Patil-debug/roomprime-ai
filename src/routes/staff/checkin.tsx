@@ -5,6 +5,7 @@ import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { StaffDashboard } from "@/components/cleansync/StaffDashboard";
 import { toast } from "sonner";
 import { Loader2, Shield } from "lucide-react";
+import { NivasaLoadingSpinner } from "@/components/cleansync/NivasaLoadingSpinner";
 
 type CheckinSearch = {
   room?: string | undefined;
@@ -66,12 +67,7 @@ function StaffCheckinContent() {
   }, [user, loading, roomNum, rooms]);
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
-        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Authenticating cleaner check-in...</span>
-      </div>
-    );
+    return <NivasaLoadingSpinner fullScreen text="Authenticating NIVASA Check-in..." subtext="Smart Hotel Turnaround" />;
   }
 
   return (
