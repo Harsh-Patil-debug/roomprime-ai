@@ -445,19 +445,6 @@ export function SupervisorDashboard() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                playSupervisorRingerSound();
-                toast.info("🔊 Playing 3.5s Supervisor Hotel Chime Ringer...");
-              }}
-              className="h-8 border-[#B5652F] text-[#B5652F] hover:bg-[#B5652F]/10 font-bold text-xs rounded-xl px-2.5 flex items-center gap-1 cursor-pointer"
-              title="Test Supervisor Alert Sound"
-            >
-              <Volume2 className="size-3.5 animate-bounce" />
-              <span>🔊 Test 3s Ringer</span>
-            </Button>
             <Badge className="bg-[#B5652F] text-white font-mono text-[10px]">
               {guestRequests.filter((r) => r.status === "Open").length} Open for Dispatch
             </Badge>

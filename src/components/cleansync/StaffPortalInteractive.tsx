@@ -565,45 +565,29 @@ export function StaffPortalInteractive() {
         }
       `}</style>
 
-      {/* Housekeeper Selector & Ringer Test */}
-      <div className="flex items-center justify-between p-3 bg-white border border-[#EBE3D1] rounded-2xl shadow-sm text-xs gap-2">
+      {/* Housekeeper Selector */}
+      <div className="flex items-center justify-between p-3 bg-white border border-[#EBE3D1] rounded-2xl shadow-sm text-xs">
         <div className="flex items-center gap-1.5 text-[#736B5E]">
           <User className="size-4 text-[#B5652F]" />
-          <span className="font-extrabold text-[#2A2620]">Staff View:</span>
+          <span className="font-extrabold text-[#2A2620]">Staff Member View:</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              playStaffRingerSound();
-              toast.info(`🔊 Playing 3s Staff Dispatch Ringer for ${activeWorker.name}...`);
-            }}
-            className="h-8 border-[#B5652F] text-[#B5652F] hover:bg-[#B5652F]/10 font-bold text-xs rounded-xl px-2 flex items-center gap-1 cursor-pointer"
-            title="Test Staff Alert Sound"
-          >
-            <Volume2 className="size-3.5 animate-bounce" />
-            <span>🔊 Test 3s Ringer</span>
-          </Button>
-
-          <Select value={selectedStaffName} onValueChange={setSelectedStaffName}>
-            <SelectTrigger className="w-[165px] h-8 text-xs border-[#EBE3D1] rounded-xl font-extrabold bg-[#F5F1E8]/60 text-[#2A2620]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-[#EBE3D1] text-xs">
-              {staff.filter((s) => s.active).map((s) => {
-                const rCount = rooms.filter((r) => isStaffMatch(r.assignedStaff, s.name) && r.status !== "Ready for Guest").length;
-                const gCount = guestRequests.filter((req) => isStaffMatch(req.assignedStaff, s.name) && req.status !== "Completed").length;
-                const tot = rCount + gCount;
-                return (
-                  <SelectItem key={s.name} value={s.name} className="text-xs font-bold cursor-pointer">
-                    {s.name} {tot > 0 ? `(${tot} active tasks)` : "(0 tasks)"}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={selectedStaffName} onValueChange={setSelectedStaffName}>
+          <SelectTrigger className="w-[195px] h-8 text-xs border-[#EBE3D1] rounded-xl font-extrabold bg-[#F5F1E8]/60 text-[#2A2620]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-white border-[#EBE3D1] text-xs">
+            {staff.filter((s) => s.active).map((s) => {
+              const rCount = rooms.filter((r) => isStaffMatch(r.assignedStaff, s.name) && r.status !== "Ready for Guest").length;
+              const gCount = guestRequests.filter((req) => isStaffMatch(req.assignedStaff, s.name) && req.status !== "Completed").length;
+              const tot = rCount + gCount;
+              return (
+                <SelectItem key={s.name} value={s.name} className="text-xs font-bold cursor-pointer">
+                  {s.name} {tot > 0 ? `(${tot} active tasks)` : "(0 tasks)"}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Pulsing Staff Task Ringer Sound Alert Banner */}
