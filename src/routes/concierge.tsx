@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "@/components/cleansync/auth";
 import { RoomFlowProvider, useRoomFlow } from "@/components/cleansync/store";
 import { GuestPortal } from "@/components/cleansync/GuestPortal";
-import { NirvasaLogo } from "@/components/cleansync/NirvasaLogo";
+import { NivasaLogo } from "@/components/cleansync/NivasaLogo";
 import { Loader2, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatPanel, ChatButton } from "@/components/cleansync/ChatPanel";
@@ -45,7 +45,7 @@ function ConciergeGuardContent() {
     return (
       <div className="min-h-screen bg-[#ECECDC] dark:bg-[#09332C] flex flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 text-[#09332C] dark:text-[#A0C9CB] animate-spin" />
-        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying NIRVASA guest access...</span>
+        <span className="text-sm font-semibold text-[#5C6E6A] dark:text-[#A0C9CB]">Verifying NIVASA guest access...</span>
       </div>
     );
   }
@@ -72,7 +72,7 @@ function ConciergeHeader() {
     <>
       <header className="sticky top-0 z-40 border-b border-[#EBE3D1] bg-white/90 backdrop-blur py-3.5 px-4 shadow-sm">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between">
-          <NirvasaLogo size="md" />
+          <NivasaLogo size="md" />
 
           <div className="flex items-center gap-2.5">
             {/* Live Notification Bell */}

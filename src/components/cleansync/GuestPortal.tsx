@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRoomFlow } from "./store";
 import { analyzeGuestNeedPhoto } from "@/services/geminiService";
-import { NirvasaLogo } from "./NirvasaLogo";
+import { NivasaLogo } from "./NivasaLogo";
 import {
   Hotel,
   Wifi,
@@ -446,16 +446,16 @@ export function GuestConciergePortal() {
       <Card className="bg-white border-[#EBE3D1] p-5 rounded-3xl shadow-sm text-left relative overflow-hidden">
         <div className="flex items-center justify-between mb-3">
           <Badge className="bg-[#B5652F]/10 hover:bg-[#B5652F]/15 border border-[#B5652F]/20 text-[#B5652F] font-extrabold text-[9px] uppercase tracking-wider px-2.5 py-0.5 rounded-md">
-            NIRVASA Guest Concierge
+            NIVASA Guest Concierge
           </Badge>
-          <NirvasaLogo size="sm" showText={false} />
+          <NivasaLogo size="sm" showText={false} />
         </div>
         
         <h2 className="text-xl font-black text-[#2A2620] tracking-tight">
           Welcome to Suite {guestRoom}{guestSalutation}
         </h2>
         <p className="text-xs text-[#736B5E] mt-1 font-medium">
-          NIRVASA is committed to making your stay as luxurious and seamless as possible.
+          NIVASA is committed to making your stay as luxurious and seamless as possible.
         </p>
 
         {/* Room Info Pills */}
@@ -465,7 +465,7 @@ export function GuestConciergePortal() {
               <Wifi className="size-4 text-[#B5652F]" />
               <div className="text-left">
                 <span className="text-[8px] uppercase tracking-wider text-[#736B5E] font-bold block leading-none">WiFi Password</span>
-                <span className="text-xs font-extrabold text-[#2A2620] leading-none">Nirvasa_Guest_WiFi</span>
+                <span className="text-xs font-extrabold text-[#2A2620] leading-none">Nivasa_Guest_WiFi</span>
               </div>
             </div>
             <button 

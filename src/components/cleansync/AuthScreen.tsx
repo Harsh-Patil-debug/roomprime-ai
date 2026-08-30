@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useAuth } from "./auth";
-import { NirvasaEmblemSvg } from "./NirvasaLogo";
+import { NivasaEmblemSvg } from "./NivasaLogo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -175,14 +175,14 @@ export function AuthScreen() {
           {/* Header */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="relative">
-              <NirvasaEmblemSvg className="size-20" />
+              <NivasaEmblemSvg className="size-20" />
               <span className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white shadow-xs">
                 <ShieldCheck className="size-3.5" />
               </span>
             </div>
             <div className="space-y-1">
               <h1 className="font-sans text-[1.75rem] font-black tracking-[0.2em] text-[#2A2620] uppercase">
-                NIRVASA
+                NIVASA
               </h1>
               <p className="text-[11px] text-[#B5652F] font-extrabold uppercase tracking-widest">
                 Smart Hotel Turnaround
