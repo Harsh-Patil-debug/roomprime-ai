@@ -103,6 +103,7 @@ export function SupervisorDashboard() {
   const [maintNote, setMaintNote] = useState("");
   const [addRoomOpen, setAddRoomOpen] = useState(false);
   const [qrRoom, setQrRoom] = useState<Room | null>(null);
+  const [selectedInspectRoomId, setSelectedInspectRoomId] = useState<string | null>(null);
 
   // New room state
   const [newRoomNum, setNewRoomNum] = useState("");
@@ -277,17 +278,6 @@ export function SupervisorDashboard() {
   const aiReviewQueue = useMemo(() => {
     return rooms.filter((r) => r.status === "Inspection Pending");
   }, [rooms]);
-
-  // Automatically select the first review room if none selected
-  useEffect(() => {
-    if (aiReviewQueue.length > 0) {
-      if (!selectedInspectRoomId || !aiReviewQueue.some((r) => r.id === selectedInspectRoomId)) {
-        setSelectedInspectRoomId(aiReviewQueue[0]!.id);
-      }
-    } else {
-      setSelectedInspectRoomId(null);
-    }
-  }, [aiReviewQueue, selectedInspectRoomId]);
 
   const activeInspectRoom = useMemo(() => {
     return rooms.find((r) => r.id === selectedInspectRoomId) || null;
